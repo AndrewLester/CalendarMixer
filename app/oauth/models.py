@@ -13,6 +13,6 @@ class OAuth1Token(db.Model):
 
     def to_token(self):
         return dict(
-            oauth_token=self.access_token,
-            oauth_token_secret=self.alt_token,
+            oauth_token=self.oauth_token,
+            oauth_token_secret=self.oauth_token_secret,
         )

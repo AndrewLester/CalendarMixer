@@ -28,6 +28,16 @@ def calendar():
     return render_template('calendar.html')
 
 
+@blueprint.route('/profile')
+@login_required
+def profile():
+    resp = oauth.schoology.get('users/me', **request.cache)
+    if resp.status_code >= 400:
+        flash('Schoology API error...')
+        return render_template('index.html')
+    return render_template('user.html', profile=resp.json())
+
+
 # def get_user_events():
 
 

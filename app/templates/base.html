@@ -10,11 +10,11 @@
     <body>
         <div>
             Microblog:
-            <a href="{{ url_for('.index') }}">Home</a>
+            <a href="{{ url_for('main.index') }}">Home</a>
             {% if current_user.is_anonymous %}
             <a href="{{ url_for('oauth.login') }}">Login</a>
             {% else %}
-            <a href="{{ url_for('.index', username=current_user.username) }}">Profile</a>
+            <a href="{{ url_for('main.profile') }}">Profile</a>
             <a href="{{ url_for('oauth.logout') }}">Logout</a>
             {% endif %}
         </div>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request
 from config import Config
 from datetime import datetime
 from app import login, db, migrate, main, oauth, cache
@@ -7,6 +7,7 @@ from flask_login import current_user
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
+import requests_cache
 
 
 def create_app(config_name=Config):
@@ -18,6 +19,7 @@ def create_app(config_name=Config):
     register_email_logging(app)
     app.shell_context_processor(lambda: {'db': db, 'User': db.User, 'Post': db.Post})
     app.context_processor(lambda: {'date': datetime.now()})
+    register_request_mixins(app)
     # register_commands(app)
     return app
 
@@ -33,7 +35,6 @@ def register_extensions(app):
         item = oauth.models.OAuth1Token.query.filter_by(
             name=name, user_id=current_user.id
         ).first()
-
         if item:
             return item.to_token()
 
@@ -83,7 +84,7 @@ def register_email_logging(app):
 
         if not os.path.exists('logs'):
             os.mkdir('logs')
-        file_handler = RotatingFileHandler('logs/microblog.log', maxBytes=10240,
+        file_handler = RotatingFileHandler('logs/calendarmixer.log', maxBytes=10240,
                                            backupCount=10)
         file_handler.setFormatter(logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
@@ -91,4 +92,14 @@ def register_email_logging(app):
         app.logger.addHandler(file_handler)
 
         app.logger.setLevel(logging.INFO)
-        app.logger.info('Microblog startup')
+        app.logger.info('CalendarMixer startup')
+
+
+def register_request_mixins(app):
+    def before_request():
+        if current_user.is_authenticated:
+            current_user.last_seen = datetime.utcnow()
+            request.cache = {'cache_name': str(current_user.id), 'backend': 'redis', 'expire_after': 300}
+            db.session.commit()
+
+    app.before_request(before_request)

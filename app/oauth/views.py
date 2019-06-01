@@ -4,6 +4,8 @@ from app import oauth, db, cache
 from app.main.models import User
 from app.oauth.models import OAuth1Token
 from flask_login import current_user, login_user, logout_user, login_required
+import requests
+import requests_cache
 
 
 blueprint = Blueprint('oauth', __name__, url_prefix='/oauth', template_folder='templates', static_folder='../static')
@@ -36,7 +38,7 @@ def authorize():
     if user is None:
         user = User(username=user_data['username'], email=user_data['primary_email'])
 
-    oauth_token = OAuth1Token(name='Schoology',
+    oauth_token = OAuth1Token(name='schoology',
                               oauth_token=token['oauth_token'],
                               oauth_token_secret=token['oauth_token_secret'])
     db.session.add(oauth_token)
@@ -46,11 +48,3 @@ def authorize():
 
     login_user(user, remember=True)
     return redirect(url_for('main.index'))
-
-
-@blueprint.route('/profile')
-def twitter_profile():
-    resp = oauth.schoology.get('users/me')
-    profile = resp.json()
-    print(profile)
-    return render_template('register.html')
