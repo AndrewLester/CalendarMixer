@@ -1,4 +1,3 @@
-from authlib.client.client import OAuthClient
 from authlib.client.oauth1_session import OAuth1Client, OAuth1Auth, OAuth1Session
 from authlib.client.oauth2_session import OAuth2Session
 from authlib.oauth1 import (
@@ -10,6 +9,8 @@ from authlib.deprecate import deprecate
 from authlib.common.urls import urlparse
 from authlib.client.errors import MissingTokenError
 from requests_cache import CachedSession
+from functools import partial
+import redis
 
 
 # CachedSession inherited before OAuth1Session so the request method comes from there.
@@ -74,12 +75,28 @@ def get_cached_session(self, cache_name, backend, expire_after):
     return session
 
 
+def cache_enabled():
+    r = redis.Redis(host='localhost', port=6379, db=0)
+    try:
+        r.ping()
+    except redis.ConnectionError:
+        return False
+    return True
+
+cache_on = cache_enabled()
 def request(self, method, url, token=None, **kwargs):
     if self.api_base_url and not url.startswith(('https://', 'http://')):
         url = urlparse.urljoin(self.api_base_url, url)
-    with self.get_cached_session(kwargs.pop('cache_name'),
-                                 kwargs.pop('backend'),
-                                 kwargs.pop('expire_after')) as session:
+    if 'cache_name' not in kwargs or not cache_on:
+        function = self._get_session
+        kwargs.pop('cache_name', None)
+        kwargs.pop('backend', None)
+        kwargs.pop('expire_after', None)
+    else:
+        function = partial(self.get_cached_session, kwargs.pop('cache_name'),
+                           kwargs.pop('backend'),
+                           kwargs.pop('expire_after'))
+    with function() as session:
         if kwargs.get('withhold_token'):
             return session.request(method, url, **kwargs)
 

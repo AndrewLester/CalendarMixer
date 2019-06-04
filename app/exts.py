@@ -6,6 +6,7 @@ from authlib.client.client import OAuthClient
 from authlib.oauth1.client import OAuth1Client
 from flask_caching import Cache
 from .oauth1_session import get_cached_session, request
+from flask_bootstrap import Bootstrap
 
 
 login = LoginManager()
@@ -13,6 +14,7 @@ db = SQLAlchemy()
 migrate = Migrate(db=db)
 cache = Cache()
 oauth = OAuth()
+bootstrap = Bootstrap()
 
 
 # Janky compliance fix because schoology only accepts GET requests when fetching request tokens.

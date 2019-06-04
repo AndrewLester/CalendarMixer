@@ -1,11 +1,15 @@
+<!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#0677ba">
         {% if title %}
         <title>{{ title }} - Calendar Mixer</title>
         {% else %}
         <title>Welcome to Calendar Mixer</title>
         {% endif %}
         <link rel="icon" href="https://img.icons8.com/metro/28/000000/calendar-{{ date.day }}.png" />
+        {% block head %}{%  endblock %}
     </head>
     <body>
         <div>
@@ -14,6 +18,7 @@
             {% if current_user.is_anonymous %}
             <a href="{{ url_for('oauth.login') }}">Login</a>
             {% else %}
+            <a href="{{ url_for('calendar.calendar') }}">Calendar</a>
             <a href="{{ url_for('main.profile') }}">Profile</a>
             <a href="{{ url_for('oauth.logout') }}">Logout</a>
             {% endif %}

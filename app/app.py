@@ -1,13 +1,12 @@
 from flask import Flask, render_template, url_for, request
 from config import Config
 from datetime import datetime
-from app import login, db, migrate, main, oauth, cache
+from app import login, db, migrate, calendar, main, oauth, cache, bootstrap
 from app.exts import oauth as oauth_client
 from flask_login import current_user
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
-import requests_cache
 
 
 def create_app(config_name=Config):
@@ -17,7 +16,10 @@ def create_app(config_name=Config):
     register_blueprints(app)
     register_errorhandlers(app)
     register_email_logging(app)
-    app.shell_context_processor(lambda: {'db': db, 'User': db.User, 'Post': db.Post})
+    app.shell_context_processor(lambda: {'db': db, 'User': main.models.User,
+                                         'Post': main.models.Post,
+                                         'CourseFilter': calendar.models.CourseFilter,
+                                         'CourseIdentifier': calendar.models.CourseIdentifier})
     app.context_processor(lambda: {'date': datetime.now()})
     register_request_mixins(app)
     # register_commands(app)
@@ -27,6 +29,7 @@ def create_app(config_name=Config):
 def register_extensions(app):
     login.init_app(app)
     login.login_view = 'oauth.login'
+    bootstrap.init_app(app)
     db.init_app(app)
     migrate.init_app(app)
     cache.init_app(app, config=app.config)
@@ -53,6 +56,7 @@ def register_extensions(app):
 def register_blueprints(app):
     app.register_blueprint(main.views.blueprint)
     app.register_blueprint(oauth.views.blueprint)
+    app.register_blueprint(calendar.views.blueprint)
 
 
 def register_errorhandlers(app):

@@ -1,5 +1,17 @@
 {% extends "base.html" %}
 
+{% block head %}
+    <link rel="stylesheet" href={{ url_for('static', filename='css/calendar.css') }}>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript" src={{ url_for('static', filename='js/calendar.js') }} async defer></script>
+{% endblock %}
+
 {% block content %}
-    <div id="calendar-grid"></div>
+    <div id="main-content">
+        <div id="calendar-grid"></div>
+        <div id="filter-list" class="skeleton">
+            <ul id="filter-list-ul"></ul>
+        </div>
+    </div>
+    <ul id="event-list"></ul>
 {% endblock %}

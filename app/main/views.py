@@ -21,13 +21,6 @@ def index():
     return render_template('index.html', title='Home', posts=posts)
 
 
-@blueprint.route('/calendar')
-@login_required
-def calendar():
-    print(oauth.schoology.get('users/me').json())
-    return render_template('calendar.html')
-
-
 @blueprint.route('/profile')
 @login_required
 def profile():
