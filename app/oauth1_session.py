@@ -84,6 +84,7 @@ def cache_enabled():
     return True
 
 cache_on = cache_enabled()
+print(cache_on)
 def request(self, method, url, token=None, **kwargs):
     if self.api_base_url and not url.startswith(('https://', 'http://')):
         url = urlparse.urljoin(self.api_base_url, url)
