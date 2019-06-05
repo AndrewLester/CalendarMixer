@@ -14,7 +14,7 @@ blueprint = Blueprint('calendar', __name__, url_prefix='/calendar', template_fol
 def calendar():
     print(oauth.schoology.get('users/me', **request.cache).json())
     print(current_user.id)
-    return render_template('calendar.html')
+    return render_template('calendar.html', title='Calendar')
 
 
 @blueprint.route('/events')

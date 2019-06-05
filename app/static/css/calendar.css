@@ -52,8 +52,8 @@ ul.shown > li {
     position: relative;
 }
 
-#filter-list {
-    --width: 100px;
+#filter-list-ul {
+    --width: 250px;
     width: var(--width);
     position: relative;
     height: 100px;

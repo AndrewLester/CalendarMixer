@@ -23,6 +23,7 @@ function getData(url, mapper, list) {
                     }}
     }).done(() => {
         list.removeClass('skeleton');
+        //list.width('auto');
     });
 }
 

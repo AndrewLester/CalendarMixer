@@ -13,7 +13,7 @@
     </head>
     <body>
         <div>
-            Microblog:
+            Calendar Mixer:
             <a href="{{ url_for('main.index') }}">Home</a>
             {% if current_user.is_anonymous %}
             <a href="{{ url_for('oauth.login') }}">Login</a>
