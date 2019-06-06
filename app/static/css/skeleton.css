@@ -1,0 +1,11 @@
+ul.skeleton > li, div.skeleton {
+    height: 15px;
+    opacity: 1;
+    border-radius: 3px;
+    overflow: hidden;
+    transform: none;
+    background-repeat: no-repeat;
+    background-image: repeating-linear-gradient(to right, rgb(175,175,175), rgba(175, 175, 175, 0.333), rgb(175,175,175));
+    background-size: calc(var(--width) * 2) 15px;
+    animation: loading 1.5s infinite;
+}

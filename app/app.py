@@ -1,8 +1,8 @@
 from flask import Flask, render_template, url_for, request
 from config import Config
 from datetime import datetime
-from app import login, db, migrate, calendar, main, oauth, cache, bootstrap
-from app.exts import oauth as oauth_client
+from app import login, db, migrate, calendar, main, oauth, cache, bootstrap, cache
+from app.exts import cache_on, oauth as oauth_client
 from flask_login import current_user
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
@@ -32,6 +32,8 @@ def register_extensions(app):
     bootstrap.init_app(app)
     db.init_app(app)
     migrate.init_app(app)
+    if not cache_on:
+        app.config['CACHE_TYPE'] = 'simple'
     cache.init_app(app, config=app.config)
 
     def fetch_token(name):

@@ -5,7 +5,7 @@ from authlib.flask.client import OAuth
 from authlib.client.client import OAuthClient
 from authlib.oauth1.client import OAuth1Client
 from flask_caching import Cache
-from .oauth1_session import get_cached_session, request
+from .oauth1_session import get_cached_session, request, cache_on
 from flask_bootstrap import Bootstrap
 
 
