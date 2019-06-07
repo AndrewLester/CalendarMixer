@@ -68,6 +68,7 @@ realms = frozenset(['sections/{}', 'groups/{}'])
 def get_user_events(user, cache):
     events = []
     now = datetime.now()
+    period_start = now + relativedelta(months=-1)
     period_end = now + relativedelta(months=1)
     for realm in realms:
         realm_items = oauth.schoology.get(('users/{}/' + realm.split('/')[0]).format(user.id), **cache)
@@ -77,12 +78,9 @@ def get_user_events(user, cache):
             continue
         for item in realm_items:
             realm_events = oauth.schoology.get((realm + '/events').format(item['id']) +
-                                               f'?start_date={now.strftime("%Y-%m-%d")}' +
+                                               f'?start_date={period_start.strftime("%Y-%m-%d")}' +
                                                f'&end_date={period_end.strftime("%Y-%m-%d")}', **cache).json()['event']
-            for event in realm_events:
-                start_time = datetime.strptime(event['start'], '%Y-%m-%d %H:%M:%S')
-                if now <= start_time <= period_end:
-                    events.append(event)
+            events += realm_events
     return events
 
 def event_time_relative(event):
