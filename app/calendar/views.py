@@ -34,14 +34,13 @@ def cache_header(max_age, **ckwargs):
 @blueprint.route('')
 @login_required
 def calendar():
-    return render_template('calendar.html', title='Calendar')
+    return render_template('calendar.html', title='Calendar', filters=current_user.filters)
 
 def get_current_user():
-    request.cache_error = False
     try:
         return str(current_user.id)
     except Exception:
-        app.logger.error('Caching error with user events.')
+        current_app.logger.error('Caching error with user events.')
         return 'view/%s'
 
 @blueprint.route('/events')

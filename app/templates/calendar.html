@@ -3,8 +3,10 @@
 {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/moment.min.js') }}" defer></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/calendar.js') }}" defer></script>
+{% endblock %}
+
+{% block navbar %}
 {% endblock %}
 
 {% block content %}
@@ -44,9 +46,19 @@
                 <div id="row6-events" class="event-row"></div>
             </div>
         </div>
+        <div id="filter-editor">
+            <h1>Edit Filters</h1>
+            {% for filter in filters %}
+                {% include '_filter.html' %}
+            {% endfor %}
+            <button id="add-filter">Add Filter</button>
+        </div>
+        <div id="event-list"></div>
     </div>
     <ul id="event-list" class="skeleton"></ul>
     <ul id="filter-list-ul" class="skeleton"></ul>
     <script src="https://unpkg.com/popper.js@1"></script>
     <script src="https://unpkg.com/tippy.js@4"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/calendar-structure.js') }}"></script>
 {% endblock %}

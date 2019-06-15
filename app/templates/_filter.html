@@ -1,0 +1,5 @@
+{% for id in filter.course_ids %}
+    <p>Name: {{ id.course_name }}</p>
+    <p>Id: {{ id.course_id }}</p>
+    <input type="checkbox" value="checked">Enabled</button>
+{% endfor %}

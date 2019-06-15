@@ -7,6 +7,7 @@
 }
 
 #calendar {
+    flex: 1 0 75%;
     display: grid;
     z-index: 1;
     grid-template-columns: repeat(7, 1fr);
@@ -25,8 +26,12 @@
     grid-template-columns: repeat(7, 1fr);
 }
 
+.header > div {
+    cursor: pointer;
+}
+
 .header {
-    row-gap: 5px;
+    grid-row-gap: 5px;
     border-color: gray;
     margin-bottom: 5px;
     grid-template-rows: 25px;
@@ -63,10 +68,10 @@
 }
 
 .event-row {
-    grid-auto-rows: min-content;
+    grid-auto-rows: 20px;
     grid-auto-flow: row dense;
     transition: transform 0.3s, opacity 0.3s;
-    gap: 5px;
+    grid-gap: 5px;
     margin-bottom: 5px;
 }
 
@@ -76,6 +81,7 @@
 
 .event-row div {
     border-radius: 3px;
+    font-size: 13px;
 }
 
 .event-row div.added {
@@ -102,26 +108,7 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-height: 20px;        /* fallback */
-    max-height: 40px;       /* fallback */
-}
-  
-.tooltip-inner {
-    width: 200px;
-    font-size: 12px;
-    line-height: 17px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 8px;
-    margin-bottom: 5px;
-}
-
-.tooltip-arrow {
-    border-width: 5px;
-    top: 100%;
-    left: 50%;
-    border-style: solid;
-    border-color: transparent black transparent transparent;
+    max-height: 45px;       /* fallback */
 }
 
 .skeleton {
@@ -136,17 +123,29 @@
     animation: loading 1.5s infinite;
 }
 
-@media only screen and (max-width: 850px) and (min-width: 600px) {
-    .event-row {
+@media only screen and (max-width: 950px) and (min-width: 650px) {
+    .event-row, .event-row-skeleton {
         grid-auto-rows: 20px;
+    }
+    .event-row > div {
+        grid-row-end: calc(var(--start-row) + 1);
     }
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 650px) {
     .event-row {
         overflow: hidden;
         text-indent: 100%;
-        grid-auto-rows: 5px;
+        grid-auto-rows: 2px;
+    }
+    .event-row div.skeleton {
+        height: 5px;
+    }
+    .event-row:empty {
+        grid-template-rows: repeat(2, 5px);
+    }
+    .event-row-skeleton {
+        grid-template-rows: repeat(3, 5px);
     }
 }
 
@@ -179,9 +178,43 @@ ul.shown > li {
     position: relative;
 }
 
-#filter-list-ul {
-    --width: 250px;
-    width: var(--width);
+#filter-editor h1 {
+    margin-top: 0px;
+    font-size: 20px;
+}
+
+button {
+    border-radius: 5px;
+    font-size: 15px;
+    transition: box-shadow 0.3s;
+    border: 1px solid darkgray;
+    background-color: beige;
+    width: 75%;
+    height: 40px;
+}
+
+button:hover {
+    cursor: pointer;
+    box-shadow: 2px 2px 3px 3px #ccc;
+}
+
+button:active {
+    box-shadow: inset 4px 4px 4px #ccc;
+}
+
+#filter-editor {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+    flex: 1 0 25%;
+    align-items: center;
+    /*--width: 250px;*/
+    /*width: var(--width);*/
     position: relative;
-    height: 100px;
+    height: 100%;
+}
+
+#main-content {
+    display: flex;
+    flex-wrap: wrap;
 }

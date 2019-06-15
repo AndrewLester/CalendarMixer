@@ -9,7 +9,7 @@
         <title>Welcome to Calendar Mixer</title>
         {% endif %}
         <link rel="icon" href="https://img.icons8.com/metro/28/000000/calendar-{{ date.day }}.png" />
-        {% block head %}{%  endblock %}
+        {% block head %}{% endblock %}
     </head>
     <body>
         <div>
@@ -22,6 +22,7 @@
             <a href="{{ url_for('main.profile') }}">Profile</a>
             <a href="{{ url_for('oauth.logout') }}">Logout</a>
             {% endif %}
+            {% block navbar %}{% endblock %}
         </div>
         <hr>
         {% with messages = get_flashed_messages() %}
