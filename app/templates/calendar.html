@@ -10,6 +10,9 @@
 {% endblock %}
 
 {% block content %}
+    <div id="button-panel">
+
+    </div>
     <div id="main-content">
         <div id="calendar">
             <div id="header" class="calendar-row">
@@ -21,30 +24,9 @@
                 <div>Fri</div>
                 <div>Sat</div>
             </div>
-            <div id="row1" class="calendar-row">
-                <div class="header"></div>
-                <div id="row1-events" class="event-row"></div>
-            </div>
-            <div id="row2" class="calendar-row">
-                <div class="header"></div>
-                <div id="row2-events" class="event-row"></div>
-            </div>
-            <div id="row3" class="calendar-row">
-                <div class="header"></div>
-                <div id="row3-events" class="event-row"></div>
-            </div>
-            <div id="row4" class="calendar-row">
-                <div class="header"></div>
-                <div id="row4-events" class="event-row"></div>
-            </div>
-            <div id="row5" class="calendar-row">
-                <div class="header"></div>
-                <div id="row5-events" class="event-row"></div>
-            </div>
-            <div id="row6" class="calendar-row">
-                <div class="header"></div>
-                <div id="row6-events" class="event-row"></div>
-            </div>
+            {% for i in range(1, 7) %}
+                {% include '_calendar_row.html' %}
+            {% endfor %}
         </div>
         <div id="filter-editor">
             <h1>Edit Filters</h1>

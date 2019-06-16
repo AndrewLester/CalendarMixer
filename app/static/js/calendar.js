@@ -1,38 +1,36 @@
-function getData() {
+function get(url) {
     return new Promise(resolve => {
         $.ajax({
             dataType: 'json',
-            url: 'calendar/events',
+            url: url,
             ifModified: true,
             success: data => resolve(data)
         });
     });
 }
 
-function getFilters() {
-    return new Promise(resolve => {
-        $.ajax({
-            dataType: 'json',
-            url: 'calendar/filter',
-            ifModified: true,
-            success: data => resolve(data)
-        });
-    });
+function post(url) {
+    
 }
 
-const colors = ['rgba(236, 252, 17, 0.5)', 'rgba(17, 182, 252, 0.5)', 'rgba(248, 17, 252, 0.5)', 
-            'rgba(244, 26, 26, 0.5)', 'rgba(46, 224, 11, 0.5)', 'rgba(237, 138, 33, 0.5)', 'rgba(76, 255, 174, 0.5)',
-            'rgba(41, 38, 255, 0.5)', 'rgba(179, 58, 255, 0.5)'
+const colors = [
+    'rgba(236, 252, 17, 0.5)', 'rgba(17, 182, 252, 0.5)', 'rgba(248, 17, 252, 0.5)', 
+    'rgba(244, 26, 26, 0.5)', 'rgba(46, 224, 11, 0.5)', 'rgba(237, 138, 33, 0.5)', 
+    'rgba(76, 255, 174, 0.5)', 'rgba(41, 38, 255, 0.5)', 'rgba(179, 58, 255, 0.5)'
 ];
 
 function isOverflown(element) {
     return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
 }
 
+function handleFilteredElement(elem) {
+    elem.classList.add('filtered');
+}
+
 function addElement(parent, name, filtered, openRow, start, end, long) {
-    let color = filtered ? 'rgba(128, 128, 128, 0.2)' : colors[~~(Math.random() * colors.length)];
+    let color = colors[~~(Math.random() * colors.length)];
     let text = document.createElement('div');
-    text.classList.add('tooltip', 'added');
+    text.classList.add('added');
     if (long) {
         text.classList.add('long');
     }
@@ -41,7 +39,11 @@ function addElement(parent, name, filtered, openRow, start, end, long) {
     text.style.gridColumn = start + ' / ' + end;
     let endRow = openRow + 1;
     let added = 0;
+    if (filtered) {
+        handleFilteredElement(text);
+    }
     parent.append(text);
+    // -- Section * Styling that requires element dimensions --
     if (isOverflown(text) && !long) {
         // Correct for new height being 45px. This line height increase helps hide any third row of text.
         text.style.lineHeight = '21px';
@@ -50,20 +52,11 @@ function addElement(parent, name, filtered, openRow, start, end, long) {
     }
     text.style.setProperty('--start-row', openRow);
     text.style.gridRow = openRow + ' / ' + endRow;
-    if (filtered) {
-        text.style.color = 'gray';
-    }
-    tippy(text, {
-        content: name,
-        arrow: true,
-        duration: [100, 100]
-    });
+    // -- Section --
+    tippy(text, {content: name, arrow: true, duration: [100, 100]});
     setTimeout(() => {
         text.classList.replace('added', 'shown');
     }, 100);
-    setTimeout(() => {
-        text.classList.replace('complete', 'added');
-    }, 3000);
     return added;
 }
 
@@ -80,9 +73,9 @@ function filterEvent(event, filters) {
     return true;
 }
 
-async function add() {
-    let data = await getData();
-    let filters = await getFilters();
+async function addAllEvents() {
+    let data = await get('calendar/events');
+    let filters = await get('calendar/filter');
     for (let row of eventRows) {
         row.innerHTML = '';
         row.classList.remove('event-row-skeleton');
@@ -94,9 +87,8 @@ async function add() {
         if (!event['has_end']) {
             end = start;
         }
-        
         placeEvent(event, start, end, filtered);
     }
 }
 
-add()
+addAllEvents()

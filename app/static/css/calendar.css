@@ -82,23 +82,15 @@
 .event-row div {
     border-radius: 3px;
     font-size: 13px;
+    transition: transform 0.3s, opacity 0.3s;
 }
 
 .event-row div.added {
     opacity: 0;
-    transition: transform 0.3s, opacity 0.3s;
     transform: translateY(20px);
 }
 
 .event-row div.shown {
-    transition: transform 0.3s, opacity 0.3s;
-}
-
-.even-row div.complete {
-    transition: none;
-}
-
-.event-row div.complete, .event-row div.shown {
     opacity: 1;
     cursor: pointer;
     transform: none;
@@ -109,6 +101,11 @@
     -webkit-line-clamp: 2;
     line-height: 20px;        /* fallback */
     max-height: 45px;       /* fallback */
+}
+
+.event-row div.filtered {
+    color: gray !important;
+    background-color: rgba(128, 128, 128, 0.2) !important;
 }
 
 .skeleton {
@@ -217,4 +214,9 @@ button:active {
 #main-content {
     display: flex;
     flex-wrap: wrap;
+}
+
+#button-panel {
+    display: flex;
+    flex-wrap: nowrap;
 }
