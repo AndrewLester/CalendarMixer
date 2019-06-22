@@ -3,7 +3,10 @@
 {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/calendar.js') }}" defer></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/calendar.js') }}" async></script>
+    {% if colors is not none %}
+    <script type="text/javascript">var savedColors = {{ colors }};</script>
+    {% endif %}
 {% endblock %}
 
 {% block navbar %}
@@ -11,7 +14,9 @@
 
 {% block content %}
     <div id="button-panel">
-
+        <p id="current-date"></p> 
+        <button class="month-changer" id="previous-month"></button>
+        <button class="month-changer" id="next-month"></button>
     </div>
     <div id="main-content">
         <div id="calendar">

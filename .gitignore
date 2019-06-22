@@ -7,4 +7,5 @@ migrations/README
 migrations/alembic.ini
 migrations/env.py
 migrations/script.py.mako
+.flaskenv
 .vscode/

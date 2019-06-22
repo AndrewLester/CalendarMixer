@@ -69,6 +69,8 @@ class CourseIdentifier(db.Model):
     course_id = db.Column(db.String(36), primary_key=True)
     course_name = db.Column(db.String(120))
     course_filter_id = db.Column(db.Integer, db.ForeignKey('course_filter.id'))
+    user_colors_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    course_color = db.Column(db.Integer)
 
     def to_json(self):
         return {'id': self.course_id, 'name': self.course_name}

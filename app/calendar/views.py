@@ -34,7 +34,8 @@ def cache_header(max_age, **ckwargs):
 @blueprint.route('')
 @login_required
 def calendar():
-    return render_template('calendar.html', title='Calendar', filters=current_user.filters)
+    return render_template('calendar.html', title='Calendar', filters=current_user.filters, 
+                            colors=current_user.colors.all())
 
 def get_current_user():
     try:
@@ -59,9 +60,19 @@ def filter_modify():
     form = CourseFilterForm()
     if form.validate_on_submit():
         filter = CourseFilter(positive=(not form.negative), course_ids=form.course_ids)
+        current_user.filters.append(filter)
         db.session.add(filter)
         db.session.commit()
 
+@blueprint.route('/identifiers')
+@login_required
+def courses():
+    user = oauth.schoology.get('users/me', **request.cache).json()
+    sections = [{section['id']: section['course_title']} for section in oauth.schoology.get(f'users/{user["uid"]}/sections', **request.cache).json()['section']]
+    groups = [{group['id']: group['title']} for group in oauth.schoology.get(f'users/{user["uid"]}/groups', **request.cache).json()['group']]
+    school = [{user['school_id']: 'School Events'}]
+    building = [{user['building_id']: 'Building Events'}]
+    return jsonify([{user['uid']: user['name_display']}] + sections + groups + school + building)
 
 realms = frozenset(['sections/{}', 'groups/{}'])
 def get_user_events(user, cache):

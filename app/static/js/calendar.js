@@ -30,7 +30,7 @@ function handleFilteredElement(elem) {
 function addElement(parent, name, filtered, openRow, start, end, long) {
     let color = colors[~~(Math.random() * colors.length)];
     let text = document.createElement('div');
-    text.classList.add('added');
+    text.classList.add(initial ? 'added' : 'shown');
     if (long) {
         text.classList.add('long');
     }
@@ -54,9 +54,9 @@ function addElement(parent, name, filtered, openRow, start, end, long) {
     text.style.gridRow = openRow + ' / ' + endRow;
     // -- Section --
     tippy(text, {content: name, arrow: true, duration: [100, 100]});
-    setTimeout(() => {
-        text.classList.replace('added', 'shown');
-    }, 100);
+    if (initial) {
+        setTimeout(() => text.classList.replace('added', 'shown'), 100);
+    }
     return added;
 }
 
@@ -73,9 +73,14 @@ function filterEvent(event, filters) {
     return true;
 }
 
+var data;
+var filters;
+var identifiers;
+var initial = true;
+
 async function addAllEvents() {
-    let data = await get('calendar/events');
-    let filters = await get('calendar/filter');
+    data = data || await get('calendar/events');
+    filters = filters || await get('calendar/filter');
     for (let row of eventRows) {
         row.innerHTML = '';
         row.classList.remove('event-row-skeleton');
@@ -89,6 +94,12 @@ async function addAllEvents() {
         }
         placeEvent(event, start, end, filtered);
     }
+    identifiers = identifiers || await get('calendar/identifiers');
+    initial = false;
 }
+
+document.addEventListener('monthChange', (e) => {
+    addAllEvents();
+});
 
 addAllEvents()
