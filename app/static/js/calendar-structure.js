@@ -21,6 +21,13 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function animationEnd(elem) {
+    return new Promise(resolve => {
+        // TODO: Use other animation end events for ms, webkit, etc.
+        elem.one('animationend', resolve);
+    });
+}
+
 function buildCalendarStructure(today) {
     // Setup month change buttons first
     currentDateLabel.text(moment(today).format('MMMM YYYY'));
@@ -40,7 +47,7 @@ function buildCalendarStructure(today) {
     for (let i = 0; i < moment(today).daysInMonth(); i++) {
         let wrapper = document.createElement('div');
         if ((i + 1) == moment(today).date() &&
-         moment().year() === moment(today).year() && moment().month === moment(today).month()) {
+         moment().year() === moment(today).year() && moment().month() === moment(today).month()) {
             let elem = document.createElement('div');
             elem.textContent = i + 1;
             elem.id = 'today';
@@ -79,14 +86,18 @@ function buildCalendarStructure(today) {
 buildCalendarStructure(now.startOf('day'));
 
 async function navigateMonths(months) {
-    calendarGrid.removeClass('moving-right moving-left');
+    calendarGrid.removeClass('moving-right moving-left transitionable');
     await sleep(20);
     calendarGrid.addClass(months > 0 ? 'moving-right' : 'moving-left');
-    // Wait for half of animation to finish
-    await sleep(150);
+    // Wait for animaton to finish
+    await animationEnd(calendarGrid);
+    calendarGrid.addClass('transitionable');
     clearCalendar();
     buildCalendarStructure(now.add(months, 'months'));
-    document.dispatchEvent(new Event('monthChange'));
+    if (addAllEvents) {
+        await addAllEvents();
+        calendarGrid.removeClass('moving-right moving-left');
+    }
 }
 
 previousMonthButton.click(navigateMonths.bind(null, -1));
@@ -105,14 +116,14 @@ function placeEvent(event, start, end, filtered) {
 
     let startCol = col + 1;
     let eventRow = row + 1;
-    let endCol = startCol + (span.asDays() - 1) + 1;
+    let endCol = Math.min(9, startCol + span.asDays());
     if (endCol > (startCol + 1)) {
-        for (let i = 1; i < Math.min(8, span.asDays()); i++) {
+        for (let i = 1; i < Math.min(7 - col, span.asDays()); i++) {
             calendar[row][col + i].currentRow += 1;
         }
     }
     if (endCol > 8) {
-        placeEvent(event, start.add(7 - start.days()), span.asDays() - (7 - startCol));
+        placeEvent(event, moment(start).add(7 - col, 'days'), end, filtered);
     }
     let elem = document.getElementById('row' + eventRow + '-events');
     let ifAdded = addElement(elem, event['title'], filtered, calDay.currentRow++, startCol, endCol, span.asDays() > 0);

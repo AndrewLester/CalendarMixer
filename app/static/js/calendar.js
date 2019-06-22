@@ -81,9 +81,11 @@ var initial = true;
 async function addAllEvents() {
     data = data || await get('calendar/events');
     filters = filters || await get('calendar/filter');
-    for (let row of eventRows) {
-        row.innerHTML = '';
-        row.classList.remove('event-row-skeleton');
+    if (initial) {
+        for (let row of eventRows) {
+            row.innerHTML = '';
+            row.classList.remove('event-row-skeleton');
+        }
     }
     for (let event of data) {
         let filtered = !filterEvent(event, filters);
@@ -98,8 +100,23 @@ async function addAllEvents() {
     initial = false;
 }
 
-document.addEventListener('monthChange', (e) => {
-    addAllEvents();
-});
-
 addAllEvents()
+
+function autoSizing(data) {
+    data.styles.width = data.offsets.reference.width;
+    data.offsets.popper.left = data.offsets.reference.left;
+    return data;
+}
+
+let popperElement = document.getElementById('identifier-complete');
+let courseAutoComplete = new Popper(document.getElementsByClassName('course-chooser')[0], popperElement, {
+    onCreate: () => popperElement.style.display = 'flex',
+    modifiers: {
+        autoSizing: {
+            enabled: true,
+            fn: autoSizing,
+            order: 840,
+        }
+    }
+});
+console.log(courseAutoComplete);

@@ -1,0 +1,15 @@
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+textarea {
+    outline: none;
+    border: 1px solid rgb(128, 128, 128);
+    resize: none;
+}
+input {
+    outline: none;
+    border: 1px solid rgb(128, 128, 128);
+}
+p {
+    margin: 0px;
+}

@@ -5,6 +5,7 @@ from app.calendar.models import CourseFilter
 from app.exts import oauth, db
 from datetime import datetime, timedelta
 from app.exts import cache
+import json
 import logging
 from functools import wraps
 from dateutil.relativedelta import relativedelta
@@ -26,7 +27,7 @@ def cache_header(max_age, **ckwargs):
             response.expires = response.last_modified + extra
             response.headers['Content-Type'] = 'application/json; charset=utf-8'
             response.headers['mimetype'] = 'application/json'
-            response.add_etag()
+            # response.add_etag()
             return response.make_conditional(request)
         return wrapper
     return decorator
@@ -68,11 +69,12 @@ def filter_modify():
 @login_required
 def courses():
     user = oauth.schoology.get('users/me', **request.cache).json()
-    sections = [{section['id']: section['course_title']} for section in oauth.schoology.get(f'users/{user["uid"]}/sections', **request.cache).json()['section']]
-    groups = [{group['id']: group['title']} for group in oauth.schoology.get(f'users/{user["uid"]}/groups', **request.cache).json()['group']]
-    school = [{user['school_id']: 'School Events'}]
-    building = [{user['building_id']: 'Building Events'}]
-    return jsonify([{user['uid']: user['name_display']}] + sections + groups + school + building)
+    sections = {'section': [{section['id']: section['course_title']} for section in oauth.schoology.get(f'users/{user["uid"]}/sections', **request.cache).json()['section']]}
+    groups = {'group': [{group['id']: group['title']} for group in oauth.schoology.get(f'users/{user["uid"]}/groups', **request.cache).json()['group']]}
+    school = {'school': [{user['building_id']: 'School Events'}]}
+    district = {'district': [{user['school_id']: 'District Events'}]}
+    userEvents = {'user': [{user['uid']: 'My Events'}]}
+    return jsonify({**userEvents, **sections, **groups, **school, **district})
 
 realms = frozenset(['sections/{}', 'groups/{}'])
 def get_user_events(user, cache):
@@ -80,6 +82,7 @@ def get_user_events(user, cache):
     now = datetime.now()
     period_start = now + relativedelta(months=-1)
     period_end = now + relativedelta(months=1)
+    time_queries = f'?start_date={period_start.strftime("%Y-%m-%d")}&end_date={period_end.strftime("%Y-%m-%d")}'
     for realm in realms:
         realm_items = oauth.schoology.get(('users/{}/' + realm.split('/')[0]).format(user.id), **cache)
         realm_items = realm_items.json()
@@ -88,10 +91,12 @@ def get_user_events(user, cache):
             continue
         for item in realm_items:
             realm_events = oauth.schoology.get((realm + '/events').format(item['id']) +
-                                               f'?start_date={period_start.strftime("%Y-%m-%d")}' +
-                                               f'&end_date={period_end.strftime("%Y-%m-%d")}', **cache).json()['event']
+                                               time_queries, **cache).json()['event']
             events += realm_events
-    return events
+    eventsTwo = oauth.schoology.get(f'users/{user.id}/events' + time_queries + '&limit=200', **cache).json()['event']
+    school_id = oauth.schoology.get('users/me', **cache).json()['building_id']
+    events += oauth.schoology.get(f'schools/{school_id}/events' + time_queries, **cache).json()['event']
+    return [json.loads(string) for string in set((json.dumps(dic) for dic in events))]
 
 def event_time_relative(event):
     now = datetime.now()
