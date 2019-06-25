@@ -75,24 +75,7 @@ function filterEvent(event, filters) {
 
 var data;
 var filters;
-var identifiers = {
-    set ids(value) {
-        if (this.value !== value) {
-            this.listener(value);
-        }
-        this.value = value;
-    },
-    get ids() {
-        return this.value;
-    },
-    listener: function(e){},
-    whenSet: function(val) {
-        if (this.value) {
-            val(this.value);
-        }
-        this.listener = val;
-    }
-};
+var identifiers = forms.asyncAutocompleteList();
 var initial = true;
 
 async function addAllEvents() {
@@ -113,107 +96,12 @@ async function addAllEvents() {
         }
         placeEvent(event, start, end, filtered);
     }
-    identifiers.ids = identifiers.ids || await get('calendar/identifiers');
+    identifiers.completions = identifiers.completions || await get('calendar/identifiers');
     initial = false;
 }
 
 addAllEvents()
-
-function autoSizing(data) {
-    data.styles.width = data.offsets.reference.width;
-    data.offsets.popper.left = data.offsets.reference.left;
-    return data;
+let template = document.getElementById('identifier-complete');
+for (let elem of document.querySelectorAll('.course-input')) {
+    forms.createAutocompleteMultiInput(elem, elem.lastElementChild, template, identifiers);
 }
-
-let courseAutoComplete = null;
-
-function addRecognizedCourse(wrapper) {
-    let recognizedCourse = document.createElement('div');
-    recognizedCourse.classList.add('recognized-course');
-    let text = document.createElement('div');
-    text.textContent = wrapper.dataset.courseName;
-    let deleteIcon = document.createElement('div');
-    recognizedCourse.append(text);
-    recognizedCourse.dataset = wrapper.dataset;
-    courseInputBox.insertBefore(recognizedCourse, courseChooser);
-}
-
-function createCourseElement(identifier) {
-    let wrapper = document.createElement('div');
-    wrapper.classList.add('course-identifier-wrapper');
-    let image = document.createElement('div');
-    let name = document.createElement('p');
-    name.textContent = Object.values(identifier)[0];
-    wrapper.dataset.courseId = Object.keys(identifier)[0];
-    wrapper.dataset.realm = Object.values(identifier)[1];
-    wrapper.dataset.courseName = Object.values(identifier)[0];
-    wrapper.append(name);
-    wrapper.addEventListener('click', function() {
-        addRecognizedCourse(this);
-        courseChooser.value = '';
-        destroyPopper();
-    });
-    return wrapper;
-}
-
-function destroyPopper() {
-    if (courseAutoComplete !== null) {
-        courseAutoComplete.destroy();
-        popperElement.style.display = 'none';
-        popperElement.innerHTML = '';
-        courseAutoComplete = null;
-    }
-}
-
-function createPopper() {
-    identifiers.whenSet(val => {
-        courseAutoComplete = new Popper(document.getElementsByClassName('course-input')[0], popperElement, {
-            onCreate: () => {
-                popperElement.style.display = 'flex';
-            },
-            modifiers: {
-                flip: {
-                    enabled: false
-                },
-                autoSizing: {
-                    enabled: true,
-                    fn: autoSizing,
-                    order: 840,
-                }
-            }
-        });
-        for (let id of val) {
-            popperElement.append(createCourseElement(id));
-        }
-    });
-}
-
-let popperElement = document.getElementById('identifier-complete');
-let courseChooser = document.getElementsByClassName('course-chooser')[0];
-let courseInputBox = document.getElementsByClassName('course-input')[0];
-
-courseChooser.addEventListener('focus', createPopper);
-
-courseChooser.addEventListener('keyup', function(e) {
-    if (!identifiers.ids) return;
-    let matches = [];
-    for (let identifier of identifiers.ids) {
-        let name = Object.values(identifier)[0];
-        let words = name.split(' ');
-        for (let word of words) {
-            if (!this.value || 
-            name.substring(name.indexOf(word)).toLowerCase().startsWith(this.value.toLowerCase())) {
-                matches.push(createCourseElement(identifier));
-                break;
-            }
-        }
-    }
-    popperElement.innerHTML = '';
-    matches.forEach(e => popperElement.append(e));
-});
-document.addEventListener('mousedown', () => {
-    destroyPopper();
-}, false);
-popperElement.addEventListener('mousedown', e => {
-    e.stopPropagation();
-}, false);

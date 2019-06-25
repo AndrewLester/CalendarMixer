@@ -68,15 +68,16 @@ class CourseIdentifier(db.Model):
     # Schoology "IDS" are now 36 digits long
     course_id = db.Column(db.String(36), primary_key=True)
     course_name = db.Column(db.String(120))
+    course_realm = db.Column(db.String(120))
     course_filter_id = db.Column(db.Integer, db.ForeignKey('course_filter.id'))
-    user_colors_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    colors_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     course_color = db.Column(db.Integer)
 
     def to_json(self):
-        return {'id': self.course_id, 'name': self.course_name}
+        return {'id': self.course_id, 'name': self.course_name, 'realm': self.course_realm}
 
     def __repr__(self):
-        return f'CourseIdentifier<{self.course_id}, {self.course_name}>'
+        return f'CourseIdentifier<{self.course_id}, {self.course_name}, {self.course_realm}>'
 
 
 

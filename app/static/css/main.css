@@ -13,3 +13,6 @@ input {
 p {
     margin: 0px;
 }
+fieldset {
+    padding: 0px;
+}

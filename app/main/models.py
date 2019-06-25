@@ -18,7 +18,7 @@ class User(UserMixin, db.Model):
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     oauth_token = db.relationship('OAuth1Token', uselist=False, back_populates='user')
     filters = db.relationship('CourseFilter', backref='user', lazy='dynamic')
-    colors = db.relationship('CourseIdentifier', backref='userColor', lazy='dynamic')
+    colors = db.relationship('CourseIdentifier', backref='colorUser', lazy='dynamic')
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 

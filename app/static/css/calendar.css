@@ -197,26 +197,6 @@
         background-position: 0px 0px;
     }
 }
-/* For skeleton layout */
-ul > li {
-    transition: all 0.3s ease;
-    margin-bottom: 5px;
-    transform: translateY(20px);
-    opacity: 0;
-    height: 0px;
-}
-
-ul.shown > li {
-    height: auto;
-    transform: none;
-    opacity: 1;
-}
-
-#event-list {
-    --width: 400px;
-    width: var(--width);
-    position: relative;
-}
 
 #filter-editor h1 {
     margin-top: 0px;
@@ -226,20 +206,25 @@ ul.shown > li {
 button {
     border-radius: 5px;
     font-size: 15px;
-    transition: box-shadow 0.3s;
-    border: 1px solid darkgray;
-    background-color: beige;
+    color: white;
+    transition: all 0.3s;
+    border: 1px solid white;
+    background-color: #29b6f6;
     width: 75%;
     height: 40px;
 }
 
 button:hover {
     cursor: pointer;
-    box-shadow: 2px 2px 3px 3px #ccc;
+    background-color: white;
+    color: #29b6f6;
+    border: 1px solid #29b6f6;
+    box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 button:active {
-    box-shadow: inset 4px 4px 4px #ccc;
+    box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.2);
+    border-color: rgba(0, 0, 0, 0.8);
 }
 
 #filter-editor {
@@ -248,8 +233,6 @@ button:active {
     min-width: 200px;
     flex: 1 0 25%;
     align-items: center;
-    /*--width: 250px;*/
-    /*width: var(--width);*/
     position: relative;
     height: 100%;
 }
@@ -272,21 +255,36 @@ button:active {
     flex: 0 1 25%;
 }
 
+.course-filter {
+    width: 100%;
+}
+
+.course-filter-layout {
+    width: 100%;
+    flex-direction: column;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    align-items: center;
+    display: flex;
+}
+
 .course-input {
     margin-top: 10px;
     margin-bottom: 10px;
     border-bottom: 1px solid gray;
     flex-wrap: wrap;
+    font-size: 12px;
+    line-height: 12px;
+    width: 90%;
     display: flex;
 }
 
 .course-chooser {
-    flex: 1 0 auto;
+    flex: 1 1 145px;
     border: none;
     position: relative;
-    font-size: 16px;
     height: 20px;
-    min-width: 150px;
+    width: 145px;
+    min-width: 75px;
 }
 
 #identifier-complete {
@@ -301,7 +299,6 @@ button:active {
 }
 
 #identifier-complete > * {
-    cursor: pointer;
     flex: 1 0 100%;
     text-overflow: ellipsis;
     height: 30px;
@@ -311,18 +308,74 @@ button:active {
     line-height: 20px;
 }
 
-#identifier-complete > *:hover {
+#identifier-complete > *:not(p):hover {
+    cursor: pointer;
     background-color: rgba(128, 128, 128, 0.2);
 }
 
 .course-identifier-wrapper {
     display: flex;
+    justify-content: space-between;
 }
 
-.course-identifier-wrapper > * {
-    margin: auto;
+.course-identifier-wrapper > div {
+    flex: 0 0 auto;
+    background: url('https://app.schoology.com/sites/all/themes/schoology_theme/images/icons_sprite_realm.png?5d0d37111b9f09da') no-repeat right;
+    height: 20px;
+    align-self: center;
+    width: 30px;
+    margin: 0px;
+}
+
+.course-identifier-wrapper[data-realm='section'] > div {
+    background-position-y: -29px;
+}
+
+.course-identifier-wrapper[data-realm='group'] > div {
+    background-position-y: -59px;
+}
+
+.course-identifier-wrapper[data-realm='user'] > div {
+    background-position-y: -179px;
+}
+
+.course-identifier-wrapper[data-realm='school'] > div {
+    background-position-y: -209px;
+}
+
+.course-identifier-wrapper[data-realm='district'] > div {
+    background-position-y: -209px;
+    background-repeat: repeat-x;
+    background-position-x: 17px;
+    margin-right: 3px;
+}
+
+.course-identifier-wrapper > p {
+    align-self: center;
+    margin-right: auto;
 }
 
 .recognized-course {
     flex: 0 0 auto;
+    background-color: gray;
+    line-height: 13px;
+    color: white;
+    height: 20px;
+    border-radius: 15px;
+    padding: 0px 5px;
+    margin-bottom: 1px;
+    margin-right: 3px;
+}
+
+.recognized-course > * {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.delete-icon {
+    height: 15px;
+    width: 15px;
+    margin-left: 5px;
+    margin-top: 2px;
+    cursor: pointer;
 }

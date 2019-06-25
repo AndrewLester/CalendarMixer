@@ -1,8 +1,17 @@
-{% for id in filter.course_ids %}
-    <p>Name: {{ id.course_name }}</p>
-    <p>Id: {{ id.course_id }}</p>
-    <input type="checkbox" value="checked">Enabled</button>
-    <div class="course-input">
-        <input class="course-chooser" type="text" placeholder="Course"></input>
-    </div>
-{% endfor %}
+<!-- <form action="/calendar/filter" method="post"> -->
+<form class="course-filter" action="" method="post">
+    <fieldset class="course-filter-layout">
+        <legend>Filter Id: {{ filter.id }}</legend>
+        <input type="checkbox" value="checked">Enabled</button>
+        <div class="course-input">
+            {% for id in filter.course_ids %}
+                <div class="recognized-course" data-course-name="{{ id.course_name }}" data-course-id="{{ id.course_id }}" data-realm="{{ id.course_realm }}">
+                    <div>{{ id.course_name }}</div>
+                    <img class="delete-icon" src="/static/img/close.svg">
+                </div>
+            {% endfor %}
+            <input class="course-chooser" type="text" placeholder="Add Course">
+        </div>
+    </fieldset>
+</form>
+<!-- </form> -->
