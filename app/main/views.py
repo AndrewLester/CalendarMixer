@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app.exts import oauth
+from .forms import EditProfileForm
 
 blueprint = Blueprint('main', __name__, template_folder='../templates', static_folder='../static')
 
@@ -55,21 +56,24 @@ def profile():
 
 
 
-# @blueprint.route('/edit_profile', methods=['GET', 'POST'])
-# @login_required
-# def edit_profile():
-#     form = EditProfileForm(current_user.username)
-#     if form.validate_on_submit():
-#         current_user.username = form.username.data
-#         current_user.about_me = form.about_me.data
-#         db.session.commit()
-#         flash('Your changes have been saved.')
-#         return redirect(url_for('.edit_profile'))
-#     elif request.method == 'GET':
-#         form.username.data = current_user.username
-#         form.about_me.data = current_user.about_me
-#     return render_template('edit_profile.html', title='Edit Profile',
-#                            form=form)
+@blueprint.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm(current_user.username)
+    if form.validate_on_submit():
+        print(request.data)
+        print(request.form)
+        return redirect(url_for('.edit_profile'))
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', title='Edit Profile',
+                           form=form)
 
 #
 # @blueprint.before_request

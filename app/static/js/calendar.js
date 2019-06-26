@@ -9,8 +9,17 @@ function get(url) {
     });
 }
 
-function post(url) {
-    
+function post(url, data) {
+    return new Promise(resolve => {
+        $.ajax({
+            dataType: 'json',
+            url: url,
+            method: 'POST',
+            dataType: 'application/x-www-form-urlencoded',
+            data: data,
+            success: data => resolve(data)
+        });
+    });
 }
 
 const colors = [
@@ -27,10 +36,13 @@ function handleFilteredElement(elem) {
     elem.classList.add('filtered');
 }
 
-function addElement(parent, name, filtered, openRow, start, end, long) {
+function addElement(parent, event, filtered, openRow, start, end, long) {
+    let name = event['title'];
     let color = colors[~~(Math.random() * colors.length)];
     let text = document.createElement('div');
     text.classList.add(initial ? 'added' : 'shown');
+    text.dataset.description = event['description'];
+    text.dataset.realm = event['realm'];
     if (long) {
         text.classList.add('long');
     }
@@ -75,7 +87,7 @@ function filterEvent(event, filters) {
 
 var data;
 var filters;
-var identifiers = forms.asyncAutocompleteList();
+var identifiers = FORMS.asyncAutocompleteList();
 var initial = true;
 
 async function addAllEvents() {
@@ -102,6 +114,11 @@ async function addAllEvents() {
 
 addAllEvents()
 let template = document.getElementById('identifier-complete');
-for (let elem of document.querySelectorAll('.course-input')) {
-    forms.createAutocompleteMultiInput(elem, elem.lastElementChild, template, identifiers);
+
+for (let form of document.forms) {
+    if (form.classList.contains('course-filter')) {
+        let input = form.querySelectorAll('.course-input')[0];
+        FORMS.createAutocompleteMultiInput(input, input.lastElementChild, template, identifiers);
+        FORMS.addSubmitListener(form, post, 'calendar/filter');
+    }
 }

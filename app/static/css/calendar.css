@@ -308,7 +308,7 @@ button:active {
     line-height: 20px;
 }
 
-#identifier-complete > *:not(p):hover {
+#identifier-complete > *:not(p):hover, #identifier-complete > *.selected {
     cursor: pointer;
     background-color: rgba(128, 128, 128, 0.2);
 }

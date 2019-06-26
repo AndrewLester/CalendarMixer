@@ -1,4 +1,4 @@
-const forms = (function () {
+const FORMS = (function () {
     function asyncAutocompleteList() {
         return {
             set completions(value) {
@@ -22,6 +22,26 @@ const forms = (function () {
     for (let deleteIcon of document.querySelectorAll('.delete-icon')) {
         let recognizedCourse = deleteIcon.parentElement;
         deleteIcon.addEventListener('click', () => recognizedCourse.parentElement.removeChild(recognizedCourse));
+    }
+
+    function addSubmitListener(elem, postFunction, url) {
+        elem.addEventListener('submit', (e) => {
+            console.log('submitted');
+            console.log(new FormData(elem));
+            postFunction(url, {
+                csrf_token: document.getElementById('csrf_token').value,
+                positive: elem.querySelectorAll('.filter-type')[0].value == 'checked', 
+                course_ids: Array.prototype.map.call(elem.querySelectorAll('.recognized-course'), e => {
+                    return {
+                        course_id: e.dataset.courseId,
+                        course_name: e.dataset.courseName,
+                        course_realm: e.dataset.realm
+                    };
+                })
+            });
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
     }
 
     function addRecognizedCourse(dataset, wrapper, inputElem) {
@@ -149,6 +169,7 @@ const forms = (function () {
     return {
         addRecognizedCourse,
         asyncAutocompleteList,
-        createAutocompleteMultiInput
+        createAutocompleteMultiInput,
+        addSubmitListener
     }
 }());

@@ -1,17 +1,29 @@
 from flask_wtf import FlaskForm
-from wtforms.widgets import Select
+from wtforms.widgets import TextInput
 from wtforms import Field, StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FieldList
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
 from app.main.models import User
 
 
 class CourseIdentifierField(Field):
-    pass
+    widget = TextInput
+
+    def _value(self):
+        if self.data:
+            return u', '.join(self.data)
+        else:
+            return u''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            self.data = [x.strip() for x in valuelist[0].split(',')]
+        else:
+            self.data = []
 
 
 class CourseFilterForm(FlaskForm):
     negative = BooleanField('Exclude Courses', default=False, validators=[DataRequired()])
-    course_ids = Select(CourseIdentifierField('Course Identifier', validators=[DataRequired()]))
+    course_ids = FieldList(CourseIdentifierField('Course Identifier', validators=[DataRequired()]))
 
 
 

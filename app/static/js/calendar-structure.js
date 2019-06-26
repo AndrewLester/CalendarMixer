@@ -116,9 +116,9 @@ function placeEvent(event, start, end, filtered) {
 
     let startCol = col + 1;
     let eventRow = row + 1;
-    let endCol = Math.min(9, startCol + span.asDays());
+    let endCol = Math.min(9, startCol + span.asDays()) + 1;
     if (endCol > (startCol + 1)) {
-        for (let i = 1; i < Math.min(7 - col, span.asDays()); i++) {
+        for (let i = 1; i < Math.min(7 - col, span.asDays() + 1); i++) {
             calendar[row][col + i].currentRow += 1;
         }
     }
@@ -126,7 +126,7 @@ function placeEvent(event, start, end, filtered) {
         placeEvent(event, moment(start).add(7 - col, 'days'), end, filtered);
     }
     let elem = document.getElementById('row' + eventRow + '-events');
-    let ifAdded = addElement(elem, event['title'], filtered, calDay.currentRow++, startCol, endCol, span.asDays() > 0);
+    let ifAdded = addElement(elem, event, filtered, calDay.currentRow++, startCol, endCol, span.asDays() > 0);
     calDay.currentRow += ifAdded;
 }
 
