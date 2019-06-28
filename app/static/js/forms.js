@@ -2,10 +2,12 @@ const FORMS = (function () {
     function asyncAutocompleteList() {
         return {
             set completions(value) {
-                if (this.listener && this.value !== value) {
-                    this.listener(value);
-                }
-                this.value = value;
+                value.then(v => {
+                    if (this.listener && this.value !== v) {
+                        this.listener(v);
+                    }
+                    this.value = v;
+                })
             },
             get completions() {
                 return this.value;
@@ -36,7 +38,7 @@ const FORMS = (function () {
                     course_name: e.courseName,
                     course_realm: e.realm
                 }
-            });
+            }));
             postFunction(url, formData);
         }, false);
     }

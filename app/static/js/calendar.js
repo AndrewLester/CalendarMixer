@@ -85,12 +85,23 @@ function filterEvent(event, filters) {
     return true;
 }
 
+function displayFilters(filters) {
+    for (filter of filters) {
+        let template = $('#filter-template').html();
+        Mustache.parse(template);   // optional, speeds up future uses
+        var rendered = Mustache.render(template, filter);
+        $('#filter-editor').html(rendered);
+    }
+    return;
+}
+
 var data;
 var filters;
 var identifiers = FORMS.asyncAutocompleteList();
 var initial = true;
 
 async function addAllEvents() {
+    identifiers.completions = Promise.resolve(identifiers.completions) || get('calendar/identifiers');
     filters = filters || await get('calendar/filter');
     if (initial) {
         for (let row of eventRows) {
@@ -98,13 +109,18 @@ async function addAllEvents() {
             row.classList.remove('event-row-skeleton');
         }
     }
-    data = data || get('calendar/events').then(data => data.forEach(event => {
-        let filtered = !filterEvent(event, filters);
-        let start = moment(event['start'].split(' ')[0], 'YYYY-MM-DD');
-        let end = event['has_end'] ? moment(event['end'].split(' ')[0], 'YYYY-MM-DD') : start;
-        placeEvent(event, start, end, filtered);
-    }));
-    identifiers.completions = identifiers.completions || await get('calendar/identifiers');
+    data = data || get('calendar/events').then(d => {
+        d.forEach(event => {
+            let filtered = !filterEvent(event, filters);
+            let start = moment(event['start'].split(' ')[0], 'YYYY-MM-DD');
+            let end = event['has_end'] ? moment(event['end'].split(' ')[0], 'YYYY-MM-DD') : start;
+            placeEvent(event, start, end, filtered);
+        });
+        return Promise.resolve(d);
+    });
+    if (initial) {
+        displayFilters(filters);
+    }
     initial = false;
 }
 
