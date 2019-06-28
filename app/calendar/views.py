@@ -53,11 +53,11 @@ def events():
     return jsonify(sort_events(get_user_events(current_user, request.cache)))
 
 
-@blueprint.route('/filter', methods=['GET', 'POST'])
+@blueprint.route('/filter', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
 def filter_modify():
     if request.method == 'GET':
-        current_user.apply_filters(None)
+        # current_user.apply_filters(None)
         return jsonify([item.to_json() for item in current_user.filters])
     form = request.form
     print(form)

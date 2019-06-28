@@ -270,8 +270,9 @@ button:active, input[type="submit"]:active {
 .course-input {
     margin-top: 10px;
     margin-bottom: 10px;
-    border-bottom: 1px solid gray;
+    border-bottom: 2px solid gray;
     flex-wrap: wrap;
+    transition: border-bottom 0.3s;
     font-size: 12px;
     line-height: 12px;
     width: 90%;
@@ -282,6 +283,7 @@ button:active, input[type="submit"]:active {
     flex: 1 1 145px;
     border: none;
     position: relative;
+    font-size: 12px;
     height: 20px;
     width: 145px;
     min-width: 75px;

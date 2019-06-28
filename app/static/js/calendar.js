@@ -12,7 +12,6 @@ function get(url) {
 function post(url, data) {
     return new Promise(resolve => {
         $.ajax({
-            contentType: false,
             processData: false,
             url: url,
             method: 'POST',
@@ -87,9 +86,12 @@ function filterEvent(event, filters) {
 
 function displayFilters(filters) {
     for (filter of filters) {
+        console.log(filter);
         let template = $('#filter-template').html();
-        Mustache.parse(template);   // optional, speeds up future uses
-        var rendered = Mustache.render(template, filter);
+        Mustache.parse(template);
+        var rendered = Mustache.render(template, filter, {
+            'recognized-course-template': $('#recognized-course-template').html()
+        });
         $('#filter-editor').html(rendered);
     }
     return;
@@ -103,13 +105,13 @@ var initial = true;
 async function addAllEvents() {
     identifiers.completions = Promise.resolve(identifiers.completions) || get('calendar/identifiers');
     filters = filters || await get('calendar/filter');
-    if (initial) {
-        for (let row of eventRows) {
-            row.innerHTML = '';
-            row.classList.remove('event-row-skeleton');
-        }
-    }
     data = data || get('calendar/events').then(d => {
+        if (eventRows[0].classList.contains('event-row-skeleton')) {
+            for (let row of eventRows) {
+                row.innerHTML = '';
+                row.classList.remove('event-row-skeleton');
+            }
+        }
         d.forEach(event => {
             let filtered = !filterEvent(event, filters);
             let start = moment(event['start'].split(' ')[0], 'YYYY-MM-DD');
@@ -124,13 +126,19 @@ async function addAllEvents() {
     initial = false;
 }
 
-addAllEvents()
-let template = document.getElementById('identifier-complete');
+async function generateForms() {
+    await addAllEvents()
+    let template = document.getElementById('identifier-complete');
 
-for (let form of document.forms) {
-    if (form.classList.contains('course-filter')) {
-        let input = form.querySelectorAll('.course-input')[0];
-        FORMS.createAutocompleteMultiInput(input, input.lastElementChild, template, identifiers);
-        FORMS.addSubmitListener(form, post, 'calendar/filter');
+    for (let form of document.forms) {
+        if (form.classList.contains('course-filter')) {
+            let input = form.querySelectorAll('.course-input')[0];
+            FORMS.createAutocompleteMultiInput(input, input.lastElementChild, template, identifiers);
+            FORMS.addSubmitListener(form, post, 'calendar/filter');
+        }
     }
 }
+
+generateForms();
+
+

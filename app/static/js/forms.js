@@ -32,32 +32,38 @@ const FORMS = (function () {
             e.stopPropagation();
             let formData = new FormData(elem);
             formData.append('positive', $(elem).find('.filter-type').value == 'checked');
-            formData.append('course_ids', $(elem).find('.recognized-course').map(e => e.dataset).map(e => {
+            let ids = $.map($(elem).find('.recognized-course'), e => e.dataset).map(d => {
                 return {
-                    course_id: e.courseId,
-                    course_name: e.courseName,
-                    course_realm: e.realm
+                    course_id: d.courseId,
+                    course_name: d.courseName,
+                    course_realm: d.realm
                 }
-            }));
+            });
+            formData.append('course_ids', ids);
             postFunction(url, formData);
         }, false);
     }
 
     function addRecognizedCourse(dataset, wrapper, inputElem) {
-        let recognizedCourse = document.createElement('div');
-        recognizedCourse.classList.add('recognized-course');
-        let text = document.createElement('div');
-        text.textContent = dataset.courseName;
-        let deleteIcon = document.createElement('img');
-        deleteIcon.src = '/static/img/close.svg';
-        deleteIcon.classList.add('delete-icon');
-        deleteIcon.addEventListener('click', () => wrapper.removeChild(recognizedCourse));
-        recognizedCourse.append(text);
-        recognizedCourse.append(deleteIcon);
-        recognizedCourse.dataset.courseName = dataset.courseName;
-        recognizedCourse.dataset.courseId = dataset.courseId;
-        recognizedCourse.dataset.realm = dataset.realm;
-        wrapper.insertBefore(recognizedCourse, inputElem);
+        let template = $('#recognized-course-template').html();
+        Mustache.parse(template);
+        var rendered = Mustache.render(template, dataset);
+        $(rendered).insertBefore(inputElem);
+        $(wrapper).find('.delete-icon').click(() => $(wrapper).remove($(rendered)));
+        // let recognizedCourse = document.createElement('div');
+        // recognizedCourse.classList.add('recognized-course');
+        // let text = document.createElement('div');
+        // text.textContent = dataset.courseName;
+        // let deleteIcon = document.createElement('img');
+        // deleteIcon.src = '/static/img/close.svg';
+        // deleteIcon.classList.add('delete-icon');
+        // deleteIcon.addEventListener('click', );
+        // recognizedCourse.append(text);
+        // recognizedCourse.append(deleteIcon);
+        // recognizedCourse.dataset.courseName = dataset.courseName;
+        // recognizedCourse.dataset.courseId = dataset.courseId;
+        // recognizedCourse.dataset.realm = dataset.realm;
+        // wrapper.insertBefore(recognizedCourse, inputElem);
     }
 
     function createAutocompleteMultiInput(wrapper, input, popperTemplate, completionsList) {
@@ -119,7 +125,7 @@ const FORMS = (function () {
             wrapperDiv.dataset.realm = identifier.realm;
             wrapperDiv.append(image, name);
             wrapperDiv.addEventListener('click', function () {
-                addRecognizedCourse({ courseName: courseName, courseId: Object.keys(identifier)[0], realm: identifier.realm }, wrapper, input);
+                addRecognizedCourse({ name: courseName, id: Object.keys(identifier)[0], realm: identifier.realm }, wrapper, input);
                 input.value = '';
                 input.focus();
                 destroyPopper();
@@ -134,7 +140,11 @@ const FORMS = (function () {
                 popper = null;
             }
         }
-        input.addEventListener('focus', createPopper);
+        input.addEventListener('focus', function() {
+            createPopper();
+            $(this).parent().css('border-bottom-color', '#29b6f6');
+        });
+        $(input).blur(e => $(e.target).parent().css('border-bottom-color', 'gray'));
         input.addEventListener('keyup', function (e) {
             if (!completionsList.completions) return;
             if (popper === null) createPopper();
