@@ -3,6 +3,7 @@ from wtforms.widgets import TextInput
 from wtforms import Field, StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FieldList
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
 from app.main.models import User
+import re
 
 
 class CourseIdentifierField(Field):
@@ -21,9 +22,23 @@ class CourseIdentifierField(Field):
             self.data = []
 
 
-class CourseFilterForm(FlaskForm):
-    negative = BooleanField('Exclude Courses', default=False, validators=[DataRequired()])
-    course_ids = FieldList(CourseIdentifierField('Course Identifier', validators=[DataRequired()]))
+class CustomForm():
+    def __init__(self, form):
+        self._data = {}
+        for k, v in form.items():
+            if self._is_list_attr(k):
+                pass
+                # self._data
+
+    def _is_list_attr(k):
+        return re.match('(\[\d+\])+', str(k))
+
+class CourseFilterForm(CustomForm):
+    positive = False
+    course_ids = []
+
+    # def process_course_ids(data):
+
 
 
 

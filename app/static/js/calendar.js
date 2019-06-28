@@ -12,10 +12,10 @@ function get(url) {
 function post(url, data) {
     return new Promise(resolve => {
         $.ajax({
-            dataType: 'json',
+            contentType: false,
+            processData: false,
             url: url,
             method: 'POST',
-            dataType: 'application/x-www-form-urlencoded',
             data: data,
             success: data => resolve(data)
         });
@@ -91,7 +91,6 @@ var identifiers = FORMS.asyncAutocompleteList();
 var initial = true;
 
 async function addAllEvents() {
-    data = data || await get('calendar/events');
     filters = filters || await get('calendar/filter');
     if (initial) {
         for (let row of eventRows) {
@@ -99,15 +98,12 @@ async function addAllEvents() {
             row.classList.remove('event-row-skeleton');
         }
     }
-    for (let event of data) {
+    data = data || get('calendar/events').then(data => data.forEach(event => {
         let filtered = !filterEvent(event, filters);
         let start = moment(event['start'].split(' ')[0], 'YYYY-MM-DD');
-        let end = moment(event['end'].split(' ')[0], 'YYYY-MM-DD');
-        if (!event['has_end']) {
-            end = start;
-        }
+        let end = event['has_end'] ? moment(event['end'].split(' ')[0], 'YYYY-MM-DD') : start;
         placeEvent(event, start, end, filtered);
-    }
+    }));
     identifiers.completions = identifiers.completions || await get('calendar/identifiers');
     initial = false;
 }

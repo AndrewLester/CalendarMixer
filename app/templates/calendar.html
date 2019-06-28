@@ -8,9 +8,7 @@
     {% if colors is defined %}
     <script type="text/javascript">var savedColors = {{ colors }};</script>
     {% endif %}
-    {% if csrf_token is not defined %}
-    <script type="text/javascript">console.log('NO CSRF TOKEN');</script>
-    {% endif %}
+    <script type="text/javascript">(function(){var csrf_token = "{{ csrf_token() }}";$.ajaxSetup({beforeSend: function(xhr, settings) {if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {xhr.setRequestHeader("X-CSRFToken", csrf_token);}}});}());</script>
 {% endblock %}
 
 {% block navbar %}
@@ -38,13 +36,26 @@
             {% endfor %}
         </div>
         <div id="filter-editor">
-            {% if csrf_token is defined %}
-            <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token }}">
-            {% endif %}
             <h1>Edit Filters</h1>
-            {% for filter in filters %}
+            <!-- {% for filter in filters %}
                 {% include '_filter.html' %}
-            {% endfor %}
+            {% endfor %} -->
+            <form id="filter-form-{{ filter.id }}" class="course-filter" enctype="multipart/form-data" template="filter-form">
+                <fieldset class="course-filter-layout">
+                    <legend>Filter Id: {{ filter.id }}</legend>
+                    <input class="filter-type" type="checkbox" value="checked">Enabled</button>
+                    <div class="course-input">
+                        {% for id in filter.course_ids %}
+                            <div class="recognized-course" data-course-name="{{ id.course_name }}" data-course-id="{{ id.course_id }}" data-realm="{{ id.course_realm }}">
+                                <div>{{ id.course_name }}</div>
+                                <img class="delete-icon" src="/static/img/close.svg">
+                            </div>
+                        {% endfor %}
+                        <input class="course-chooser" type="text" placeholder="Add Course">
+                    </div>
+                    <input type="submit" class="form-submit" value="Submit Form">
+                </fieldset>
+            </form>
             <button id="add-filter">Add Filter</button>
         </div>
         <div id="event-list"></div>

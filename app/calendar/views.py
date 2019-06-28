@@ -36,9 +36,8 @@ def cache_header(max_age, **ckwargs):
 @blueprint.route('')
 @login_required
 def calendar():
-    form = CourseFilterForm()
     return render_template('calendar.html', title='Calendar', filters=current_user.filters, 
-                            colors=current_user.colors.all(), form=csrf_token)
+                            colors=current_user.colors.all())
 
 def get_current_user(extra=''):
     try:
@@ -60,22 +59,17 @@ def filter_modify():
     if request.method == 'GET':
         current_user.apply_filters(None)
         return jsonify([item.to_json() for item in current_user.filters])
-    form = CourseFilterForm()
-    print(request.form)
-    print('Submitted', form.validate())
-    for name in form.fields:
-        inline = getattr(form.__class__, 'validate_%s' % name, None)
-        if inline is not None:
-            print(inline)
-    if True: # form.validate_on_submit()
-        print(form)
-        print(form.negative.data)
+    form = request.form
+    print(form)
+    form_data = CourseFilterForm(form)
+    
+    if form_data.is_valid():
         filter = CourseFilter(
-            positive=(not form.negative), 
+            positive=(not form_data.negative), 
             course_ids=[
                 CourseIdentifier(course_id=id.course_id, 
                                  course_name=id.course_name, 
-                                 course_realm=id.course_realm) for id in form.course_ids])
+                                 course_realm=id.course_realm) for id in form_data.course_ids])
         print(filter)
         return jsonify([item.to_json() for item in current_user.filters])
         current_user.filters.append(filter)

@@ -1,9 +1,10 @@
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, jsonify
 from config import Config
 from datetime import datetime
-from app import login, db, migrate, calendar, main, oauth, cache, bootstrap, cache
+from app import login, db, migrate, calendar, main, oauth, cache, bootstrap, cache, csrf
 from app.exts import cache_on, oauth as oauth_client
 from flask_login import current_user
+from flask_wtf.csrf import CSRFError
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
@@ -32,6 +33,7 @@ def register_extensions(app):
     bootstrap.init_app(app)
     db.init_app(app)
     migrate.init_app(app)
+    csrf.init_app(app)
     if not cache_on:
         app.config['CACHE_TYPE'] = 'simple'
     cache.init_app(app, config=app.config)
@@ -63,6 +65,7 @@ def register_blueprints(app):
 
 def register_errorhandlers(app):
     app.register_error_handler(404, lambda error: (render_template('404.html'), 404))
+    app.register_error_handler(CSRFError, lambda error: (jsonify({'reason': error.description}), 400))
 
     def internal_error(error):
         db.session.rollback()

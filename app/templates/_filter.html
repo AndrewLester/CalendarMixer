@@ -1,8 +1,8 @@
 <!-- <form action="/calendar/filter" method="post"> -->
-<form id="filter-form-{{ filter.id }}" class="course-filter" action="">
+<form id="filter-form-{{ filter.id }}" class="course-filter" enctype="multipart/form-data">
     <fieldset class="course-filter-layout">
         <legend>Filter Id: {{ filter.id }}</legend>
-        <input class="filter-type" type="checkbox" value="checked" form="filter-form-{{ filter.id }}">Enabled</button>
+        <input class="filter-type" type="checkbox" value="checked">Enabled</button>
         <div class="course-input">
             {% for id in filter.course_ids %}
                 <div class="recognized-course" data-course-name="{{ id.course_name }}" data-course-id="{{ id.course_id }}" data-realm="{{ id.course_realm }}">
@@ -10,9 +10,9 @@
                     <img class="delete-icon" src="/static/img/close.svg">
                 </div>
             {% endfor %}
-            <input class="course-chooser" type="text" placeholder="Add Course" form="filter-form-{{ filter.id }}">
+            <input class="course-chooser" type="text" placeholder="Add Course">
         </div>
-        <button type="submit" class="form-submit" form="filter-form-{{ filter.id }}">Submit Form</button>
+        <input type="submit" class="form-submit" value="Submit Form">
     </fieldset>
 </form>
 <!-- </form> -->

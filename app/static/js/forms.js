@@ -26,21 +26,18 @@ const FORMS = (function () {
 
     function addSubmitListener(elem, postFunction, url) {
         elem.addEventListener('submit', (e) => {
-            console.log('submitted');
-            console.log(new FormData(elem));
-            postFunction(url, {
-                csrf_token: document.getElementById('csrf_token').value,
-                positive: elem.querySelectorAll('.filter-type')[0].value == 'checked', 
-                course_ids: Array.prototype.map.call(elem.querySelectorAll('.recognized-course'), e => {
-                    return {
-                        course_id: e.dataset.courseId,
-                        course_name: e.dataset.courseName,
-                        course_realm: e.dataset.realm
-                    };
-                })
-            });
             e.preventDefault();
             e.stopPropagation();
+            let formData = new FormData(elem);
+            formData.append('positive', $(elem).find('.filter-type').value == 'checked');
+            formData.append('course_ids', $(elem).find('.recognized-course').map(e => e.dataset).map(e => {
+                return {
+                    course_id: e.courseId,
+                    course_name: e.courseName,
+                    course_realm: e.realm
+                }
+            });
+            postFunction(url, formData);
         }, false);
     }
 
