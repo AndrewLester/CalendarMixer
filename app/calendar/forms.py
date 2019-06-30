@@ -1,41 +1,66 @@
 from flask_wtf import FlaskForm
-from wtforms.widgets import TextInput
-from wtforms import Field, StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FieldList
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
 from app.main.models import User
-import json
-
-
-class CourseIdentifierField(Field):
-    widget = TextInput
-
-    def _value(self):
-        if self.data:
-            return u', '.join(self.data)
-        else:
-            return u''
-
-    def process_formdata(self, data):
-        data = json.loads(data)
-        print(data)
+from app.calendar.models import CourseIdentifier
+import re
+import unicodedata
 
 
 class CustomForm():
     def __init__(self, form):
+        self.valid = True
         for k, v in form:
-            print(k, json.loads(v))
+            attribute = getattr(self, k, None)
+            if attribute is not None:
+                t = type(attribute)
+                if not v:
+                    v = attribute
+                else:
+                    v = v['data']
+                value = t(v)
+                process = getattr(self, f'process_{k}', lambda d: d)
+                value = process(value)
+                if value is None:
+                    raise TypeError(f'Process function for {k} can\'t return None.')
+                setattr(self, k, value)
 
-    def is_valid(self):
-        return False
+    @staticmethod
+    def match_lengths(*strings):
+        for string, max_len, min_len in strings:
+            if len(string) > max_len or len(string) < min_len:
+                return False
+        return True
+
+    @staticmethod
+    def match_regex(*strings):
+        for string, regex in strings:
+            string = unicodedata.normalize('NFD', string).encode('ascii', 'ignore').decode('ascii')
+            if string != re.match(regex, string).group(0):
+                return False
+        return True
+
 
 class CourseFilterForm(CustomForm):
     filter_id = 0
     positive = False
     course_ids = []
 
-    # def process_course_ids(data):
+    def process_filter_id(self, data):
+        self.valid = CustomForm.match_lengths((str(data), 120, 0))
+        return data
 
-
+    def process_course_ids(self, data):
+        updated = []
+        for obj in data:
+            self.valid = CustomForm.match_lengths((obj['course_id'], 36, 0), (obj['course_name'], 120, 0),
+                                                  (obj['course_realm'], 120, 0))
+            self.valid = CustomForm.match_regex((obj['course_id'], r'\d+'), (obj['course_name'], r'[\w -]+'),
+                                                (obj['course_realm'], r'(user|group|section|school|district)'))
+            identifier = CourseIdentifier(course_id=obj['course_id'], course_name=obj['course_name'],
+                                          course_realm=obj['course_realm'])
+            updated.append(identifier)
+        return updated
 
 
 class RegistrationForm(FlaskForm):

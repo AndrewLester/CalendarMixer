@@ -7,7 +7,10 @@ from hashlib import md5
 
 @login.user_loader
 def load_user(id):
-    return User.query.get(int(id))
+    user = User.query.get(int(id))
+    if user.oauth_token is None:
+        user = None
+    return user
 
 
 class User(UserMixin, db.Model):

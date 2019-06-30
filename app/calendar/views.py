@@ -56,11 +56,11 @@ def events():
 
 
 @blueprint.route('/filter', methods=['GET', 'POST'])
-# @login_required
+@login_required
 @csrf.exempt
 def filter_modify():
-    # MultipartDecoder reads data from the .content attribute
     data = request.get_data()
+    # MultipartDecoder reads data from the .content attribute
     request.content = data
     if request.method == 'GET':
         # current_user.apply_filters(None)
@@ -68,22 +68,25 @@ def filter_modify():
     
     form = MultipartDecoder.from_response(request)
     form._parse_body(data)
-    form = [(re.search(r'name="(\w+)"', list(part.headers.lower_items())[0][1].decode('utf-8')).group(1), part.text) for part in form.parts]
+    form = [(re.search(r'name="(\w+)"', list(part.headers.lower_items())[0][1].decode('utf-8')).group(1),
+             json.loads(part.text)) for part in form.parts]
     form_data = CourseFilterForm(form)
-    if form_data.is_valid():
-        filter = CourseFilter(
-            positive=(not form_data.negative), 
-            course_ids=[
-                CourseIdentifier(course_id=id.course_id, 
-                                 course_name=id.course_name, 
-                                 course_realm=id.course_realm) for id in form_data.course_ids])
-        print(filter)
-        return jsonify([item.to_json() for item in current_user.filters])
-        current_user.filters.append(filter)
+    if form_data.valid:
+        course_filter = current_user.filters.filter_by(id=form_data.filter_id).first()
+        if course_filter is None:
+            course_filter = CourseFilter(
+                positive=form_data.positive,
+                course_ids=form_data.course_ids)
+            current_user.filters.append(course_filter)
+        else:
+            course_filter.positive = form_data.positive
+            course_filter.course_ids.delete()
+            course_filter.course_ids = form_data.course_ids
+
         db.session.add(current_user)
         db.session.commit()
-        return jsonify([item.to_json() for item in current_user.filters])
-    return jsonify(hi='oof')
+        return jsonify(data=[item.to_json() for item in current_user.filters])
+    return jsonify(data='Invalid filter data'), 400
 
 @blueprint.route('/identifiers')
 @login_required
@@ -115,10 +118,10 @@ def get_user_events(user, cache):
             realm_events = oauth.schoology.get((realm + '/events').format(item['id']) +
                                                time_queries, **cache).json()['event']
             events += realm_events
-    eventsTwo = oauth.schoology.get(f'users/{user.id}/events' + time_queries + '&limit=200', **cache).json()['event']
+    user_events = oauth.schoology.get(f'users/{user.id}/events' + time_queries + '&limit=200', **cache).json()['event']
     school_id = oauth.schoology.get('users/me', **cache).json()['building_id']
     events += oauth.schoology.get(f'schools/{school_id}/events' + time_queries, **cache).json()['event']
-    events += eventsTwo
+    events += user_events
     return [json.loads(string) for string in set((json.dumps(dic) for dic in events))]
 
 def event_time_relative(event):
@@ -138,4 +141,4 @@ def sort_events(events):
     events.sort(key=event_time_relative)
     events.sort(key=event_time_length, reverse=True)
     return events
-    
+

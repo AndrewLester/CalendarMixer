@@ -74,18 +74,31 @@ function addElement(parent, event, filtered, openRow, start, end, long, init) {
 
 function filterEvent(event, filters) {
     for (let filter of filters) {
-        for (let course_id of filter.course_ids) {
-            let eventId = event['section_id'] || event['group_id'];
-            // xor: only one side can be true for the output to be true;
-            if ((course_id.id == eventId) ^ filter.positive) {
-                return false;
-            }
+        let eventRealmId = event[event['realm'] + '_id'];
+        // xor: only one side can be true for the output to be true;
+        if (filter.course_ids.map(e => e.id).some(id => id == eventRealmId) ^ filter.positive) {
+            return false;
         }
     }
     return true;
 }
 
 function displayFilters(filters) {
+    if (filters.length === 0) {
+        let template = $('#filter-template').html();
+        Mustache.parse(template);
+        let filter = {
+            id: 1,
+            positive: false,
+            course_ids: []
+        }
+        var rendered = Mustache.render(template, filter, {
+            'recognized-course-template': $('#recognized-course-template').html()
+        });
+        $('#filter-editor').append(rendered);
+        let wrapper = $('#filter-editor').find('.course-input');
+        wrapper.find('.delete-icon').click(function(){wrapper[0].removeChild($(this).parent()[0])});
+    }
     for (filter of filters) {
         let template = $('#filter-template').html();
         Mustache.parse(template);

@@ -32,7 +32,7 @@ const FORMS = (function () {
             e.preventDefault();
             e.stopPropagation();
             let formData = new FormData();
-            formData.append('filterId', JSON.stringify({data: elem.dataset.filterId}));
+            formData.append('filter_id', JSON.stringify({data: elem.dataset.filterId}));
             formData.append('positive', JSON.stringify({data: $(elem).find('.filter-type').prop('checked')}));
             formData.append('course_ids', JSON.stringify({data: $.map($(elem).find('.recognized-course'), e => e.dataset).map(d => {
                 return {course_id: d.courseId, course_name: d.courseName, course_realm: d.realm}
@@ -46,8 +46,8 @@ const FORMS = (function () {
         let template = $('#recognized-course-template').html();
         Mustache.parse(template);
         var rendered = Mustache.render(template, dataset);
-        $(rendered).insertBefore(inputElem);
-        wrapper.find('.delete-icon').click(function(){wrapper[0].removeChild($(this).parent()[0])});
+        rendered = $(rendered).insertBefore(inputElem);
+        $(rendered).find('.delete-icon').click(function(){this.parentElement.parentElement.removeChild(this.parentElement)});
     }
 
     function createAutocompleteMultiInput(wrapper, input, popperTemplate, completionsList) {
@@ -69,6 +69,7 @@ const FORMS = (function () {
             return data;
         }
         function createPopper() {
+            if (popper !== null) return;
             completionsList.whenSet(val => {
                 popper = new Popper(wrapper, popperTemplate, {
                     onCreate: () => popperTemplate.style.display = 'flex',
@@ -83,14 +84,14 @@ const FORMS = (function () {
                 });
                 for (let id of val) {
                     if (isAlreadyUsed(id)) continue;
-                    createCourseElement(id).appendTo(popperTemplate);
+                    addToAutocomplete(id);
                     if (input.value.length !== 0) {
                         input.dispatchEvent(new KeyboardEvent('keyup', { 'key': '' }));
                     }
                 }
             });
         }
-        function createCourseElement(identifier, startPos, length) {
+        function addToAutocomplete(identifier, startPos, length) {
             let template = $('#popper-item-template').html();
             let dataset = Object.assign({}, identifier);
             let courseName = Object.values(dataset)[0];
@@ -104,13 +105,13 @@ const FORMS = (function () {
                 dataset.name = courseName;
             }
             let rendered = Mustache.render(template, dataset);
-            $(document).on('click', '.course-identifier-wrapper', function(){
-                addRecognizedCourse({ name: identifier.courseName, id: Object.keys(identifier)[0], realm: identifier.realm }, $(rendered), input);
+            rendered = $(rendered).appendTo(popperTemplate);
+            $(rendered).click(function(){
+                addRecognizedCourse({ name: courseName, id: Object.keys(identifier)[0], realm: identifier.realm }, $(rendered), input);
                 input.value = '';
                 input.focus();
                 destroyPopper();
             });
-            return $(rendered);
         }
         function destroyPopper() {
             if (popper !== null) {
@@ -129,7 +130,8 @@ const FORMS = (function () {
             if (!completionsList.completions) return;
             if (popper === null) createPopper();
 
-            let matches = [];
+            let matches = false;
+            popperTemplate.innerHTML = '';
             for (let completion of completionsList.completions) {
                 if (isAlreadyUsed(completion)) continue;
                 let name = Object.values(completion)[0];
@@ -137,17 +139,16 @@ const FORMS = (function () {
                 for (let word of words) {
                     let identifiedString = name.substring(name.indexOf(word));
                     if (!this.value || identifiedString.toLowerCase().startsWith(this.value.toLowerCase())) {
-                        matches.push(createCourseElement(completion,
-                            name.indexOf(identifiedString), this.value.length));
+                        matches = true;
+                        addToAutocomplete(completion,
+                            name.indexOf(identifiedString), this.value.length);
                         break;
                     }
                 }
             }
-            if (matches.length === 0) {
-                matches.push($('<p>No Matches</p>'));
+            if (!matches) {
+                $('<p>No Matches</p>').appendTo(popperTemplate);
             }
-            popperTemplate.innerHTML = '';
-            matches.forEach(e => e.appendTo(popperTemplate));
         });
         document.addEventListener('mousedown', destroyPopper, false);
         popperTemplate.addEventListener('mousedown', e => e.stopPropagation(), false);
