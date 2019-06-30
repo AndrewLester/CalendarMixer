@@ -13,6 +13,7 @@ function post(url, data) {
     return new Promise(resolve => {
         $.ajax({
             processData: false,
+            contentType: 'multipart/form-data',
             url: url,
             method: 'POST',
             data: data,
@@ -35,11 +36,11 @@ function handleFilteredElement(elem) {
     elem.classList.add('filtered');
 }
 
-function addElement(parent, event, filtered, openRow, start, end, long) {
+function addElement(parent, event, filtered, openRow, start, end, long, init) {
     let name = event['title'];
     let color = colors[~~(Math.random() * colors.length)];
     let text = document.createElement('div');
-    text.classList.add(initial ? 'added' : 'shown');
+    text.classList.add(init ? 'added' : 'shown');
     text.dataset.description = event['description'];
     text.dataset.realm = event['realm'];
     if (long) {
@@ -65,7 +66,7 @@ function addElement(parent, event, filtered, openRow, start, end, long) {
     text.style.gridRow = openRow + ' / ' + endRow;
     // -- Section --
     tippy(text, {content: name, arrow: true, duration: [100, 100]});
-    if (initial) {
+    if (init) {
         setTimeout(() => text.classList.replace('added', 'shown'), 100);
     }
     return added;
@@ -86,13 +87,14 @@ function filterEvent(event, filters) {
 
 function displayFilters(filters) {
     for (filter of filters) {
-        console.log(filter);
         let template = $('#filter-template').html();
         Mustache.parse(template);
         var rendered = Mustache.render(template, filter, {
             'recognized-course-template': $('#recognized-course-template').html()
         });
-        $('#filter-editor').html(rendered);
+        $('#filter-editor').append(rendered);
+        let wrapper = $('#filter-editor').find('.course-input');
+        wrapper.find('.delete-icon').click(function(){wrapper[0].removeChild($(this).parent()[0])});
     }
     return;
 }
@@ -103,9 +105,14 @@ var identifiers = FORMS.asyncAutocompleteList();
 var initial = true;
 
 async function addAllEvents() {
-    identifiers.completions = Promise.resolve(identifiers.completions) || get('calendar/identifiers');
+    identifiers.completions = (identifiers.completions ? Promise.resolve(identifiers.completions) : false) || get('calendar/identifiers');
+    // Await filters because they are necessary to place events
     filters = filters || await get('calendar/filter');
-    data = data || get('calendar/events').then(d => {
+    data = data ? Promise.resolve(data) : get('calendar/events');
+    data.then(d => {
+        data = d;
+        let initial = eventRows[0].classList.contains('event-row-skeleton');
+        console.log(initial);
         if (eventRows[0].classList.contains('event-row-skeleton')) {
             for (let row of eventRows) {
                 row.innerHTML = '';
@@ -116,10 +123,9 @@ async function addAllEvents() {
             let filtered = !filterEvent(event, filters);
             let start = moment(event['start'].split(' ')[0], 'YYYY-MM-DD');
             let end = event['has_end'] ? moment(event['end'].split(' ')[0], 'YYYY-MM-DD') : start;
-            placeEvent(event, start, end, filtered);
+            placeEvent(event, start, end, filtered, initial);
         });
-        return Promise.resolve(d);
-    });
+    }).catch(alert.bind(null, 'Event placement not functioning.'));
     if (initial) {
         displayFilters(filters);
     }

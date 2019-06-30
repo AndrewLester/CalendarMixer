@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, flash, redirect, url_for, request,
 from flask_login import login_required, current_user
 from app.calendar.forms import CourseFilterForm
 from app.calendar.models import CourseFilter, CourseIdentifier
+from requests_toolbelt import MultipartDecoder
 from app.exts import oauth, db
 from datetime import datetime, timedelta
 from app.exts import cache
@@ -53,14 +54,21 @@ def events():
     return jsonify(sort_events(get_user_events(current_user, request.cache)))
 
 
-@blueprint.route('/filter', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@blueprint.route('/filter', methods=['GET', 'POST'])
 @login_required
 def filter_modify():
+    # MultipartDecoder reads data from the .content attribute
+    data = request.get_data(parse_form_data=True)
+    print(data)
+    print(request.form)
     if request.method == 'GET':
         # current_user.apply_filters(None)
         return jsonify([item.to_json() for item in current_user.filters])
+
+    print('Content', request.data)
+    data = MultipartDecoder.from_response(request)
+    print(data)
     form = request.form
-    print(form)
     form_data = CourseFilterForm(form)
     
     if form_data.is_valid():

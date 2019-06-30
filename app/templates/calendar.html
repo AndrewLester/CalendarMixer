@@ -37,38 +37,49 @@
         </div>
         <div id="filter-editor">
             <h1>Edit Filters</h1>
-            {% raw %}
-            <script id="recognized-course-template" type="x-tmpl-mustache">
-                <div class="recognized-course" data-course-name="{{name}}" data-course-id="{{id}}" data-realm="{{realm}}">
-                    <div>{{name}}</div>
-                    <img class="delete-icon" src="/static/img/close.svg">
-                </div>
-            </script>
-            <script id="filter-template" type="x-tmpl-mustache">
-            <form id="filter-form-{{id}}" class="course-filter" enctype="multipart/form-data">
-                <fieldset class="course-filter-layout">
-                    <legend>Filter Id: {{id}}</legend>
-                    <input class="filter-type" type="checkbox"
-                    {{#positive}}
-                    checked
-                    {{/positive}}
-                    >Enabled</button>
-                    <div class="course-input">
-                        {{#course_ids}}
-                            {{> recognized-course-template}}
-                        {{/course_ids}}
-                        <input class="course-chooser" type="text" placeholder="Add Course">
-                    </div>
-                    <input type="submit" class="form-submit" value="Submit Form">
-                </fieldset>
-            </form>
-            </script>
-            {% endraw %}
             <button id="add-filter">Add Filter</button>
         </div>
         <div id="event-list"></div>
     </div>
-    <script src="https://unpkg.com/popper.js"></script>
+    {% raw %}
+    <script id="recognized-course-template" type="x-tmpl-mustache">
+    <div class="recognized-course" data-course-name="{{name}}" data-course-id="{{id}}" data-realm="{{realm}}">
+        <div>{{name}}</div>
+        <img class="delete-icon" src="/static/img/close.svg">
+    </div>
+    </script>
+    <script id="filter-template" type="x-tmpl-mustache">
+    <form id="filter-form-{{id}}" data-filter-id="{{id}}" class="course-filter" enctype="multipart/form-data">
+        <fieldset class="course-filter-layout">
+            <legend>Filter Id: {{id}}</legend>
+            <input class="filter-type" type="checkbox"
+            {{#positive}}
+            checked
+            {{/positive}}
+            >Enabled</button>
+            <div class="course-input">
+                {{#course_ids}}
+                    {{> recognized-course-template}}
+                {{/course_ids}}
+                <input class="course-chooser" type="text" placeholder="Add Course">
+            </div>
+            <input type="submit" class="form-submit" value="Submit Form">
+        </fieldset>
+    </form>
+    </script>
+    <script id="popper-item-template" type="x-tmpl-mustache">
+    <div class="course-identifier-wrapper" data-realm="{{realm}}">
+        <div></div>
+        {{#start_pos}}
+        <p>{{name_begin}}<span style="font-weight: bold;">{{bolded}}</span>{{name_end}}</p>
+        {{/start_pos}}
+        {{^start_pos}}
+        <p>{{name}}</p>
+        {{/start_pos}}
+    </div>
+    </script>
+    {% endraw %}
+    <script src="https://unpkg.com/popper.js@1"></script>
     <script src="https://unpkg.com/tippy.js@4"></script>
     <script type="text/javascript" src="/static/js/moment.min.js"></script>
     <script type="text/javascript" src="/static/js/calendar-structure.js"></script>

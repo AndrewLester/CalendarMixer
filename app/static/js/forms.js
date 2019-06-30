@@ -3,6 +3,7 @@ const FORMS = (function () {
         return {
             set completions(value) {
                 value.then(v => {
+                    console.log(v);
                     if (this.listener && this.value !== v) {
                         this.listener(v);
                     }
@@ -30,16 +31,13 @@ const FORMS = (function () {
         elem.addEventListener('submit', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            let formData = new FormData(elem);
-            formData.append('positive', $(elem).find('.filter-type').value == 'checked');
-            let ids = $.map($(elem).find('.recognized-course'), e => e.dataset).map(d => {
-                return {
-                    course_id: d.courseId,
-                    course_name: d.courseName,
-                    course_realm: d.realm
-                }
-            });
-            formData.append('course_ids', ids);
+            let formData = new FormData();
+            formData.append('filterId', elem.dataset.filterId);
+            formData.append('positive', $(elem).find('.filter-type').prop('checked'));
+            formData.append('course_ids', JSON.stringify($.map($(elem).find('.recognized-course'), e => e.dataset).map(d => {
+                return {course_id: d.courseId, course_name: d.courseName, course_realm: d.realm}
+            })));
+            
             postFunction(url, formData);
         }, false);
     }
@@ -49,21 +47,7 @@ const FORMS = (function () {
         Mustache.parse(template);
         var rendered = Mustache.render(template, dataset);
         $(rendered).insertBefore(inputElem);
-        $(wrapper).find('.delete-icon').click(() => $(wrapper).remove($(rendered)));
-        // let recognizedCourse = document.createElement('div');
-        // recognizedCourse.classList.add('recognized-course');
-        // let text = document.createElement('div');
-        // text.textContent = dataset.courseName;
-        // let deleteIcon = document.createElement('img');
-        // deleteIcon.src = '/static/img/close.svg';
-        // deleteIcon.classList.add('delete-icon');
-        // deleteIcon.addEventListener('click', );
-        // recognizedCourse.append(text);
-        // recognizedCourse.append(deleteIcon);
-        // recognizedCourse.dataset.courseName = dataset.courseName;
-        // recognizedCourse.dataset.courseId = dataset.courseId;
-        // recognizedCourse.dataset.realm = dataset.realm;
-        // wrapper.insertBefore(recognizedCourse, inputElem);
+        wrapper.find('.delete-icon').click(function(){wrapper[0].removeChild($(this).parent()[0])});
     }
 
     function createAutocompleteMultiInput(wrapper, input, popperTemplate, completionsList) {
@@ -99,7 +83,7 @@ const FORMS = (function () {
                 });
                 for (let id of val) {
                     if (isAlreadyUsed(id)) continue;
-                    popperTemplate.append(createCourseElement(id));
+                    createCourseElement(id).appendTo(popperTemplate);
                     if (input.value.length !== 0) {
                         input.dispatchEvent(new KeyboardEvent('keyup', { 'key': '' }));
                     }
@@ -107,30 +91,26 @@ const FORMS = (function () {
             });
         }
         function createCourseElement(identifier, startPos, length) {
-            let wrapperDiv = document.createElement('div');
-            wrapperDiv.classList.add('course-identifier-wrapper');
-            let image = document.createElement('div');
-            let name = document.createElement('p');
-            let courseName = Object.values(identifier)[0];
+            let template = $('#popper-item-template').html();
+            let dataset = identifier;
+            let courseName = Object.values(dataset)[0];
+            Mustache.parse(template);
             if (startPos !== undefined) {
-                let span = document.createElement('span');
-                span.textContent = courseName.slice(startPos, startPos + length);
-                span.style.fontWeight = 'bold';
-                name.append(span);
-                name.insertAdjacentText('afterbegin', courseName.slice(0, startPos));
-                name.insertAdjacentText('beforeend', courseName.slice(startPos + length));
+                dataset.bold = courseName.slice(startPos, startPos + length);
+                dataset.name_begin = courseName.slice(0, startPos);
+                dataset.name_end = courseName.slice(startPos + length);
             } else {
-                name.textContent = courseName;
+                dataset.name = courseName;
             }
-            wrapperDiv.dataset.realm = identifier.realm;
-            wrapperDiv.append(image, name);
-            wrapperDiv.addEventListener('click', function () {
-                addRecognizedCourse({ name: courseName, id: Object.keys(identifier)[0], realm: identifier.realm }, wrapper, input);
+            console.log(dataset);
+            let rendered = Mustache.render(template, dataset);
+            $(rendered).find('.course-identifier-wrapper').click(function(){
+                addRecognizedCourse({ name: identifier.courseName, id: Object.keys(identifier)[0], realm: identifier.realm }, $(rendered), input);
                 input.value = '';
                 input.focus();
                 destroyPopper();
             });
-            return wrapperDiv;
+            return $(rendered);
         }
         function destroyPopper() {
             if (popper !== null) {
@@ -164,12 +144,10 @@ const FORMS = (function () {
                 }
             }
             if (matches.length === 0) {
-                let noItems = document.createElement('p');
-                noItems.textContent = 'No Matches';
-                matches.push(noItems);
+                matches.push($('<p>No Matches</p>'));
             }
             popperTemplate.innerHTML = '';
-            matches.forEach(e => popperTemplate.append(e));
+            matches.forEach(e => e.appendTo(popperTemplate));
         });
         document.addEventListener('mousedown', destroyPopper, false);
         popperTemplate.addEventListener('mousedown', e => e.stopPropagation(), false);

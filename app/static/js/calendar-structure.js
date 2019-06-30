@@ -103,7 +103,7 @@ async function navigateMonths(months) {
 previousMonthButton.click(navigateMonths.bind(null, -1));
 nextMonthButton.click(navigateMonths.bind(null, 1));
 
-function placeEvent(event, start, end, filtered) {
+function placeEvent(event, start, end, filtered, init) {
     if (start.isBefore(firstCalDay) || start.isAfter(lastCalDay)) {
         return;
     }
@@ -123,10 +123,10 @@ function placeEvent(event, start, end, filtered) {
         }
     }
     if (endCol > 8) {
-        placeEvent(event, moment(start).add(7 - col, 'days'), end, filtered);
+        placeEvent(event, moment(start).add(7 - col, 'days'), end, filtered, init);
     }
     let elem = document.getElementById('row' + eventRow + '-events');
-    let ifAdded = addElement(elem, event, filtered, calDay.currentRow++, startCol, endCol, span.asDays() > 0);
+    let ifAdded = addElement(elem, event, filtered, calDay.currentRow++, startCol, endCol, span.asDays() > 0, init);
     calDay.currentRow += ifAdded;
 }
 
