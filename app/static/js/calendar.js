@@ -13,7 +13,7 @@ function post(url, data) {
     return new Promise(resolve => {
         $.ajax({
             processData: false,
-            contentType: 'multipart/form-data',
+            contentType: false,
             url: url,
             method: 'POST',
             data: data,

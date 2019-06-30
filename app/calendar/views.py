@@ -5,9 +5,10 @@ from app.calendar.models import CourseFilter, CourseIdentifier
 from requests_toolbelt import MultipartDecoder
 from app.exts import oauth, db
 from datetime import datetime, timedelta
-from app.exts import cache
+from app.exts import cache, csrf
 import json
-from flask_wtf import CSRFProtect, csrf
+import re
+from flask_wtf import CSRFProtect
 from flask_wtf.form import _FlaskFormCSRF
 import functools
 from functools import wraps
@@ -55,22 +56,20 @@ def events():
 
 
 @blueprint.route('/filter', methods=['GET', 'POST'])
-@login_required
+# @login_required
+@csrf.exempt
 def filter_modify():
     # MultipartDecoder reads data from the .content attribute
-    data = request.get_data(parse_form_data=True)
-    print(data)
-    print(request.form)
+    data = request.get_data()
+    request.content = data
     if request.method == 'GET':
         # current_user.apply_filters(None)
         return jsonify([item.to_json() for item in current_user.filters])
-
-    print('Content', request.data)
-    data = MultipartDecoder.from_response(request)
-    print(data)
-    form = request.form
-    form_data = CourseFilterForm(form)
     
+    form = MultipartDecoder.from_response(request)
+    form._parse_body(data)
+    form = [(re.search(r'name="(\w+)"', list(part.headers.lower_items())[0][1].decode('utf-8')).group(1), part.text) for part in form.parts]
+    form_data = CourseFilterForm(form)
     if form_data.is_valid():
         filter = CourseFilter(
             positive=(not form_data.negative), 
@@ -84,6 +83,7 @@ def filter_modify():
         db.session.add(current_user)
         db.session.commit()
         return jsonify([item.to_json() for item in current_user.filters])
+    return jsonify(hi='oof')
 
 @blueprint.route('/identifiers')
 @login_required

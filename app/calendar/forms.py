@@ -3,7 +3,7 @@ from wtforms.widgets import TextInput
 from wtforms import Field, StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FieldList
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
 from app.main.models import User
-import re
+import json
 
 
 class CourseIdentifierField(Field):
@@ -15,25 +15,21 @@ class CourseIdentifierField(Field):
         else:
             return u''
 
-    def process_formdata(self, valuelist):
-        if valuelist:
-            self.data = [x.strip() for x in valuelist[0].split(',')]
-        else:
-            self.data = []
+    def process_formdata(self, data):
+        data = json.loads(data)
+        print(data)
 
 
 class CustomForm():
     def __init__(self, form):
-        self._data = {}
-        for k, v in form.items():
-            if self._is_list_attr(k):
-                pass
-                # self._data
+        for k, v in form:
+            print(k, json.loads(v))
 
-    def _is_list_attr(k):
-        return re.match('(\[\d+\])+', str(k))
+    def is_valid(self):
+        return False
 
 class CourseFilterForm(CustomForm):
+    filter_id = 0
     positive = False
     course_ids = []
 

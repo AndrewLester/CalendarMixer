@@ -32,11 +32,11 @@ const FORMS = (function () {
             e.preventDefault();
             e.stopPropagation();
             let formData = new FormData();
-            formData.append('filterId', elem.dataset.filterId);
-            formData.append('positive', $(elem).find('.filter-type').prop('checked'));
-            formData.append('course_ids', JSON.stringify($.map($(elem).find('.recognized-course'), e => e.dataset).map(d => {
+            formData.append('filterId', JSON.stringify({data: elem.dataset.filterId}));
+            formData.append('positive', JSON.stringify({data: $(elem).find('.filter-type').prop('checked')}));
+            formData.append('course_ids', JSON.stringify({data: $.map($(elem).find('.recognized-course'), e => e.dataset).map(d => {
                 return {course_id: d.courseId, course_name: d.courseName, course_realm: d.realm}
-            })));
+            })}));
             
             postFunction(url, formData);
         }, false);
@@ -92,19 +92,19 @@ const FORMS = (function () {
         }
         function createCourseElement(identifier, startPos, length) {
             let template = $('#popper-item-template').html();
-            let dataset = identifier;
+            let dataset = Object.assign({}, identifier);
             let courseName = Object.values(dataset)[0];
             Mustache.parse(template);
             if (startPos !== undefined) {
+                dataset.start_pos = true;
                 dataset.bold = courseName.slice(startPos, startPos + length);
                 dataset.name_begin = courseName.slice(0, startPos);
                 dataset.name_end = courseName.slice(startPos + length);
             } else {
                 dataset.name = courseName;
             }
-            console.log(dataset);
             let rendered = Mustache.render(template, dataset);
-            $(rendered).find('.course-identifier-wrapper').click(function(){
+            $(document).on('click', '.course-identifier-wrapper', function(){
                 addRecognizedCourse({ name: identifier.courseName, id: Object.keys(identifier)[0], realm: identifier.realm }, $(rendered), input);
                 input.value = '';
                 input.focus();
