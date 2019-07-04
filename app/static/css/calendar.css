@@ -7,6 +7,7 @@
     display: grid;
     z-index: 1;
     opacity: 1;
+    align-self: flex-start;
     grid-template-columns: repeat(7, 1fr);
 }
 
@@ -54,6 +55,7 @@
 #header {
     display: grid;
     font-weight: bold;
+    height: 21px;
     text-align: center;
     grid-auto-flow: column;
     grid-template-columns: repeat(7, 1fr);

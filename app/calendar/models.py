@@ -47,7 +47,7 @@ class CourseFilter(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def predicate(self, item):
-        return item in self.course_ids
+        return item in self.course_ids ^ self.positive
 
     def apply(self, iterable):
         for item in iterable:

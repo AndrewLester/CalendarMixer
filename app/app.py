@@ -13,6 +13,8 @@ import os
 def create_app(config_name=Config):
     app = Flask(__name__.split('.')[0])
     app.config.from_object(config_name)
+    # Register before requests mixins prior to those that are inside extensions
+    register_request_mixins(app)
     register_extensions(app)
     register_blueprints(app)
     register_errorhandlers(app)
@@ -22,7 +24,6 @@ def create_app(config_name=Config):
                                          'CourseFilter': calendar.models.CourseFilter,
                                          'CourseIdentifier': calendar.models.CourseIdentifier})
     app.context_processor(lambda: {'date': datetime.now()})
-    register_request_mixins(app)
     # register_commands(app)
     return app
 
@@ -109,6 +110,7 @@ def register_request_mixins(app):
         if current_user.is_authenticated:
             current_user.last_seen = datetime.utcnow()
             request.cache = {'cache_name': str(current_user.id), 'backend': 'redis', 'expire_after': 300}
+            request.content = request.get_data()
             db.session.commit()
 
     app.before_request(before_request)

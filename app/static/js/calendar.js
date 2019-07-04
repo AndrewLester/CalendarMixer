@@ -84,32 +84,19 @@ function filterEvent(event, filters) {
 }
 
 function displayFilters(filters) {
-    if (filters.length === 0) {
+    if (filters.length !== 0) {
+        $('#filter-editor').find('.course-filter').remove();
+    }
+    for (let filter of filters) {
         let template = $('#filter-template').html();
         Mustache.parse(template);
-        let filter = {
-            id: 1,
-            positive: false,
-            course_ids: []
-        }
-        var rendered = Mustache.render(template, filter, {
+        let rendered = Mustache.render(template, filter, {
             'recognized-course-template': $('#recognized-course-template').html()
         });
         $('#filter-editor').append(rendered);
         let wrapper = $('#filter-editor').find('.course-input');
         wrapper.find('.delete-icon').click(function(){wrapper[0].removeChild($(this).parent()[0])});
     }
-    for (filter of filters) {
-        let template = $('#filter-template').html();
-        Mustache.parse(template);
-        var rendered = Mustache.render(template, filter, {
-            'recognized-course-template': $('#recognized-course-template').html()
-        });
-        $('#filter-editor').append(rendered);
-        let wrapper = $('#filter-editor').find('.course-input');
-        wrapper.find('.delete-icon').click(function(){wrapper[0].removeChild($(this).parent()[0])});
-    }
-    return;
 }
 
 var data;
@@ -138,7 +125,7 @@ async function addAllEvents() {
             let end = event['has_end'] ? moment(event['end'].split(' ')[0], 'YYYY-MM-DD') : start;
             placeEvent(event, start, end, filtered, initial);
         });
-    }).catch(alert.bind(null, 'Event placement not functioning.'));
+    }).catch(e => console.log(e));
     if (initial) {
         displayFilters(filters);
     }

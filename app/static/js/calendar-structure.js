@@ -1,6 +1,4 @@
-var eventList = $('#event-list'),
-    filterList = $('#filter-list-ul'),
-    calendarGrid = $('#calendar'),
+var calendarGrid = $('#calendar'),
     eventRows = $('.event-row'),
     previousMonthButton = $('#previous-month'),
     nextMonthButton =  $('#next-month'),
@@ -11,7 +9,7 @@ let calendar = [[],[],[],[],[],[]];
 let linkDate = window.location.pathname.split('/')[window.location.pathname.split('/').length - 1];
 let now = moment(linkDate, 'YYYY-MM').isValid() ? moment(linkDate, 'YYYY-MM') : moment();
 let rows = document.querySelectorAll('.calendar-row .header');
-
+console.log(rows);
 var firstCalDay;
 var firstMonthDay;
 var lastCalDay;
@@ -86,6 +84,8 @@ function buildCalendarStructure(today) {
 buildCalendarStructure(now.startOf('day'));
 
 async function navigateMonths(months) {
+    if (!addAllEvents) return Promise.resolve(null);
+
     calendarGrid.removeClass('moving-right moving-left transitionable');
     await sleep(20);
     calendarGrid.addClass(months > 0 ? 'moving-right' : 'moving-left');
@@ -94,19 +94,21 @@ async function navigateMonths(months) {
     calendarGrid.addClass('transitionable');
     clearCalendar();
     buildCalendarStructure(now.add(months, 'months'));
-    if (addAllEvents) {
-        await addAllEvents();
-        calendarGrid.removeClass('moving-right moving-left');
-    }
+
+    await addAllEvents();
+    calendarGrid.removeClass('moving-right moving-left');
 }
 
 previousMonthButton.click(navigateMonths.bind(null, -1));
 nextMonthButton.click(navigateMonths.bind(null, 1));
 
 function placeEvent(event, start, end, filtered, init) {
-    if (start.isBefore(firstCalDay) || start.isAfter(lastCalDay)) {
+    if (end.isBefore(firstCalDay) || start.isAfter(lastCalDay)) {
         return;
     }
+
+    // Reset start to firstCalDay if the actual start is before the current month.
+    start = start.isAfter(moment(firstCalDay).subtract(1, 'days')) ? start : firstCalDay;
 
     let span = moment.duration(end.diff(start));
     let daysSinceCalStart = moment.duration(start.diff(firstCalDay)).asDays();

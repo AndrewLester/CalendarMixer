@@ -1,14 +1,18 @@
+from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
 from app.main.models import User
+from requests_toolbelt import MultipartDecoder
 from app.calendar.models import CourseIdentifier
 import re
+import json
 import unicodedata
 
 
-class CustomForm():
-    def __init__(self, form):
+class CustomForm:
+    def __init__(self):
+        form = self.build_form()
         self.valid = True
         for k, v in form:
             attribute = getattr(self, k, None)
@@ -39,6 +43,13 @@ class CustomForm():
             if string != re.match(regex, string).group(0):
                 return False
         return True
+    
+    def build_form(self):
+        form = MultipartDecoder.from_response(request)
+        form._parse_body(request.content)
+        form = [(re.search(r'name="(\w+)"', list(part.headers.lower_items())[0][1].decode('utf-8')).group(1),
+             json.loads(part.text)) for part in form.parts]
+        return form
 
 
 class CourseFilterForm(CustomForm):

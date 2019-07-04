@@ -126,7 +126,7 @@ const FORMS = (function () {
             $(this).parent().css('border-bottom-color', '#29b6f6');
         });
         $(input).blur(e => $(e.target).parent().css('border-bottom-color', 'gray'));
-        input.addEventListener('keyup', function (e) {
+        input.addEventListener('keyup', function () {
             if (!completionsList.completions) return;
             if (popper === null) createPopper();
 

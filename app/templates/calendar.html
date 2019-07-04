@@ -8,7 +8,17 @@
     {% if colors is defined %}
     <script type="text/javascript">var savedColors = {{ colors }};</script>
     {% endif %}
-    <script type="text/javascript">(function(){var csrf_token = $('meta[name=csrf-token]').attr('content');$.ajaxSetup({beforeSend: function(xhr, settings) {if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {xhr.setRequestHeader("X-CSRFToken", csrf_token);}}});}());</script>
+    <script type="text/javascript">
+    let csrf_token = "{{ csrf_token() }}";
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
+    </script>
 {% endblock %}
 
 {% block navbar %}
@@ -38,6 +48,16 @@
         <div id="filter-editor">
             <h1>Edit Filters</h1>
             <button id="add-filter">Add Filter</button>
+            <form id="filter-form-1" data-filter-id="1" class="course-filter" enctype="multipart/form-data">
+            <fieldset class="course-filter-layout">
+                <legend>Filter Id: 1</legend>
+                <input class="filter-type" type="checkbox">Positive Filter
+                <div class="course-input">
+                    <input class="course-chooser" type="text" placeholder="Add Course">
+                </div>
+                <input type="submit" class="form-submit" value="Save Filter">
+            </fieldset>
+            </form>
         </div>
         <div id="event-list"></div>
     </div>
@@ -56,7 +76,7 @@
             {{#positive}}
             checked
             {{/positive}}
-            >Enabled</button>
+            >Positive Filter
             <div class="course-input">
                 {{#course_ids}}
                     {{> recognized-course-template}}

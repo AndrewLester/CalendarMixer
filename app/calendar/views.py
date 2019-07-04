@@ -1,15 +1,12 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify, current_app
+from flask import Blueprint, render_template, request, jsonify, current_app
 from flask_login import login_required, current_user
 from app.calendar.forms import CourseFilterForm
-from app.calendar.models import CourseFilter, CourseIdentifier
-from requests_toolbelt import MultipartDecoder
+from app.calendar.models import CourseFilter
 from app.exts import oauth, db
 from datetime import datetime, timedelta
 from app.exts import cache, csrf
 import json
 import re
-from flask_wtf import CSRFProtect
-from flask_wtf.form import _FlaskFormCSRF
 import functools
 from functools import wraps
 from dateutil.relativedelta import relativedelta
@@ -57,20 +54,12 @@ def events():
 
 @blueprint.route('/filter', methods=['GET', 'POST'])
 @login_required
-@csrf.exempt
 def filter_modify():
-    data = request.get_data()
-    # MultipartDecoder reads data from the .content attribute
-    request.content = data
     if request.method == 'GET':
         # current_user.apply_filters(None)
         return jsonify([item.to_json() for item in current_user.filters])
     
-    form = MultipartDecoder.from_response(request)
-    form._parse_body(data)
-    form = [(re.search(r'name="(\w+)"', list(part.headers.lower_items())[0][1].decode('utf-8')).group(1),
-             json.loads(part.text)) for part in form.parts]
-    form_data = CourseFilterForm(form)
+    form_data = CourseFilterForm()
     if form_data.valid:
         course_filter = current_user.filters.filter_by(id=form_data.filter_id).first()
         if course_filter is None:
