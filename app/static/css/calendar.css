@@ -205,7 +205,7 @@
     font-size: 20px;
 }
 
-button, input[type="submit"] {
+button.large-button, input[type="submit"] {
     border-radius: 5px;
     font-size: 15px;
     color: white;
@@ -216,7 +216,7 @@ button, input[type="submit"] {
     height: 40px;
 }
 
-button:hover, input[type="submit"]:hover {
+button.large-button:hover, input[type="submit"]:hover {
     cursor: pointer;
     background-color: white;
     color: #29b6f6;
@@ -224,7 +224,7 @@ button:hover, input[type="submit"]:hover {
     box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.2);
 }
 
-button:active, input[type="submit"]:active {
+button.large-button:active, input[type="submit"]:active {
     box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.2);
     border-color: rgba(0, 0, 0, 0.8);
 }
@@ -297,7 +297,7 @@ button:active, input[type="submit"]:active {
     box-shadow: 0 1px 2px 0 rgba(60,64,67,0.302), 0 2px 6px 2px rgba(60,64,67,0.149);
     border-radius: 5px;
     padding: 7px 0px;
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 200px;
     flex-wrap: wrap;
 }
@@ -382,4 +382,15 @@ button:active, input[type="submit"]:active {
     margin-left: 5px;
     margin-top: 2px;
     cursor: pointer;
+}
+#save-element {
+    float: right;
+    margin-right: 20px;
+}
+#save-filters-bar {
+    width: 100%;
+}
+#save-filters-bar > p {
+    float: left;
+    margin: 0px 20px;
 }

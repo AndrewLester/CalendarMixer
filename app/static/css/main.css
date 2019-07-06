@@ -15,3 +15,84 @@ p {
 fieldset {
     padding: 0px;
 }
+.spinner {
+    animation: rotate 2s linear infinite;
+    z-index: 2;
+    position: relative;
+    margin: -12px 0 0 -12px;
+    width: 24px;
+    height: 24px;
+}
+.spinner > .path {
+    stroke: rgba(0, 183, 255, 0.979);
+    /*stroke-linecap: round;*/
+    animation: dash 1.5s ease-in-out infinite;
+}
+@keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+}
+@keyframes dash {
+    0% {
+      stroke-dasharray: 1, 75;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 45, 75;
+      stroke-dashoffset: -18;
+    }
+    100% {
+      stroke-dasharray: 45, 75;
+      stroke-dashoffset: -62;
+    }
+}
+.icon-button {
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    position: relative;
+    height: 24px;
+    width: 24px;
+    padding: 0px;
+}
+.icon-button div {
+    position: absolute;
+    height: calc(100% * 1.5);
+    width: calc(100% * 1.5);
+    background-color: rgba(109, 111, 115, 0.5);
+    border-radius: 50%;
+    top: -25%;
+    z-index: -1;
+    left: -25%;
+    opacity: 0;
+    transform: scale(0);
+}
+.icon-button.active > div {
+    animation: background-expand 0.15s ease-in-out forwards;
+}
+.icon-button:not(.active) > div {
+    animation: background-fade 0.15s ease-in backwards;
+}
+@keyframes background-expand {
+    from {
+        opacity: 1;
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+@keyframes background-fade {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    99% {
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+    }
+}

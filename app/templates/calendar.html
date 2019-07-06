@@ -8,17 +8,7 @@
     {% if colors is defined %}
     <script type="text/javascript">var savedColors = {{ colors }};</script>
     {% endif %}
-    <script type="text/javascript">
-    let csrf_token = "{{ csrf_token() }}";
-
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            }
-        }
-    });
-    </script>
+    <script type="text/javascript">let csrf_token = "{{ csrf_token() }}";$.ajaxSetup({beforeSend: function(xhr, settings) {if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {xhr.setRequestHeader("X-CSRFToken", csrf_token);}}});</script>
 {% endblock %}
 
 {% block navbar %}
@@ -27,8 +17,8 @@
 {% block content %}
     <div id="button-panel">
         <p id="current-date"></p> 
-        <button class="month-changer" id="previous-month"></button>
-        <button class="month-changer" id="next-month"></button>
+        <button class="month-changer large-button" id="previous-month"></button>
+        <button class="month-changer large-button" id="next-month"></button>
     </div>
     <div id="main-content">
         <div id="calendar" class="shown">
@@ -47,7 +37,22 @@
         </div>
         <div id="filter-editor">
             <h1>Edit Filters</h1>
-            <button id="add-filter">Add Filter</button>
+            <div id="save-filters-bar">
+                <p>Last saved at: </p>
+                <div id="save-element">
+                    <button id="save-button" class="icon-button">
+                        <div></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" tabindex="0">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                        </svg>
+                    </button>
+                    <svg class="spinner" viewBox="0 0 24 24">
+                        <circle class="path" cx="12" cy="12" r="10" fill="none" stroke-width="3"></circle>
+                    </svg>
+                </div> 
+            </div>
+            <button class="large-button" id="add-filter">Add Filter</button>
             <form id="filter-form-1" data-filter-id="1" class="course-filter" enctype="multipart/form-data">
             <fieldset class="course-filter-layout">
                 <legend>Filter Id: 1</legend>

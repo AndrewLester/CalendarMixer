@@ -3,7 +3,6 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#29b6f6">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
         {% if title %}
         <title>{{ title }} - Calendar Mixer</title>
@@ -12,6 +11,7 @@
         {% endif %}
         <link rel="icon" href="https://img.icons8.com/metro/28/000000/calendar-{{ date.day }}.png" />
         {% block head %}{% endblock %}
+        <script src="/static/js/main.js" type="text/javascript" defer></script>
     </head>
     <body>
         <div>

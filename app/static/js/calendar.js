@@ -146,5 +146,3 @@ async function generateForms() {
 }
 
 generateForms();
-
-
