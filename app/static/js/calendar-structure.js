@@ -9,7 +9,6 @@ let calendar = [[],[],[],[],[],[]];
 let linkDate = window.location.pathname.split('/')[window.location.pathname.split('/').length - 1];
 let now = moment(linkDate, 'YYYY-MM').isValid() ? moment(linkDate, 'YYYY-MM') : moment();
 let rows = document.querySelectorAll('.calendar-row .header');
-console.log(rows);
 var firstCalDay;
 var firstMonthDay;
 var lastCalDay;

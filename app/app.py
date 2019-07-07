@@ -8,11 +8,15 @@ from flask_wtf.csrf import CSRFError
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
+from redis import Redis
+import rq
 
 
 def create_app(config_name=Config):
     app = Flask(__name__.split('.')[0])
     app.config.from_object(config_name)
+    app.redis = Redis.from_url(app.config['REDIS_URL'])
+    app.task_queue = rq.Queue('calendarmixer-tasks', connection=app.redis)
     # Register before requests mixins prior to those that are inside extensions
     register_request_mixins(app)
     register_extensions(app)
@@ -22,7 +26,8 @@ def create_app(config_name=Config):
     app.shell_context_processor(lambda: {'db': db, 'User': main.models.User,
                                          'Post': main.models.Post,
                                          'CourseFilter': calendar.models.CourseFilter,
-                                         'CourseIdentifier': calendar.models.CourseIdentifier})
+                                         'CourseIdentifier': calendar.models.CourseIdentifier,
+                                         'Task': main.models.Task})
     app.context_processor(lambda: {'date': datetime.now()})
     # register_commands(app)
     return app
