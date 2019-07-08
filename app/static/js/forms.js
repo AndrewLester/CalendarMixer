@@ -3,7 +3,6 @@ const FORMS = (function () {
         return {
             set completions(value) {
                 value.then(v => {
-                    console.log(v);
                     if (this.listener && this.value !== v) {
                         this.listener(v);
                     }
@@ -27,30 +26,38 @@ const FORMS = (function () {
         deleteIcon.addEventListener('click', () => recognizedCourse.parentElement.removeChild(recognizedCourse));
     }
 
+    async function saveForm(elem, postFunction, url) {
+        let formData = new FormData();
+        formData.append('filter_id', JSON.stringify({data: elem.dataset.filterId}));
+        formData.append('positive', JSON.stringify({data: $(elem).find('.filter-type').prop('checked')}));
+        formData.append('course_ids', JSON.stringify({data: $.map($(elem).find('.recognized-course'), e => e.dataset).map(d => {
+            return {course_id: d.courseId, course_name: d.courseName, course_realm: d.realm}
+        })}));
+            
+        await postFunction(url, formData);
+    }
+
     function addSubmitListener(elem, postFunction, url) {
         elem.addEventListener('submit', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            let formData = new FormData();
-            formData.append('filter_id', JSON.stringify({data: elem.dataset.filterId}));
-            formData.append('positive', JSON.stringify({data: $(elem).find('.filter-type').prop('checked')}));
-            formData.append('course_ids', JSON.stringify({data: $.map($(elem).find('.recognized-course'), e => e.dataset).map(d => {
-                return {course_id: d.courseId, course_name: d.courseName, course_realm: d.realm}
-            })}));
-            
-            postFunction(url, formData);
+            saveForm(elem, postFunction, url);
         }, false);
     }
 
-    function addRecognizedCourse(dataset, wrapper, inputElem) {
+    function addRecognizedCourse(dataset, form, inputElem) {
         let template = $('#recognized-course-template').html();
         Mustache.parse(template);
         var rendered = Mustache.render(template, dataset);
         rendered = $(rendered).insertBefore(inputElem);
-        $(rendered).find('.delete-icon').click(function(){this.parentElement.parentElement.removeChild(this.parentElement)});
+        $(rendered).find('.delete-icon').click(function(){
+            this.parentElement.parentElement.removeChild(this.parentElement);
+            $(form).trigger('change');
+        });
+        $(form).trigger('change');
     }
 
-    function createAutocompleteMultiInput(wrapper, input, popperTemplate, completionsList) {
+    function createAutocompleteMultiInput(form, wrapper, input, popperTemplate, completionsList) {
         let popper = null;
         function isAlreadyUsed(completion) {
             let recognized = wrapper.querySelectorAll('div.recognized-course');
@@ -107,7 +114,7 @@ const FORMS = (function () {
             let rendered = Mustache.render(template, dataset);
             rendered = $(rendered).appendTo(popperTemplate);
             $(rendered).click(function(){
-                addRecognizedCourse({ name: courseName, id: Object.keys(identifier)[0], realm: identifier.realm }, $(rendered), input);
+                addRecognizedCourse({ name: courseName, id: Object.keys(identifier)[0], realm: identifier.realm }, form, input);
                 input.value = '';
                 input.focus();
                 destroyPopper();
@@ -158,6 +165,7 @@ const FORMS = (function () {
         addRecognizedCourse,
         asyncAutocompleteList,
         createAutocompleteMultiInput,
-        addSubmitListener
+        addSubmitListener,
+        saveForm
     }
 }());

@@ -94,8 +94,11 @@ function displayFilters(filters) {
             'recognized-course-template': $('#recognized-course-template').html()
         });
         $('#filter-editor').append(rendered);
-        let wrapper = $('#filter-editor').find('.course-input');
-        wrapper.find('.delete-icon').click(function(){wrapper[0].removeChild($(this).parent()[0])});
+        let wrapper = $('#filter-editor').find('#filter-form-1');
+        wrapper.find('.delete-icon').click(function(){
+            wrapper.find('.course-input')[0].removeChild($(this).parent()[0]);
+            wrapper.trigger('change');
+        });
     }
 }
 
@@ -112,7 +115,6 @@ async function addAllEvents() {
     data.then(d => {
         data = d;
         let initial = eventRows[0].classList.contains('event-row-skeleton');
-        console.log(initial);
         if (eventRows[0].classList.contains('event-row-skeleton')) {
             for (let row of eventRows) {
                 row.innerHTML = '';
@@ -138,11 +140,41 @@ async function generateForms() {
 
     for (let form of document.forms) {
         if (form.classList.contains('course-filter')) {
+            $(form).change(filterSaveIcon.clickIcon);
             let input = form.querySelectorAll('.course-input')[0];
-            FORMS.createAutocompleteMultiInput(input, input.lastElementChild, template, identifiers);
+            FORMS.createAutocompleteMultiInput(form, input, input.lastElementChild, template, identifiers);
             FORMS.addSubmitListener(form, post, 'calendar/filter');
         }
     }
 }
 
+function spinner(element, func) {
+    let button = element.find('.icon-button');
+    let spinner = element.find('.spinner');
+    let text = element.siblings('p');
+    spinner.hide();
+    let lastSaved;
+    button.click(async () => {
+        await animationEnd(button, 200);
+        button.hide();
+        spinner.show();
+        await func();
+        lastSaved = moment();
+        text.text('Last saved a few seconds ago')
+        spinner.hide();
+        button.show();
+    });
+    setInterval(() => {
+        if (!lastSaved) return;
+        text.text('Last saved ' + moment.duration(lastSaved.diff(moment())).humanize(true));
+    }, 60000);
+    return { clickIcon: () => button.click() };
+}
+const filterSaveIcon = spinner($('#save-element'), async () => {
+    for (let form of document.forms) {
+        await FORMS.saveForm(form, post, 'calendar/filter');
+    }
+});
+
 generateForms();
+

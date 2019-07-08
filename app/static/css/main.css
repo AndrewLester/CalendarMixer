@@ -19,7 +19,7 @@ fieldset {
     animation: rotate 2s linear infinite;
     z-index: 2;
     position: relative;
-    margin: -12px 0 0 -12px;
+    display: none;
     width: 24px;
     height: 24px;
 }
@@ -53,6 +53,7 @@ fieldset {
     background-color: transparent;
     position: relative;
     height: 24px;
+    vertical-align: middle;
     width: 24px;
     padding: 0px;
 }

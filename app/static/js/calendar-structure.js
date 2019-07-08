@@ -18,10 +18,14 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function animationEnd(elem) {
-    return new Promise(resolve => {
+function animationEnd(elem, timeout) {
+    return new Promise(async resolve => {
         // TODO: Use other animation end events for ms, webkit, etc.
         elem.one('animationend', resolve);
+        if (timeout !== undefined) {
+            await sleep(timeout);
+            resolve();
+        }
     });
 }
 

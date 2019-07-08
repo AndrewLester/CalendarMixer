@@ -9,11 +9,6 @@ $('.icon-button').on('mousedown', async function() {
     await animationEnd($(this));
     $(this).addClass('animation-done');
 });
-$('.icon-button').on('click', async function() {
-    await buttonRelease($(this));
-});
-$(document).on('mouseup', async function(e) {
-    if ($(e.target).parents('.icon-button').length === 0) {
-        await buttonRelease($('.icon-button'));
-    }
+$(document).on('mouseup', function(e) {
+    buttonRelease($('.icon-button'));
 });

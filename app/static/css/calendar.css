@@ -383,13 +383,22 @@ button.large-button:active, input[type="submit"]:active {
     cursor: pointer;
 }
 #save-element {
-    float: right;
+    align-self: center;
+    justify-self: flex-end;
+    height: 24px;
+    width: 24px;
+    margin-left: auto;
     margin-right: 20px;
 }
 #save-filters-bar {
     width: 100%;
+    margin: 10px 0px;
+    display: flex;
 }
 #save-filters-bar > p {
-    float: left;
+    font-size: 10px;
+    color: gray;
     margin: 0px 20px;
+    align-self: center;
+    justify-self: flex-start;
 }
