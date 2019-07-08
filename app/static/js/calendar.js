@@ -159,8 +159,11 @@ function spinner(element, func) {
         button.hide();
         spinner.show();
         await func();
+        clearCalendar();
+        buildCalendarStructure();
+        await addAllEvents();
         lastSaved = moment();
-        text.text('Last saved a few seconds ago')
+        text.text('Last saved a few seconds ago');
         spinner.hide();
         button.show();
     });

@@ -31,6 +31,7 @@ function animationEnd(elem, timeout) {
 
 function buildCalendarStructure(today) {
     // Setup month change buttons first
+    if (today === undefined) today = now.startOf('day');
     currentDateLabel.text(moment(today).format('MMMM YYYY'));
     nextMonthButton.text(moment(today).add(1, 'months').format('MMM') + ' →');
     previousMonthButton.text('← ' + moment(today).subtract(1, 'months').format('MMM'));

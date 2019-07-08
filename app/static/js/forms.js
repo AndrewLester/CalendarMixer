@@ -34,7 +34,9 @@ const FORMS = (function () {
             return {course_id: d.courseId, course_name: d.courseName, course_realm: d.realm}
         })}));
             
-        await postFunction(url, formData);
+        await postFunction(url, formData).then(d => {
+            filters = d.data;
+        });
     }
 
     function addSubmitListener(elem, postFunction, url) {
