@@ -3,6 +3,7 @@ from config import Config
 from datetime import datetime
 from app import login, db, migrate, calendar, main, oauth, cache, bootstrap, cache, csrf
 from app.exts import cache_on, oauth as oauth_client
+from app import tasks
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
 import logging
@@ -10,6 +11,7 @@ from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
 from redis import Redis
 import rq
+from rq_scheduler import scheduler
 
 
 def create_app(config_name=Config):
@@ -32,6 +34,13 @@ def create_app(config_name=Config):
     # register_commands(app)
     return app
 
+
+def register_jobs(app):
+    scheduler.cron(
+        '0-59 * * * *',
+        func=tasks.generate_calendars,
+        queue_name='calendarmixer-tasks'
+    )
 
 def register_extensions(app):
     login.init_app(app)

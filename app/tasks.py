@@ -1,8 +1,5 @@
 import time
-from .app import create_app
-
-app = create_app()
-app.app_context().push()
+import app.main
 
 def example(seconds):
     print('Starting task')
@@ -10,3 +7,7 @@ def example(seconds):
         print(i)
         time.sleep(1)
     print('Task completed')
+
+def generate_calendars():
+    for user in main.User.query.all():
+        print(user)
