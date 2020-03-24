@@ -74,21 +74,10 @@ def get_cached_session(self, cache_name, backend, expire_after):
     session.headers['User-Agent'] = self.DEFAULT_USER_AGENT
     return session
 
-
-def cache_enabled():
-    r = redis.Redis(host='localhost', port=6379, db=0)
-    try:
-        r.ping()
-    except redis.ConnectionError:
-        return False
-    return True
-
-cache_on = cache_enabled()
-print(cache_on)
 def request(self, method, url, token=None, **kwargs):
     if self.api_base_url and not url.startswith(('https://', 'http://')):
         url = urlparse.urljoin(self.api_base_url, url)
-    if 'cache_name' not in kwargs or not cache_on:
+    if 'cache_name' not in kwargs:
         function = self._get_session
         kwargs.pop('cache_name', None)
         kwargs.pop('backend', None)

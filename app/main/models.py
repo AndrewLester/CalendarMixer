@@ -10,7 +10,7 @@ import rq
 @login.user_loader
 def load_user(id):
     user = User.query.get(int(id))
-    if user.oauth_token is None:
+    if user is None or user.oauth_token is None:
         user = None
     return user
 

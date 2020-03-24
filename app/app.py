@@ -2,14 +2,14 @@ from flask import Flask, render_template, url_for, request, jsonify, g
 from config import Config
 from datetime import datetime
 from app import login, db, migrate, calendar, main, oauth, cache, bootstrap, cache, csrf
-from app.exts import cache_on, oauth as oauth_client
+from app.exts import oauth as oauth_client
 from app import tasks
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
-from redis import Redis
+import redis
 import rq
 from rq_scheduler import Scheduler
 
@@ -17,7 +17,7 @@ from rq_scheduler import Scheduler
 def create_app(config_name=Config):
     app = Flask(__name__.split('.')[0])
     app.config.from_object(config_name)
-    app.redis = Redis.from_url(app.config['REDIS_URL'])
+    app.redis = redis.from_url(app.config['REDIS_URL'])
     app.task_queue = rq.Queue('calendarmixer-tasks', connection=app.redis)
     app.scheduler = Scheduler(queue=app.task_queue, connection=app.redis)
     # Register before requests mixins prior to those that are inside extensions
@@ -48,8 +48,6 @@ def register_extensions(app):
     db.init_app(app)
     migrate.init_app(app)
     csrf.init_app(app)
-    if not cache_on:
-        app.config['CACHE_TYPE'] = 'simple'
     cache.init_app(app, config=app.config)
     app.request_cache = {}
 

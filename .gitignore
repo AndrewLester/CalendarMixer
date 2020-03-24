@@ -9,3 +9,4 @@ migrations/env.py
 migrations/script.py.mako
 .flaskenv
 .vscode/
+logs/
