@@ -3,10 +3,6 @@ __pycache__/
 *.db
 .idea/
 .DS_store
-migrations/README
-migrations/alembic.ini
-migrations/env.py
-migrations/script.py.mako
 .flaskenv
 .vscode/
 logs/
