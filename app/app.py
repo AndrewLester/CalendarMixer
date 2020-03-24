@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, jsonify
+from flask import Flask, render_template, url_for, request, jsonify, g
 from config import Config
 from datetime import datetime
 from app import login, db, migrate, calendar, main, oauth, cache, bootstrap, cache, csrf
@@ -11,7 +11,7 @@ from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
 from redis import Redis
 import rq
-from rq_scheduler import scheduler
+from rq_scheduler import Scheduler
 
 
 def create_app(config_name=Config):
@@ -19,8 +19,10 @@ def create_app(config_name=Config):
     app.config.from_object(config_name)
     app.redis = Redis.from_url(app.config['REDIS_URL'])
     app.task_queue = rq.Queue('calendarmixer-tasks', connection=app.redis)
+    app.scheduler = Scheduler(queue=app.task_queue, connection=app.redis)
     # Register before requests mixins prior to those that are inside extensions
     register_request_mixins(app)
+    register_jobs(app)
     register_extensions(app)
     register_blueprints(app)
     register_errorhandlers(app)
@@ -36,11 +38,8 @@ def create_app(config_name=Config):
 
 
 def register_jobs(app):
-    scheduler.cron(
-        '0-59 * * * *',
-        func=tasks.generate_calendars,
-        queue_name='calendarmixer-tasks'
-    )
+    #app.scheduler.cron('0-59 * * * *', func=tasks.generate_calendars)
+    pass
 
 def register_extensions(app):
     login.init_app(app)
@@ -52,10 +51,11 @@ def register_extensions(app):
     if not cache_on:
         app.config['CACHE_TYPE'] = 'simple'
     cache.init_app(app, config=app.config)
+    app.request_cache = {}
 
     def fetch_token(name):
         item = oauth.models.OAuth1Token.query.filter_by(
-            name=name, user_id=current_user.id
+            name=name, user_id=(getattr(current_user, 'id', False) or g.current_id)
         ).first()
         if item:
             return item.to_token()
@@ -123,8 +123,13 @@ def register_request_mixins(app):
     def before_request():
         if current_user.is_authenticated:
             current_user.last_seen = datetime.utcnow()
-            request.cache = {'cache_name': str(current_user.id), 'backend': 'redis', 'expire_after': 300}
+            cache = app.request_cache.get(current_user.id)
+            if cache is None:
+                cache = app.request_cache[current_user.id] = {'cache_name': str(current_user.id), 'backend': 'redis', 'expire_after': 300}
+            request.cache = cache
             request.content = request.get_data()
             db.session.commit()
+        else:
+            request.cache = {'cache_name': 'global', 'backend': 'redid', 'expire_after': 300}
 
     app.before_request(before_request)

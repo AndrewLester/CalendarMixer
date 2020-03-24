@@ -6,16 +6,16 @@ from app.oauth.models import OAuth1Token
 from flask_login import current_user, login_user, logout_user, login_required
 from authlib.client.errors import MissingTokenError
 from authlib.common.errors import AuthlibBaseError
+from secrets import token_urlsafe
 
 
 blueprint = Blueprint('oauth', __name__, url_prefix='/oauth', template_folder='templates', static_folder='../static')
 
 
 @blueprint.route('/logout')
+@login_required
 def logout():
     if current_user.is_authenticated:
-        db.session.delete(current_user.oauth_token)
-        db.session.commit()
         logout_user()
     return redirect(url_for('main.index'))
 
@@ -40,7 +40,8 @@ def authorize():
 
     user = User.query.filter_by(username=user_data['username']).first()
     if user is None:
-        user = User(id=user_data['uid'], username=user_data['username'], email=user_data['primary_email'])
+        user = User(id=user_data['uid'], username=user_data['username'], email=user_data['primary_email'],
+                    ical_secret=token_urlsafe(32))
 
     oauth_token = OAuth1Token(name='schoology',
                               oauth_token=token['oauth_token'],

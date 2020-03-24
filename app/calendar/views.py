@@ -1,12 +1,14 @@
-from flask import Blueprint, render_template, request, jsonify, current_app
+from flask import Blueprint, render_template, request, jsonify, current_app, make_response, flash, g
 from flask_login import login_required, current_user
 from app.calendar.forms import CourseFilterForm
 from app.calendar.models import CourseFilter
+from app.main.models import User
 from app.exts import oauth, db
 from datetime import datetime, timedelta
 from app.exts import cache, csrf
 import json
 import re
+import ics
 import functools
 from functools import wraps
 from dateutil.relativedelta import relativedelta
@@ -44,6 +46,37 @@ def get_current_user(extra=''):
     except Exception:
         current_app.logger.error('Caching error with user events.')
         return 'view/%s'
+
+@blueprint.route('/ical/<int:user_id>/<secret>/calendar.ics')
+# @cache_header(1800, key_prefix=functools.partial(get_url_prop('user_id'), 'ical'))
+def ical_file(user_id, secret):
+    user = User.query.filter_by(id=user_id).first()
+
+    if user is None:
+        flash('File not found')
+        return render_template('500.html'), 500
+
+    if user.ical_secret == secret:
+        g.current_id = user.id
+        events_list = get_user_events(user, {})
+        cal = ics.Calendar(events=make_calendar_events(events_list), creator=user.username)
+        response = make_response(''.join(cal))
+        response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
+        return response
+
+    flash('File not found')
+    return render_template('500.html'), 500
+
+
+def get_url_prop(prop_name):
+    """
+    Get the value of a url property from outside of its handler
+    Example: /<int:user_id/
+    :param prop_name:
+    :return: url property value
+    """
+    pass
+
 
 @blueprint.route('/events')
 @login_required
@@ -90,6 +123,7 @@ def courses():
     return jsonify(userEvents + sections + groups + school + district)
 
 realms = frozenset(['sections/{}', 'groups/{}'])
+# TODO: Cache this with cache.memoize
 def get_user_events(user, cache):
     print('Generated events')
     events = []
@@ -112,6 +146,20 @@ def get_user_events(user, cache):
     events += oauth.schoology.get(f'schools/{school_id}/events' + time_queries, **cache).json()['event']
     events += user_events
     return [json.loads(string) for string in set((json.dumps(dic) for dic in events))]
+
+def make_calendar_events(json):
+    events_list = []
+
+    for event in json:
+        if len(event['end']) == 0:
+            event['end'] = event['start']
+        cal_event = ics.Event(event['title'], event['start'], event['end'], None,
+                                     str(event['id']), event['description'], None)
+        if event['all_day'] == 1:
+            cal_event.make_all_day()
+        events_list.append(cal_event)
+
+    return events_list
 
 def event_time_relative(event):
     now = datetime.now()

@@ -32,7 +32,6 @@ function animationEnd(elem, timeout) {
 function buildCalendarStructure(today) {
     // Setup month change buttons first
     if (today === undefined) today = now.startOf('day');
-    currentDateLabel.text(moment(today).format('MMMM YYYY'));
     nextMonthButton.text(moment(today).add(1, 'months').format('MMM') + ' →');
     previousMonthButton.text('← ' + moment(today).subtract(1, 'months').format('MMM'));
 
@@ -86,6 +85,7 @@ function buildCalendarStructure(today) {
 }
 
 buildCalendarStructure(now.startOf('day'));
+currentDateLabel.text(moment(now.startOf('day')).format('MMMM YYYY'));
 
 async function navigateMonths(months) {
     if (!addAllEvents) return Promise.resolve(null);
@@ -93,12 +93,13 @@ async function navigateMonths(months) {
     calendarGrid.removeClass('moving-right moving-left transitionable');
     await sleep(20);
     calendarGrid.addClass(months > 0 ? 'moving-right' : 'moving-left');
+    now.add(months, 'months');
+    currentDateLabel.text(moment(now.startOf('day')).format('MMMM YYYY'));
     // Wait for animaton to finish
     await animationEnd(calendarGrid);
     calendarGrid.addClass('transitionable');
     clearCalendar();
-    buildCalendarStructure(now.add(months, 'months'));
-
+    buildCalendarStructure(now);
     await addAllEvents();
     calendarGrid.removeClass('moving-right moving-left');
 }

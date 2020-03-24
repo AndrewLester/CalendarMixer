@@ -1,25 +1,14 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from app.exts import oauth
-from .forms import EditProfileForm
+from .forms import EditProfileForm, LoginForm
 
 blueprint = Blueprint('main', __name__, template_folder='../templates', static_folder='../static')
 
 
 @blueprint.route('/')
-@blueprint.route('/index')
 def index():
-    posts = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'username': 'Susan'},
-            'body': 'The Avengers movie was so cool!'
-        }
-    ]
-    return render_template('index.html', title='Home', posts=posts)
+    return render_template('index.html', title='Home')
 
 
 @blueprint.route('/profile')
@@ -33,7 +22,6 @@ def profile():
 
 
 # def get_user_events():
-
 
 
 # @blueprint.route('/login', methods=['GET', 'POST'])
