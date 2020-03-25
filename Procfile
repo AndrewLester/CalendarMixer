@@ -1,2 +1,2 @@
 web: gunicorn calendarmixer:app
-release: flask db upgrade
+release: python3 -m flask db upgrade
