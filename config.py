@@ -22,3 +22,5 @@ class Config:
     CACHE_TYPE = 'redis'
     CACHE_DEFAULT_TIMEOUT = 1000
     CACHE_KEY_PREFIX = 'redis_flask_cache'
+    CACHE_REDIS_HOST = REDIS_URL.rsplit(':', 1)[0]
+    CACHE_REDIS_PORT = REDIS_URL.rsplit(':', 1)[1]
