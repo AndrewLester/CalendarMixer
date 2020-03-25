@@ -115,17 +115,17 @@ function placeEvent(event, start, end, filtered, init) {
     // Reset start to firstCalDay if the actual start is before the current month.
     start = start.isAfter(moment(firstCalDay).subtract(1, 'days')) ? start : firstCalDay;
 
-    let span = moment.duration(end.diff(start));
-    let daysSinceCalStart = moment.duration(start.diff(firstCalDay)).asDays();
+    let span = Math.ceil(moment.duration(end.diff(start)).asDays());
+    let daysSinceCalStart = Math.ceil(moment.duration(start.diff(firstCalDay)).asDays());
     let col = daysSinceCalStart % 7;
     let row = ~~(daysSinceCalStart / 7);
     let calDay = calendar[row][col];
 
     let startCol = col + 1;
     let eventRow = row + 1;
-    let endCol = Math.min(9, startCol + span.asDays()) + 1;
+    let endCol = Math.min(9, startCol + span) + 1;
     if (endCol > (startCol + 1)) {
-        for (let i = 1; i < Math.min(7 - col, span.asDays() + 1); i++) {
+        for (let i = 1; i < Math.min(7 - col, span + 1); i++) {
             calendar[row][col + i].currentRow += 1;
         }
     }
@@ -133,7 +133,7 @@ function placeEvent(event, start, end, filtered, init) {
         placeEvent(event, moment(start).add(7 - col, 'days'), end, filtered, init);
     }
     let elem = document.getElementById('row' + eventRow + '-events');
-    let ifAdded = addElement(elem, event, filtered, calDay.currentRow++, startCol, endCol, span.asDays() > 0, init);
+    let ifAdded = addElement(elem, event, filtered, calDay.currentRow++, startCol, endCol, span > 0, init);
     calDay.currentRow += ifAdded;
 }
 

@@ -2,9 +2,18 @@
     outline: none;
 }
 
+#main-content {
+    overflow: hidden;
+    height: 100vh;
+}
+
 #calendar {
+    overflow-y: auto;
+    overflow-x: hidden;
     flex: 1 0 75%;
     display: grid;
+    /* 85px is the height of the button bar, navbar, horizontal bar margin, and body margin */
+    height: calc(100vh - 85px);
     z-index: 1;
     opacity: 1;
     align-self: flex-start;
@@ -55,6 +64,9 @@
 #header {
     display: grid;
     font-weight: bold;
+    position: sticky;
+    top: 0;
+    background-color: white;
     text-align: center;
     grid-auto-flow: column;
     grid-template-columns: repeat(7, 1fr);
@@ -229,13 +241,15 @@ button.large-button:active, input[type="submit"]:active {
 }
 
 #filter-editor {
+    overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     min-width: 200px;
     flex: 1 0 25%;
     align-items: center;
     position: relative;
-    height: 100%;
+    height: 100vh;
 }
 
 #main-content {
