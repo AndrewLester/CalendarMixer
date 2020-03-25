@@ -66,6 +66,8 @@
     font-weight: bold;
     position: sticky;
     top: 0;
+    /* This index puts it above the day header */
+    z-index: 6;
     background-color: white;
     text-align: center;
     grid-auto-flow: column;
@@ -79,7 +81,10 @@
 .header {
     grid-row-gap: 5px;
     border-color: gray;
-    margin-bottom: 5px;
+    position: sticky;
+    z-index: 5;
+    background-color: white;
+    top: 23px;
     grid-template-rows: 25px;
     line-height: 24px;
 }
@@ -127,6 +132,7 @@
     transition: transform 0.3s, opacity 0.3s;
     grid-gap: 5px;
     margin-bottom: 5px;
+    margin-top: 5px;
     min-height: 60px;
 }
 
