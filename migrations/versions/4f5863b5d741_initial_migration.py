@@ -1,8 +1,8 @@
-"""initial
+"""Initial migration
 
-Revision ID: 424430e68e26
+Revision ID: 4f5863b5d741
 Revises: 
-Create Date: 2020-03-25 01:51:52.128927
+Create Date: 2020-03-25 02:06:44.608521
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '424430e68e26'
+revision = '4f5863b5d741'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,7 +32,7 @@ def upgrade():
     op.create_table('course_filter',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('positive', sa.Boolean(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.String(length=36), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -41,7 +41,7 @@ def upgrade():
     sa.Column('name', sa.String(length=20), nullable=False),
     sa.Column('oauth_token', sa.String(length=48), nullable=False),
     sa.Column('oauth_token_secret', sa.String(length=48), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.String(length=36), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id')
@@ -50,21 +50,21 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('body', sa.String(length=140), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.String(length=36), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_post_timestamp'), 'post', ['timestamp'], unique=False)
     op.create_table('schoologyfilter',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.String(length=36), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('task',
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.String(length=36), nullable=True),
     sa.Column('complete', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -75,7 +75,7 @@ def upgrade():
     sa.Column('course_name', sa.String(length=120), nullable=True),
     sa.Column('course_realm', sa.String(length=120), nullable=True),
     sa.Column('course_filter_id', sa.Integer(), nullable=True),
-    sa.Column('colors_user_id', sa.Integer(), nullable=True),
+    sa.Column('colors_user_id', sa.String(length=36), nullable=True),
     sa.Column('course_color', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['colors_user_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['course_filter_id'], ['course_filter.id'], ),

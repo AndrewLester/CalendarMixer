@@ -11,7 +11,7 @@ class SchoologyFilter(db.Model):
 
     @declared_attr
     def user_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'))
+        return db.Column(db.String(36), db.ForeignKey('user.id'))
 
     def predicate(self, item):
         raise NotImplementedError('Predicate must be implemented.')
@@ -44,7 +44,7 @@ class CourseFilter(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     positive = db.Column(db.Boolean)
     course_ids = db.relationship('CourseIdentifier', backref='filter', lazy='dynamic')
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'))
 
     def predicate(self, item):
         return item in self.course_ids ^ self.positive
@@ -70,7 +70,7 @@ class CourseIdentifier(db.Model):
     course_name = db.Column(db.String(120))
     course_realm = db.Column(db.String(120))
     course_filter_id = db.Column(db.Integer, db.ForeignKey('course_filter.id'))
-    colors_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    colors_user_id = db.Column(db.String(36), db.ForeignKey('user.id'))
     course_color = db.Column(db.Integer)
 
     def to_json(self):

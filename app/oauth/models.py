@@ -7,7 +7,7 @@ class OAuth1Token(db.Model):
 
     oauth_token = db.Column(db.String(48), nullable=False)
     oauth_token_secret = db.Column(db.String(48))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True)
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), unique=True)
     user = db.relationship('User', back_populates='oauth_token')
     # Unique = True for one-to-one relationship
 
