@@ -8,6 +8,7 @@ chardet==3.0.4
 Click==7.0
 croniter==0.3.30
 cryptography==2.6.1
+dnspython==1.16.0
 dominate==2.3.5
 Flask==1.0.3
 Flask-Bootstrap==3.3.7.1
@@ -24,9 +25,10 @@ itsdangerous==1.1.0
 Jinja2==2.10.1
 Mako==1.0.10
 MarkupSafe==1.1.1
+mysql-connector-python==8.0.19
 oauth2==1.9.0.post1
+protobuf==3.6.1
 pycparser==2.19
-PyMySQL==0.9.3
 python-dateutil==2.8.0
 python-dotenv==0.10.2
 python-editor==1.0.4
