@@ -10,6 +10,7 @@ from authlib.common.urls import urlparse
 from authlib.client.errors import MissingTokenError
 from requests_cache import CachedSession
 from functools import partial
+import inspect
 
 
 # CachedSession inherited before OAuth1Session so the request method comes from there.
@@ -79,7 +80,7 @@ def request(self, method, url, token=None, **kwargs):
     if 'cache_name' not in kwargs:
         function = self._get_session
     else:
-        function = partial(self.get_cached_session, kwargs.pop('cache_name'))
+        function = partial(self.get_cached_session, self, kwargs.pop('cache_name'))
     with function() as session:
         if kwargs.get('withhold_token'):
             return session.request(method, url, **kwargs)
