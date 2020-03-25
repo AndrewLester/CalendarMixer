@@ -39,7 +39,7 @@ class User(UserMixin, db.Model):
     def launch_task(self, name, description, *args, **kwargs):
         rq_job = current_app.task_queue.enqueue('app.tasks.' + name, self.id,
                                                 *args, **kwargs)
-        task = Task(id=rq_job.get_id(), name=name, description=description,
+        task = Task(id=rq_job.get_id(), name=name,
                     user=self)
         db.session.add(task)
         return task
@@ -58,7 +58,6 @@ class User(UserMixin, db.Model):
 class Task(db.Model):
     id = db.Column(db.String(36), primary_key=True)
     name = db.Column(db.String(128), index=True)
-    description = db.Column(db.String(128))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     complete = db.Column(db.Boolean, default=False)
 
