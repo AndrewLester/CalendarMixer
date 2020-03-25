@@ -123,11 +123,11 @@ def register_request_mixins(app):
             current_user.last_seen = datetime.utcnow()
             cache = app.request_cache.get(current_user.id)
             if cache is None:
-                cache = app.request_cache[current_user.id] = {'cache_name': str(current_user.id), 'backend': 'redis', 'expire_after': 300}
+                cache = app.request_cache[current_user.id] = {'cache_name': str(current_user.id), 'backend': 'redis', 'expire_after': 300, 'connection': app.redis}
             request.cache = cache
             request.content = request.get_data()
             db.session.commit()
         else:
-            request.cache = {'cache_name': 'global', 'backend': 'redis', 'expire_after': 300}
+            request.cache = {'cache_name': 'global', 'backend': 'redis', 'expire_after': 300, 'connection': app.redis}
 
     app.before_request(before_request)
