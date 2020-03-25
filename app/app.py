@@ -128,6 +128,6 @@ def register_request_mixins(app):
             request.content = request.get_data()
             db.session.commit()
         else:
-            request.cache = {'cache_name': 'global', 'backend': 'redid', 'expire_after': 300}
+            request.cache = {'cache_name': 'global', 'backend': 'redis', 'expire_after': 300}
 
     app.before_request(before_request)
