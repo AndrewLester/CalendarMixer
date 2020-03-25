@@ -120,6 +120,7 @@ const FORMS = (function () {
                 input.value = '';
                 input.focus();
                 destroyPopper();
+                createPopper();
             });
         }
         function destroyPopper() {
