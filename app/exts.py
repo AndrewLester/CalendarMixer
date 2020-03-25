@@ -35,7 +35,6 @@ def fetch_access_token(self, url, verifier=None, **kwargs):
     return token
 
 
-OAuthClient.get_cached_session = get_cached_session
 OAuthClient.request = request
 OAuth1Client._fetch_token = fetch_request_token
 OAuth1Client.fetch_access_token = fetch_access_token

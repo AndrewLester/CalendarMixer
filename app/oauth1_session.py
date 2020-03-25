@@ -10,7 +10,6 @@ from authlib.common.urls import urlparse
 from authlib.client.errors import MissingTokenError
 from requests_cache import CachedSession
 from functools import partial
-import redis
 
 
 # CachedSession inherited before OAuth1Session so the request method comes from there.
@@ -79,13 +78,8 @@ def request(self, method, url, token=None, **kwargs):
         url = urlparse.urljoin(self.api_base_url, url)
     if 'cache_name' not in kwargs:
         function = self._get_session
-        kwargs.pop('cache_name', None)
-        kwargs.pop('backend', None)
-        kwargs.pop('expire_after', None)
     else:
-        function = partial(self.get_cached_session, kwargs.pop('cache_name'),
-                           kwargs.pop('backend'),
-                           kwargs.pop('expire_after'))
+        function = partial(self.get_cached_session, kwargs.pop('cache_name'))
     with function() as session:
         if kwargs.get('withhold_token'):
             return session.request(method, url, **kwargs)

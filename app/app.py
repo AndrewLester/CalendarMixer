@@ -3,12 +3,15 @@ from config import Config
 from datetime import datetime
 from app import login, db, migrate, calendar, main, oauth, cache, bootstrap, cache, csrf
 from app.exts import oauth as oauth_client
+from app.oauth1_session import get_cached_session
 from app import tasks
+from authlib.client.client import OAuthClient
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
+import functools
 import redis
 import rq
 from rq_scheduler import Scheduler
@@ -58,6 +61,7 @@ def register_extensions(app):
         if item:
             return item.to_token()
 
+    OAuthClient.get_cached_session = functools.partial(get_cached_session, backend=app.redis, expire_after=300)
     oauth_client.init_app(app, fetch_token=fetch_token, cache=cache)
     oauth_client.register(
         name='schoology',
@@ -123,11 +127,11 @@ def register_request_mixins(app):
             current_user.last_seen = datetime.utcnow()
             cache = app.request_cache.get(current_user.id)
             if cache is None:
-                cache = app.request_cache[current_user.id] = {'cache_name': str(current_user.id), 'backend': 'redis', 'expire_after': 300, 'connection': app.redis}
+                cache = app.request_cache[current_user.id] = {'cache_name': str(current_user.id)}
             request.cache = cache
             request.content = request.get_data()
             db.session.commit()
         else:
-            request.cache = {'cache_name': 'global', 'backend': 'redis', 'expire_after': 300, 'connection': app.redis}
+            request.cache = {'cache_name': 'global'}
 
     app.before_request(before_request)

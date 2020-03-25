@@ -1,16 +1,16 @@
-2020-03-24 18:25:34,914 ERROR: Exception on /oauth/login [GET] [in /Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py:1780]
+2020-03-25 15:36:30,131 ERROR: Exception on /oauth/login [GET] [in /Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py:1891]
 Traceback (most recent call last):
-  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 2311, in wsgi_app
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 2446, in wsgi_app
     response = self.full_dispatch_request()
-  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1834, in full_dispatch_request
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1951, in full_dispatch_request
     rv = self.handle_user_exception(e)
-  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1737, in handle_user_exception
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1820, in handle_user_exception
     reraise(exc_type, exc_value, tb)
-  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/_compat.py", line 36, in reraise
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
     raise value
-  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1832, in full_dispatch_request
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1949, in full_dispatch_request
     rv = self.dispatch_request()
-  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1818, in dispatch_request
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1935, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
   File "/Users/lestera/Documents/git/calendarmixer/app/oauth/views.py", line 26, in login
     return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri)
@@ -25,3 +25,33 @@ Traceback (most recent call last):
   File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/authlib/oauth1/client.py", line 25, in __init__
     raise ValueError('Missing "client_id"')
 ValueError: Missing "client_id"
+2020-03-25 15:37:54,272 INFO: CalendarMixer startup [in /Users/lestera/Documents/git/calendarmixer/app/app.py:121]
+2020-03-25 15:38:50,565 INFO: CalendarMixer startup [in /Users/lestera/Documents/git/calendarmixer/app/app.py:121]
+2020-03-25 15:38:56,932 ERROR: Exception on /oauth/login [GET] [in /Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py:1891]
+Traceback (most recent call last):
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/Users/lestera/Documents/git/calendarmixer/app/oauth/views.py", line 26, in login
+    return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri)
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/authlib/flask/client/oauth.py", line 244, in authorize_redirect
+    **kwargs)
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/authlib/client/client.py", line 122, in generate_authorize_redirect
+    with self._get_session() as session:
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/authlib/client/client.py", line 181, in _get_session
+    **self.client_kwargs
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/authlib/client/oauth1_session.py", line 45, in __init__
+    force_include_body=force_include_body, **kwargs)
+  File "/Users/lestera/Documents/git/calendarmixer/venv/lib/python3.6/site-packages/authlib/oauth1/client.py", line 25, in __init__
+    raise ValueError('Missing "client_id"')
+ValueError: Missing "client_id"
+2020-03-25 15:39:29,371 INFO: CalendarMixer startup [in /Users/lestera/Documents/git/calendarmixer/app/app.py:121]
