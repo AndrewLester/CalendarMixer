@@ -6,6 +6,7 @@ from app.main.models import User
 from app.exts import oauth, db
 from datetime import datetime, timedelta
 from app.exts import cache, csrf
+from app.schoology.api import get_paged_data
 import json
 from collections import defaultdict
 import itertools
@@ -124,47 +125,40 @@ def courses():
     userEvents = [{user['uid']: 'My Events', 'realm': 'user'}]
     return jsonify(userEvents + sections + groups + school + district)
 
-realms = frozenset(['sections/{}', 'groups/{}'])
 # TODO: Cache this with cache.memoize
 def get_user_events(user: User, cache, filter=False):
     # This dictionary maps section ids, user ids, group ids to events so that only the ids have to be checked
     # This is more efficient if realms have many events
     events = defaultdict(list)
+
     now = datetime.now()
     period_start = now + relativedelta(months=-2)
     period_end = now + relativedelta(months=2)
     time_queries = f'?start_date={period_start.strftime("%Y-%m-%d")}&end_date={period_end.strftime("%Y-%m-%d")}'
-    for realm in realms:
-        realm_items = oauth.schoology.get(('users/{}/' + realm.split('/')[0]).format(user.id), **cache)
-        realm_items = realm_items.json()
-        realm_items = realm_items[realm.split('/')[0][:-1]]
-        if not realm_items:
-            continue
-        for item in realm_items:
-            realm_events = oauth.schoology.get((realm + '/events').format(item['id']) +
-                                               time_queries, **cache).json()['event']
-            events[item['id']].append(realm_events)
-    user_events = oauth.schoology.get(f'users/{user.id}/events' + time_queries + '&limit=200', **cache).json()['event']
-    print(user_events)
 
-    school_id = oauth.schoology.get('users/me', **cache).json()['building_id']
-    events[school_id].append(oauth.schoology.get(f'schools/{school_id}/events' + time_queries, **cache).json()['event'])
-    events[user.id].append(user_events)
+    events_json = get_paged_data(
+        oauth.schoology.get,
+        f'users/{user.id}/events' + time_queries + '&limit=200',
+        'event',
+        **cache
+    )
+
+    for event in events_json:
+        realm_id = event[event['realm'] + '_id']
+        events[str(realm_id)].append(event)
     
     realm_ids = list(events.keys())
 
     if filter:
         user.apply_filters(realm_ids)
 
-    combined_events = set([])
+    combined_events = []
     for realm_id in events.keys():
         if realm_id in realm_ids:
-            # Union operator (combines sets)
-            combined_events.update(list(itertools.chain.from_iterable(events[realm_id])))
+            combined_events += events[realm_id]
     return combined_events
 
 def make_calendar_events(json):
-    json = list(itertools.chain.from_iterable(json))
     events_list = []
     for event in json:
         if len(event['end']) == 0:
