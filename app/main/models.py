@@ -32,9 +32,9 @@ class User(UserMixin, db.Model):
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
 
-    def apply_filters(self, iterable):
+    def apply_filters(self, realm_ids):
         for filter in self.filters:
-            iterable = filter.apply(iterable)
+            filter.apply(realm_ids)
 
     def launch_task(self, name, description, *args, **kwargs):
         rq_job = current_app.task_queue.enqueue('app.tasks.' + name, self.id,

@@ -7,6 +7,8 @@ from app.exts import oauth, db
 from datetime import datetime, timedelta
 from app.exts import cache, csrf
 import json
+from collections import defaultdict
+import itertools
 import re
 import ics
 import functools
@@ -50,7 +52,7 @@ def get_current_user(extra=''):
 @blueprint.route('/ical/<int:user_id>/<secret>/calendar.ics')
 # @cache_header(1800, key_prefix=functools.partial(get_url_prop('user_id'), 'ical'))
 def ical_file(user_id, secret):
-    user = User.query.filter_by(id=user_id).first()
+    user: User = User.query.filter_by(id=user_id).first()
 
     if user is None:
         flash('File not found')
@@ -58,8 +60,8 @@ def ical_file(user_id, secret):
 
     if user.ical_secret == secret:
         g.current_id = user.id
-        events_list = get_user_events(user, {})
-        cal = ics.Calendar(events=make_calendar_events(events_list), creator=user.username)
+        events_list = get_user_events(user, {}, filter=True)
+        cal = ics.Calendar(events=make_calendar_events(events_list), creator='CalendarMixer')
         response = make_response(''.join(cal))
         response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
         return response
@@ -124,9 +126,10 @@ def courses():
 
 realms = frozenset(['sections/{}', 'groups/{}'])
 # TODO: Cache this with cache.memoize
-def get_user_events(user, cache):
-    print('Generated events')
-    events = []
+def get_user_events(user: User, cache, filter=False):
+    # This dictionary maps section ids, user ids, group ids to events so that only the ids have to be checked
+    # This is more efficient if realms have many events
+    events = defaultdict(list)
     now = datetime.now()
     period_start = now + relativedelta(months=-2)
     period_end = now + relativedelta(months=2)
@@ -140,16 +143,29 @@ def get_user_events(user, cache):
         for item in realm_items:
             realm_events = oauth.schoology.get((realm + '/events').format(item['id']) +
                                                time_queries, **cache).json()['event']
-            events += realm_events
+            events[item['id']].append(realm_events)
     user_events = oauth.schoology.get(f'users/{user.id}/events' + time_queries + '&limit=200', **cache).json()['event']
+    print(user_events)
+
     school_id = oauth.schoology.get('users/me', **cache).json()['building_id']
-    events += oauth.schoology.get(f'schools/{school_id}/events' + time_queries, **cache).json()['event']
-    events += user_events
-    return [json.loads(string) for string in set((json.dumps(dic) for dic in events))]
+    events[school_id].append(oauth.schoology.get(f'schools/{school_id}/events' + time_queries, **cache).json()['event'])
+    events[user.id].append(user_events)
+    
+    realm_ids = list(events.keys())
+
+    if filter:
+        user.apply_filters(realm_ids)
+
+    combined_events = set([])
+    for realm_id in events.keys():
+        if realm_id in realm_ids:
+            # Union operator (combines sets)
+            combined_events.update(list(itertools.chain.from_iterable(events[realm_id])))
+    return combined_events
 
 def make_calendar_events(json):
+    json = list(itertools.chain.from_iterable(json))
     events_list = []
-
     for event in json:
         if len(event['end']) == 0:
             event['end'] = event['start']

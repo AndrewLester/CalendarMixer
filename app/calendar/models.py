@@ -47,12 +47,13 @@ class CourseFilter(db.Model):
     user_id = db.Column(db.String(36), db.ForeignKey('user.id'))
 
     def predicate(self, item):
-        return item in self.course_ids ^ self.positive
+        # Check if the item matches the String course_id values, not the model objects
+        return (item in [course_id.course_id for course_id in self.course_ids]) ^ self.positive
 
-    def apply(self, iterable):
-        for item in iterable:
-            if self.predicate(item):
-                yield item
+    def apply(self, realm_ids):
+        for realm_id in realm_ids[:]:
+            if self.predicate(realm_id):
+                realm_ids.remove(realm_id)
 
     def to_json(self):
         return {'id': self.id, 'positive': self.positive,
