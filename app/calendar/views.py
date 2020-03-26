@@ -65,6 +65,7 @@ def ical_file(user_id, secret):
         cal = ics.Calendar(events=make_calendar_events(events_list), creator='CalendarMixer')
         response = make_response(''.join(cal))
         response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
+        response.headers["Content-Type"] = "text/calendar; charset=utf-8"
         return response
 
     flash('File not found')
