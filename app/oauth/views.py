@@ -22,6 +22,9 @@ def logout():
 
 @blueprint.route('/login')
 def login():
+    if current_user.is_authenticated:
+        flash('You\'re already logged in.')
+        return redirect(url_for('main.index'))
     redirect_uri = url_for('.authorize', _external=True)
     return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri)
 
