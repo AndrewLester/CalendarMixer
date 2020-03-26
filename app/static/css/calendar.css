@@ -7,6 +7,11 @@
     height: 100vh;
 }
 
+body {
+    height: 100vh;
+    overflow-y: hidden;
+}
+
 #calendar {
     overflow-y: auto;
     overflow-x: hidden;
@@ -421,4 +426,11 @@ button.large-button:active, input[type="submit"]:active {
     margin: 0px 20px;
     align-self: center;
     justify-self: flex-start;
+}
+
+@media only screen and (max-width: 815px) {
+    body {
+        height: initial;
+        overflow-y: auto;
+    }
 }
