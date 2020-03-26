@@ -84,7 +84,7 @@
     position: sticky;
     z-index: 5;
     background-color: white;
-    top: 23px;
+    top: 21px;
     grid-template-rows: 25px;
     line-height: 24px;
 }
