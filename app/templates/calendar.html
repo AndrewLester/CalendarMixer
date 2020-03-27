@@ -19,7 +19,7 @@
         <p id="current-date"></p> 
         <button class="month-changer large-button" id="previous-month"></button>
         <button class="month-changer large-button" id="next-month"></button>
-        <button class="small-button" id="export-feed">EXPORT ICAL</button>
+        <button class="small-button" id="export-feed" data-ical-link="webcal://{{ base_url }}calendar/ical/{{ id }}/{{ ical_secret }}/calendar.ics">EXPORT CALENDAR</button>
     </div>
     <div id="main-content">
         <div id="calendar" class="shown">
@@ -92,6 +92,17 @@
             <input type="submit" class="form-submit" value="Save Filter">
         </fieldset>
     </form>
+    </script>
+    <script id="modal-template" type="x-tmpl-mustache">
+        <div class="modal">
+            <div class="modal-header">
+                <p class="modal-header-title">{{title}}</p>
+                <img src="/images/close.svg">
+            </div>
+            <div class="modal-body">
+                {{modal_body}}
+            </div>
+        </div>
     </script>
     <script id="popper-item-template" type="x-tmpl-mustache">
     <div class="course-identifier-wrapper" data-realm="{{realm}}">

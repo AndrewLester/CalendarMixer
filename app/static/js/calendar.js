@@ -28,6 +28,8 @@ const colors = [
     'rgba(76, 255, 174, 0.5)', 'rgba(41, 38, 255, 0.5)', 'rgba(179, 58, 255, 0.5)'
 ];
 
+const exportButton = document.getElementById('export-feed');
+
 function isOverflown(element) {
     return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
 }
@@ -177,6 +179,10 @@ const filterSaveIcon = spinner($('#save-element'), async () => {
     for (let form of document.forms) {
         await FORMS.saveForm(form, post, 'calendar/filter');
     }
+});
+
+exportButton.addEventListener('click', () => {
+    navigator.clipboard.writeText(exportButton.dataset.icalLink);
 });
 
 generateForms();

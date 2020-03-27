@@ -11,6 +11,7 @@ from flask_wtf.csrf import CSRFError
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
+import pytz
 import functools
 from requests_cache.backends import RedisCache
 import redis
@@ -36,7 +37,13 @@ def create_app(config_name=Config):
                                          'CourseFilter': calendar.models.CourseFilter,
                                          'CourseIdentifier': calendar.models.CourseIdentifier,
                                          'Task': main.models.Task})
-    app.context_processor(lambda: {'date': datetime.now()})
+
+    # If the user is authenticated get the imageicon from their timezone
+    def date_fetch():
+        if current_user.is_authenticated:
+            return {'date': pytz.timezone(current_user.timezone).localize(datetime.utcnow())}
+        return {'date': datetime.now()}
+    app.context_processor(date_fetch)
     # register_commands(app)
     return app
 
