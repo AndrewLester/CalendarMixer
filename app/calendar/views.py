@@ -14,7 +14,7 @@ import re
 import ics
 import pytz
 import functools
-from datetime import datetime, timezone
+from datetime import datetime
 from functools import wraps
 from dateutil.relativedelta import relativedelta
 
@@ -161,7 +161,7 @@ def get_user_events(user: User, cache, filter=False):
             combined_events += events[realm_id]
     return combined_events
 
-def make_calendar_events(json, tz: timezone):
+def make_calendar_events(json, tz):
     events_list = []
     for event in json:
         if len(event['end']) == 0:
@@ -196,8 +196,9 @@ def sort_events(events):
     events.sort(key=event_time_length, reverse=True)
     return events
 
-def string_to_time(string: str, tz: timezone = timezone.utc) -> datetime:
-    """Turn a schoology time string into a datetime object"""
+def string_to_time(string: str, tz = pytz.utc) -> datetime:
+    """Turn a schoology time string into a datetime object with tz set to UTC"""
     time: datetime = datetime.strptime(string, '%Y-%m-%d %H:%M:%S')
-    time.replace(tzinfo=tz)
-    return time
+    # Correct for daylight savings
+    time = tz.localize(time)
+    return time.astimezone(pytz.utc)
