@@ -12,6 +12,7 @@ from collections import defaultdict
 import itertools
 import re
 import ics
+import pytz
 import functools
 from datetime import datetime, timezone
 from functools import wraps
@@ -62,7 +63,7 @@ def ical_file(user_id, secret):
     if user.ical_secret == secret:
         g.current_id = user.id
         events_list = get_user_events(user, {}, filter=True)
-        cal = ics.Calendar(events=make_calendar_events(events_list), creator='CalendarMixer')
+        cal = ics.Calendar(events=make_calendar_events(events_list, pytz.timezone(user.timezone)), creator='CalendarMixer')
         response = make_response(''.join(cal))
         response.headers["Content-Disposition"] = "inline; filename=calendar.ics"
         response.headers["Content-Type"] = "text/calendar; charset=utf-8"
@@ -160,14 +161,14 @@ def get_user_events(user: User, cache, filter=False):
             combined_events += events[realm_id]
     return combined_events
 
-def make_calendar_events(json):
+def make_calendar_events(json, tz: timezone):
     events_list = []
     for event in json:
         if len(event['end']) == 0:
             event['end'] = event['start']
         cal_event = ics.Event(
             event['title'], 
-            string_to_time(event['start']), string_to_time(event['end']), 
+            string_to_time(event['start'], tz), string_to_time(event['end'], tz), 
             None, str(event['id']), 
             event['description'], None
         )
@@ -195,8 +196,8 @@ def sort_events(events):
     events.sort(key=event_time_length, reverse=True)
     return events
 
-def string_to_time(string: str) -> datetime:
+def string_to_time(string: str, tz: timezone = timezone.utc) -> datetime:
     """Turn a schoology time string into a datetime object"""
     time: datetime = datetime.strptime(string, '%Y-%m-%d %H:%M:%S')
-    time.replace(tzinfo=timezone.utc)
+    time.replace(tzinfo=tz)
     return time

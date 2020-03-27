@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.String(36), primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
+    timezone = db.Column(db.String(120))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     ical_secret = db.Column(db.String(64), index=True, unique=True)
     oauth_token = db.relationship('OAuth1Token', uselist=False, back_populates='user')

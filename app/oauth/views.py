@@ -44,7 +44,7 @@ def authorize():
     user = User.query.filter_by(username=user_data['username']).first()
     if user is None:
         user = User(id=user_data['uid'], username=user_data['username'], email=user_data['primary_email'],
-                    ical_secret=token_urlsafe(32))
+                    ical_secret=token_urlsafe(32), timezone=user_data['tz_name'])
 
     oauth_token = OAuth1Token(name='schoology',
                               oauth_token=token['oauth_token'],
