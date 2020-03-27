@@ -199,6 +199,7 @@ def sort_events(events):
 def string_to_time(string: str, tz = pytz.utc) -> datetime:
     """Turn a schoology time string into a datetime object with tz set to UTC"""
     time: datetime = datetime.strptime(string, '%Y-%m-%d %H:%M:%S')
-    # Correct for daylight savings
+    # Turn naive time into local time at the specified timezone. Accounts for DST
     time = tz.localize(time)
+    # Return time back in UTC
     return time.astimezone(pytz.utc)
