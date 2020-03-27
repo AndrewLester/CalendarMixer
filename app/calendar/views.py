@@ -51,7 +51,6 @@ def get_current_user(extra=''):
         return 'view/%s'
 
 @blueprint.route('/ical/<int:user_id>/<secret>/calendar.ics')
-# @cache_header(1800, key_prefix=functools.partial(get_url_prop('user_id'), 'ical'))
 def ical_file(user_id, secret):
     user: User = User.query.filter_by(id=user_id).first()
 
@@ -64,7 +63,7 @@ def ical_file(user_id, secret):
         events_list = get_user_events(user, {}, filter=True)
         cal = ics.Calendar(events=make_calendar_events(events_list), creator='CalendarMixer')
         response = make_response(''.join(cal))
-        response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
+        response.headers["Content-Disposition"] = "inline; filename=calendar.ics"
         response.headers["Content-Type"] = "text/calendar; charset=utf-8"
         return response
 
@@ -153,6 +152,7 @@ def get_user_events(user: User, cache, filter=False):
     if filter:
         user.apply_filters(realm_ids)
 
+    # Add all events that are in unfiltered realms to the combined events list
     combined_events = []
     for realm_id in events.keys():
         if realm_id in realm_ids:
