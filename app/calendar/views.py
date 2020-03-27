@@ -12,6 +12,7 @@ from collections import defaultdict
 import itertools
 import re
 import ics
+from ics.parse import ContentLine
 import pytz
 import functools
 from datetime import datetime
@@ -66,6 +67,7 @@ def ical_file(user_id, secret):
         g.current_id = user.id
         events_list = get_user_events(user, {}, filter=True)
         cal = ics.Calendar(events=make_calendar_events(events_list, pytz.timezone(user.timezone)), creator='CalendarMixer')
+        cal.extra.append(ContentLine(name="X-WR-CALNAME", value="CalendarMixer"))
         response = make_response(''.join(cal))
         response.headers["Content-Disposition"] = "inline; filename=calendar.ics"
         response.headers["Content-Type"] = "text/calendar; charset=utf-8"
