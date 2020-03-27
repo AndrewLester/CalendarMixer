@@ -180,7 +180,7 @@ def make_calendar_events(json, tz):
 
 def event_time_relative(event):
     now = datetime.now()
-    start_time = string_to_time(event['start'])
+    start_time = datetime.strptime(event['start'], '%Y-%m-%d %H:%M:%S')
     return start_time - now
 
 def event_time_length(event):
