@@ -13,6 +13,7 @@ import itertools
 import re
 import ics
 import functools
+from datetime import datetime
 from functools import wraps
 from dateutil.relativedelta import relativedelta
 
@@ -164,8 +165,12 @@ def make_calendar_events(json):
     for event in json:
         if len(event['end']) == 0:
             event['end'] = event['start']
-        cal_event = ics.Event(event['title'], event['start'], event['end'], None,
-                                     str(event['id']), event['description'], None)
+        cal_event = ics.Event(
+            event['title'], 
+            string_to_time(event['start']), string_to_time(event['end']), 
+            None, str(event['id']), 
+            event['description'], None
+        )
         if event['all_day'] == 1:
             cal_event.make_all_day()
         events_list.append(cal_event)
@@ -174,7 +179,7 @@ def make_calendar_events(json):
 
 def event_time_relative(event):
     now = datetime.now()
-    start_time = datetime.strptime(event['start'], '%Y-%m-%d %H:%M:%S')
+    start_time = string_to_time(event['start'])
     return start_time - now
 
 def event_time_length(event):
@@ -190,3 +195,6 @@ def sort_events(events):
     events.sort(key=event_time_length, reverse=True)
     return events
 
+def string_to_time(string):
+    """Turn a schoology time string into a datetime object"""
+    return datetime.strptime(string, '%Y-%m-%d %H:%M:%S')

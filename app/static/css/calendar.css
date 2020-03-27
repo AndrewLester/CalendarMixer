@@ -17,8 +17,8 @@ body {
     overflow-x: hidden;
     flex: 1 0 75%;
     display: grid;
-    /* 85px is the height of the button bar, navbar, horizontal bar margin, and body margin */
-    height: calc(100vh - 85px);
+    /* 87px is the height of the button bar, navbar, horizontal bar margin, and body margin */
+    height: calc(100vh - 87px);
     z-index: 1;
     opacity: 1;
     align-self: flex-start;
@@ -271,6 +271,7 @@ button.large-button:active, input[type="submit"]:active {
 #button-panel {
     display: flex;
     flex-wrap: nowrap;
+    margin-bottom: 2px;
 }
 
 #current-date {
@@ -426,6 +427,10 @@ button.large-button:active, input[type="submit"]:active {
     margin: 0px 20px;
     align-self: center;
     justify-self: flex-start;
+}
+
+#export-feed {
+    margin-left: auto;
 }
 
 @media only screen and (max-width: 815px) {
