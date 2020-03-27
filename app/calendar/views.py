@@ -13,7 +13,7 @@ import itertools
 import re
 import ics
 import functools
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
 from dateutil.relativedelta import relativedelta
 
@@ -195,6 +195,8 @@ def sort_events(events):
     events.sort(key=event_time_length, reverse=True)
     return events
 
-def string_to_time(string):
+def string_to_time(string: str) -> datetime:
     """Turn a schoology time string into a datetime object"""
-    return datetime.strptime(string, '%Y-%m-%d %H:%M:%S')
+    time: datetime = datetime.strptime(string, '%Y-%m-%d %H:%M:%S')
+    time.replace(tzinfo=timezone.utc)
+    return time
