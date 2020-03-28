@@ -170,16 +170,18 @@ def get_user_events(user: User, cache, filter=False):
 def make_calendar_events(json, tz):
     events_list = []
     for event in json:
+        all_day = event['all_day'] == 1
         if len(event['end']) == 0:
             event['end'] = event['start']
         cal_event = ics.Event(
             event['title'], 
-            string_to_time(event['start'], tz), string_to_time(event['end'], tz), 
+            string_to_time(event['start'], tz, all_day), string_to_time(event['end'], tz, all_day), 
             None, str(event['id']), 
             event['description'], None
         )
+        print(cal_event.begin)
         cal_event.extra.append(ContentLine(name="DTSTAMP", value=datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')))
-        if event['all_day'] == 1:
+        if all_day:
             cal_event.make_all_day()
         events_list.append(cal_event)
 
@@ -203,10 +205,12 @@ def sort_events(events):
     events.sort(key=event_time_length, reverse=True)
     return events
 
-def string_to_time(string: str, tz = pytz.utc) -> datetime:
+def string_to_time(string: str, tz = pytz.utc, return_localized = False) -> datetime:
     """Turn a schoology time string into a datetime object with tz set to UTC"""
     time: datetime = datetime.strptime(string, '%Y-%m-%d %H:%M:%S')
     # Turn naive time into local time at the specified timezone. Accounts for DST
     time = tz.localize(time)
     # Return time back in UTC
+    if return_localized:
+        return time
     return time.astimezone(pytz.utc)
