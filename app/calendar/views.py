@@ -43,7 +43,7 @@ def cache_header(max_age, **ckwargs):
 @blueprint.route('')
 @login_required
 def calendar():
-    return render_template('calendar.html', title='Calendar', filters=current_user.filters, 
+    return render_template('calendar.html', title='Calendar', 
                             colors=current_user.colors.all(), id=current_user.id,
                             ical_secret=current_user.ical_secret,
                             base_url=request.url_root.split('://')[1])
