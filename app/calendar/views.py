@@ -70,7 +70,7 @@ def ical_file(user_id, secret):
         cal.extra.append(ContentLine(name="X-WR-CALNAME", value="CalendarMixer"))
         cal.extra.append(ContentLine(name="X-WR-TIMEZONE", value=user.timezone))
         response = make_response(''.join(cal))
-        response.headers["Content-Disposition"] = "inline; filename=calendar.ics"
+        response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
         response.headers["Content-Type"] = "text/calendar; charset=utf-8"
         return response
 
