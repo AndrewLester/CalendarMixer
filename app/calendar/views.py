@@ -68,6 +68,7 @@ def ical_file(user_id, secret):
         events_list = get_user_events(user, {}, filter=True)
         cal = ics.Calendar(events=make_calendar_events(events_list, pytz.timezone(user.timezone)), creator='CalendarMixer')
         cal.extra.append(ContentLine(name="X-WR-CALNAME", value="CalendarMixer"))
+        cal.extra.append(ContentLine(name="X-WR-TIMEZONE", value=user.timezone))
         response = make_response(''.join(cal))
         response.headers["Content-Disposition"] = "inline; filename=calendar.ics"
         response.headers["Content-Type"] = "text/calendar; charset=utf-8"
