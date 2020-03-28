@@ -17,5 +17,6 @@ def get_paged_data(
         except KeyError:
             next_url = None
         data += json[data_key]
+        page += 1
 
     return data

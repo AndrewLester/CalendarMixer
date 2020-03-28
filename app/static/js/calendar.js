@@ -185,5 +185,11 @@ exportButton.addEventListener('click', () => {
     navigator.clipboard.writeText(exportButton.dataset.icalLink);
 });
 
+tippy('#export-feed', {
+    content: 'Copy filtered calendar feed',
+    arrow: true, 
+    duration: [100, 100]
+});
+
 generateForms();
 
