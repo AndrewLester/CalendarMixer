@@ -179,7 +179,6 @@ def make_calendar_events(json, tz):
             None, str(event['id']), 
             event['description'], None
         )
-        print(cal_event.begin)
         cal_event.extra.append(ContentLine(name="DTSTAMP", value=datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')))
         if all_day:
             cal_event.make_all_day()
