@@ -1,2 +1,2 @@
-web: gunicorn --worker-class gevent patched:app
+web: gunicorn patched:app --worker-class gevent
 init: flask db init
