@@ -1,23 +1,23 @@
-from flask import Blueprint, render_template, request, jsonify, current_app, make_response, flash, g
-from flask_login import login_required, current_user
+import functools
+import itertools
+import json
+import re
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+import ics
+import pytz
+from dateutil.relativedelta import relativedelta
+from flask import (Blueprint, current_app, flash, g, jsonify, make_response,
+                   render_template, request)
+from flask_login import current_user, login_required
+from ics.parse import ContentLine
+
 from app.calendar.forms import CourseFilterForm
 from app.calendar.models import CourseFilter
+from app.exts import cache, csrf, db, oauth
 from app.main.models import User
-from app.exts import oauth, db
-from datetime import datetime, timedelta
-from app.exts import cache, csrf
 from app.schoology.api import get_paged_data
-import json
-from collections import defaultdict
-import itertools
-import re
-import ics
-from ics.parse import ContentLine
-import pytz
-import functools
-from datetime import datetime
-from functools import wraps
-from dateutil.relativedelta import relativedelta
 
 blueprint = Blueprint('calendar', __name__, url_prefix='/calendar', template_folder='../templates', static_folder='../static')
 
@@ -25,7 +25,7 @@ def cache_header(max_age, **ckwargs):
     def decorator(view):
         f = cache.cached(max_age, **ckwargs)(view)
 
-        @wraps(f)
+        @functools.wraps(f)
         def wrapper(*args, **wkwargs):
             response = f(*args, **wkwargs)
             response.cache_control.max_age = max_age
@@ -147,8 +147,7 @@ def get_user_events(user: User, cache, filter=False):
     events_json = get_paged_data(
         oauth.schoology.get,
         f'users/{user.id}/events' + time_queries + '&limit=200',
-        'event',
-        **cache
+        'event'
     )
 
     for event in events_json:
@@ -204,7 +203,7 @@ def sort_events(events):
     events.sort(key=event_time_length, reverse=True)
     return events
 
-def string_to_time(string: str, tz = pytz.utc, return_localized = False) -> datetime:
+def string_to_time(string: str, tz=pytz.utc, return_localized=False) -> datetime:
     """Turn a schoology time string into a datetime object with tz set to UTC"""
     time: datetime = datetime.strptime(string, '%Y-%m-%d %H:%M:%S')
     # Turn naive time into local time at the specified timezone. Accounts for DST

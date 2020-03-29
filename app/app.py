@@ -38,12 +38,7 @@ def create_app(config_name=Config):
                                          'CourseIdentifier': calendar.models.CourseIdentifier,
                                          'Task': main.models.Task})
 
-    # If the user is authenticated get the imageicon from their timezone
-    def date_fetch():
-        if current_user.is_authenticated:
-            return {'date': pytz.timezone(current_user.timezone).localize(datetime.utcnow())}
-        return {'date': datetime.now()}
-    app.context_processor(date_fetch)
+    app.context_processor(inject_date)
     # register_commands(app)
     return app
 
@@ -51,6 +46,12 @@ def create_app(config_name=Config):
 def register_jobs(app):
     #app.scheduler.cron('0-59 * * * *', func=tasks.generate_calendars)
     pass
+
+def inject_date():
+    # If the user is authenticated get the imageicon from their timezone
+    if current_user.is_authenticated:
+        return {'date': pytz.timezone(current_user.timezone).localize(datetime.utcnow())}
+    return {'date': datetime.now()}
 
 def register_extensions(app):
     login.init_app(app)
