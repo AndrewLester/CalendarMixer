@@ -1,2 +1,2 @@
-web: gunicorn patched:app --worker-class gevent
+web: gunicorn calendarmixer:app
 init: flask db init
