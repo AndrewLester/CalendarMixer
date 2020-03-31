@@ -17,7 +17,7 @@ body {
     overflow-x: hidden;
     flex: 1 0 75%;
     display: grid;
-    /* 87px is the height of the button bar, navbar, horizontal bar margin, and body margin */
+    /* 87px is the height of the button bar, navbar, horizontal bar margin, and body margin. CONSIDER CHANGING TO 100% */
     height: calc(100vh - 87px);
     z-index: 1;
     opacity: 1;
