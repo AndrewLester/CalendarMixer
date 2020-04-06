@@ -124,6 +124,16 @@ function placeEvent(event, start, end, filtered, init) {
     let startCol = col + 1;
     let eventRow = row + 1;
     let endCol = Math.min(9, startCol + span) + 1;
+    
+    // If this event is long, if it intersects with another event in a later column, move this entire
+    // event up one row to keep them from intersecting
+    for (let checkCol = startCol; checkCol < endCol; checkCol++) {
+        if (calendar[row][checkCol] && calendar[row][checkCol].currentRow > calDay.currentRow) {
+            calDay.currentRow = calendar[row][checkCol].currentRow;
+            break;
+        }
+    }
+    
     if (endCol > (startCol + 1)) {
         for (let i = 1; i < Math.min(7 - col, span + 1); i++) {
             calendar[row][col + i].currentRow += 1;
