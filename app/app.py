@@ -50,7 +50,8 @@ def register_jobs(app):
 def inject_date():
     # If the user is authenticated get the imageicon from their timezone
     if current_user.is_authenticated:
-        return {'date': pytz.timezone(current_user.timezone).localize(datetime.utcnow())}
+        tz = pytz.timezone(current_user.timezone)
+        return {'date': pytz.utc.localize(datetime.utcnow()).astimezone(tz)}
     return {'date': datetime.now()}
 
 def register_extensions(app):
