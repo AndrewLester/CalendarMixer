@@ -260,7 +260,7 @@ button.large-button:active, input[type="submit"]:active {
     flex: 1 0 25%;
     align-items: center;
     position: relative;
-    height: 100vh;
+    height: calc(100vh - 87px);
 }
 
 #main-content {
