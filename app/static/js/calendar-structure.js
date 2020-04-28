@@ -127,7 +127,7 @@ function placeEvent(event, start, end, filtered, init) {
     
     // If this event is long, if it intersects with another event in a later column, move this entire
     // event up one row to keep them from intersecting
-    for (let checkCol = startCol; checkCol < endCol; checkCol++) {
+    for (let checkCol = startCol; checkCol < endCol - 1; checkCol++) {
         if (calendar[row][checkCol] && calendar[row][checkCol].currentRow > calDay.currentRow) {
             calDay.currentRow = calendar[row][checkCol].currentRow;
             break;

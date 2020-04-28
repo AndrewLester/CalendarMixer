@@ -172,7 +172,7 @@ function spinner(element, func) {
     setInterval(() => {
         if (!lastSaved) return;
         text.text('Last saved ' + moment.duration(lastSaved.diff(moment())).humanize(true));
-    }, 60000);
+    }, 30000);
     return { clickIcon: () => button.click() };
 }
 const filterSaveIcon = spinner($('#save-element'), async () => {

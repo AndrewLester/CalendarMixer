@@ -1,3 +1,7 @@
+/node_modules/
+/public/build/
+
+.DS_Store
 venv/
 __pycache__/
 *.db
@@ -8,3 +12,5 @@ __pycache__/
 logs/
 .flaskenv
 logs/
+.mypy_cache/
+app/bundle/
