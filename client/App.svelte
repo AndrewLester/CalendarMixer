@@ -1,14 +1,15 @@
 <script>
-	export let name;
+        import Calendar from './Calendar.svelte';
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+        <Calendar/>
 </main>
 
 <style>
 	main {
+                width: 100%;
+                height: 100%;
 		text-align: center;
 		padding: 1em;
 		max-width: 240px;

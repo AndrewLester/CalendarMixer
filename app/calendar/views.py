@@ -19,7 +19,7 @@ from app.exts import cache, csrf, db, oauth
 from app.main.models import User
 from app.schoology.api import get_paged_data
 
-blueprint = Blueprint('calendar', __name__, url_prefix='/calendar', template_folder='../templates', static_folder='../static')
+blueprint = Blueprint('calendar', __name__, url_prefix='/calendar', template_folder='../templates', static_folder='../bundle')
 
 def cache_header(max_age, **ckwargs):
     def decorator(view):
@@ -39,6 +39,11 @@ def cache_header(max_age, **ckwargs):
             return response.make_conditional(request)
         return wrapper
     return decorator
+
+@blueprint.route('svelte')
+@login_required
+def svelte_cal():
+    return render_template('calendar_test.html')
 
 @blueprint.route('')
 @login_required
