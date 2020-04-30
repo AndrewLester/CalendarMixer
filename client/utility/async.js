@@ -16,7 +16,10 @@ export function animationEnd(element, animationProperty, timeout) {
         element.addEventListener('animationend', callback);
         
         if (timeout) {
-            sleep(timeout).then(resolve);
+            sleep(timeout).then(() => {
+                element.removeEventListener('animationend', callback);
+                resolve();
+            });
         }
     });
 }
