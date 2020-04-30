@@ -43,7 +43,7 @@ def cache_header(max_age, **ckwargs):
 @blueprint.route('svelte')
 @login_required
 def svelte_cal():
-    return render_template('calendar_test.html')
+    return render_template('calendar_test.html', colors=current_user.colors.all())
 
 @blueprint.route('')
 @login_required

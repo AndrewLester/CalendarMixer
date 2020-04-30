@@ -1,5 +1,5 @@
 npm run dev &
 redis-server ~/.local/etc/redis.conf &
 flask run
-kill $!
-kill %-1
+kill %2
+kill %1

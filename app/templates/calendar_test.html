@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block head %}
+{% if colors is defined %}
+    <script>const colors = {{ colors }};</script>
+{% endif %}
+<script>const csrf_token = "{{ csrf_token() }}";</script>
 <link href="/calendar/bundle/css/calendar_bundle.css" rel="stylesheet">
 <script src="/calendar/bundle/js/calendar_bundle.js" defer></script>
 {% endblock %}

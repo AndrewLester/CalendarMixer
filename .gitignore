@@ -14,3 +14,6 @@ logs/
 logs/
 .mypy_cache/
 app/bundle/
+*.rdb
+
+debug_app.sh
