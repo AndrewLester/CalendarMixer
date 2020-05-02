@@ -120,6 +120,7 @@ export function placeEvent(event, calendar) {
     let eventRow = row + 1;
     let endCol = Math.min(9, startCol + span + 1);
     
+    // TODO: Readd this
     // If this event is long, and if it intersects with another event in a later column, move this entire
     // event up one row to keep them from intersecting
     // for (let checkCol = startCol; checkCol < endCol - 1; checkCol++) {

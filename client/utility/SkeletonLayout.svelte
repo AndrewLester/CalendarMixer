@@ -16,10 +16,6 @@ export let simple = false;
     </div>
 {/if}
 
-
-
-
-
 <style>
 #wrapper {
     width: auto;

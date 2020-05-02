@@ -48,7 +48,6 @@ events.subscribe(value => {
     </div>
 </div>
 
-
 <style>
 #calendar-view {
     width: 75%;

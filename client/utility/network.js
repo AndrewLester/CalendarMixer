@@ -1,5 +1,3 @@
-
-
 export const mountNetworking = csrfToken => {
     return {
         get: url => {
@@ -22,7 +20,5 @@ export const mountNetworking = csrfToken => {
         }
     }
 };
-
-
 
 export const key = {};

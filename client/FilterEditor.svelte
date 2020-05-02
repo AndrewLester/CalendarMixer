@@ -11,7 +11,6 @@ let svgLink = '/static/img/save-button.svg';
 
 const { identifiers: courseIdentifiers } = getContext('stores');
 
-
 async function saveFilters() {
     if (svgLink === '/static/img/loading.svg') {
         return;
@@ -46,7 +45,6 @@ async function saveFilters() {
         </SkeletonLayout>
     {/if}
 </div>
-
 
 <style>
 h1 {
