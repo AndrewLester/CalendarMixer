@@ -40,8 +40,8 @@ let monthButtonWidth;
 $: monthButtonTextFormat = monthButtonWidth && monthButtonWidth < 100 ? 'MMM' : 'MMMM';
 
 onMount(() => {
-	definedColors = colors;
-	csrfToken = csrf_token;
+    definedColors = colors;
+    csrfToken = csrf_token;
 
     api = mountNetworking(csrfToken);
     events.setAPI(api);
@@ -58,18 +58,18 @@ function navigateMonths(shift) {
 
 <main>
     <Calendar {today}>
-		<p id="current-month" class:matching>{today.format('MMMM YYYY')}</p>
-		<button on:click={() => navigateMonths(-1)} class="large-button" bind:clientWidth={monthButtonWidth}>← {moment(today).subtract(1, 'months').format(monthButtonTextFormat)}</button>
-		<button on:click={() => navigateMonths(1)} class="large-button">{moment(today).add(1, 'months').format(monthButtonTextFormat)} →</button>
-	</Calendar>
-	<FilterEditor/>
+        <p id="current-month" class:matching>{today.format('MMMM YYYY')}</p>
+        <button on:click={() => navigateMonths(-1)} class="large-button" bind:clientWidth={monthButtonWidth}>← {moment(today).subtract(1, 'months').format(monthButtonTextFormat)}</button>
+        <button on:click={() => navigateMonths(1)} class="large-button">{moment(today).add(1, 'months').format(monthButtonTextFormat)} →</button>
+    </Calendar>
+    <FilterEditor/>
 </main>
 
 <style>
 main {
-	display: flex;
-	height: 100%;
-	width: 100%;
+    display: flex;
+    height: 100%;
+    width: 100%;
 }
 #current-month {
     display: inline-block;
@@ -83,7 +83,7 @@ main {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 :global(*:focus) {
-	outline: none;
+    outline: none;
 }
 :global(p) {
     margin: 0px;
