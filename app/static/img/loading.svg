@@ -1,0 +1,19 @@
+<svg class="spinner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <symbol id="icon" style="">
+    <style>@keyframes dash {
+    0% {
+      stroke-dasharray: 1, 75;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 45, 75;
+      stroke-dashoffset: -18;
+    }
+    100% {
+      stroke-dasharray: 45, 75;
+      stroke-dashoffset: -62;
+    }
+}</style>
+        <circle class="path" cx="12" cy="12" r="10" fill="none" stroke-width="3" style="stroke: rgba(0, 183, 255, 0.979);animation: dash 1.5s ease-in-out infinite;"></circle>
+    </symbol>
+</svg>

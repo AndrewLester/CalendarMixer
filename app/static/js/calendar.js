@@ -123,6 +123,7 @@ async function addAllEvents() {
                 row.classList.remove('event-row-skeleton');
             }
         }
+        console.log(d[0]);
         d.forEach(event => {
             let filtered = !filterEvent(event, filters);
             let start = moment(event['start'].split(' ')[0], 'YYYY-MM-DD');

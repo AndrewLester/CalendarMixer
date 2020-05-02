@@ -1,36 +1,28 @@
 <script>
 import CalendarRow from './CalendarRow.svelte';
+import { getContext, onMount } from 'svelte';
+import { key } from './utility/network.js';
+import { sleep } from './utility/async.js';
+import { buildCalendarStructure, placeEvent, CalendarEventData } from './calendar-structure.js';
 
 export let today;
 
-const fetchFilters = Promise.resolve([{"course_ids":[{"id":"7448295","name":"My Events","realm":"user"}],"id":1,"positive":true}]);
-const fetchEvents = fetch('/calendar/events').then((res) => res.json());
+const { filters, events } = getContext('stores');
 
-let filters;
-let events;
+let calendarReady = false;
 
-let row1Events;
-let row2Events;
-let row3Events;
-let row4Events;
-let row5Events;
-let rowEvents;
+let calendar = buildCalendarStructure(today);
 
-$: if (events) {
-    let eventsSection = Math.floor(events.length / 5);
-    row1Events = events.slice(0, eventsSection);
-    row2Events = events.slice(eventsSection, eventsSection * 2);
-    row3Events = events.slice(eventsSection * 2, eventsSection * 3);
-    row4Events = events.slice(eventsSection * 3, eventsSection * 4);
-    row5Events = events.slice(eventsSection * 4, eventsSection * 5);
-    rowEvents = [row1Events, row2Events, row3Events, row4Events];
-}
+events.subscribe(value => {
+    if (!value) {
+        return;
+    }
 
-(async () => {
-    filters = await fetchFilters;
-    events = await fetchEvents;
-})();
-
+    for (let event of value) {
+        placeEvent(new CalendarEventData(event, true, false), calendar);
+    }
+    calendarReady = true;
+})
 
 </script>
 
@@ -41,24 +33,16 @@ $: if (events) {
     </div>
     <div id="calendar">
         <div id="header" class="calendar-row">
-            <div>Sun</div>
-            <div>Mon</div>
-            <div>Tue</div>
-            <div>Wed</div>
-            <div>Thu</div>
-            <div>Fri</div>
-            <div>Sat</div>
+            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+            <div>Thu</div> <div>Fri</div><div>Sat</div>
         </div>
-        {#if rowEvents}
-            {#each rowEvents as rowEventsi}
-                <CalendarRow events={rowEventsi}/>
+        {#if calendarReady}
+            {#each calendar.rows.filter(row => !row.unused) as row (row)}
+                <CalendarRow {...row} />
             {/each}
-            {#if row5Events}
-                <CalendarRow events={row5Events}/>
-            {/if}
         {:else}
             {#each Array.from({ length: 5 }) as _, i}
-                <CalendarRow skeleton={true}/>
+                <CalendarRow skeleton={true} />
             {/each}
         {/if}
     </div>
@@ -68,6 +52,25 @@ $: if (events) {
 <style>
 #calendar-view {
     width: 75%;
+}
+#button-bar {
+    width: 100%;
+}
+#button-bar :global(button) {
+    width: 15%;
+    min-width: 75px;
+}
+#header {
+    display: grid;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    /* This index puts it above the day header */
+    z-index: 6;
+    background-color: white;
+    text-align: center;
+    grid-auto-flow: column;
+    grid-template-columns: repeat(7, 1fr);
 }
 :global(.calendar-row) {
     grid-column: 1 / 8;

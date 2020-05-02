@@ -5,11 +5,14 @@ export let svgLink;
 export let symbolId
 export let width = 24;
 export let height = 24;
+export let clickable = true;
 
 let active = false;
 let button;
 
 function press() {
+    if (!clickable) return;
+
     active = true;
 }
 
@@ -26,7 +29,7 @@ async function release() {
 
 <!-- Forward click events upwards -->
 <button class="icon-button" on:click bind:this={button} on:mousedown={press} class:active
-    style="--width: {width}px; --height: {height}px">
+    class:clickable style="--width: {width}px; --height: {height}px">
 
     <div></div>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" tabindex="0">
@@ -42,14 +45,18 @@ async function release() {
 .icon-button {
     outline: none;
     position: relative;
-    cursor: pointer;
     border: none;
+    cursor: default;
     background-color: transparent;
     height: var(--height);
     vertical-align: middle;
     width: var(--width);
     box-sizing: content-box;
     padding: 0px;
+}
+
+.icon-button.clickable {
+    cursor: pointer;
 }
 
 .icon-button div {

@@ -1,25 +1,34 @@
 <script>
 import { fade } from 'svelte/transition';
 
+export let simple = false;
+
 </script>
 
-<div id="wrapper" transition:fade="{{ duration: 200 }}">
-    <slot>
-        <!-- Default skeleton layout is a single bar -->
-        <div></div>
-    </slot>
-</div>
+{#if simple}
+    <slot name="simple"/>
+{:else}
+    <div id="wrapper" transition:fade="{{ duration: 200 }}">
+        <slot>
+            <!-- Default skeleton layout is a single bar -->
+            <div></div>
+        </slot>
+    </div>
+{/if}
+
+
+
 
 
 <style>
 #wrapper {
-    width: 100%;
-    height: 100%;
+    width: auto;
+    height: auto ;
 }
 
 #wrapper :global(input[type="text"]), #wrapper :global(p),
 #wrapper :global(legend), #wrapper :global(div:empty),
-#wrapper :global(label)  {
+#wrapper :global(label), :global(.skeleton-bar)  {
     /* Color transparent hides text, but allows the text to define the width */
     height: 15px;
     color: transparent;
@@ -34,11 +43,15 @@ import { fade } from 'svelte/transition';
     animation: loading 1s infinite ease;
 }
 
+:global(.skeleton-bar) {
+    margin: 0px;
+}
+
 #wrapper :global(::placeholder) {
     color: transparent;
 }
 
-@keyframes loading {
+@keyframes -global-loading {
     50% {
         background-position: 100% 0px;
     }

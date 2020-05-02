@@ -113,7 +113,7 @@ function placeEvent(event, start, end, filtered, init) {
     }
 
     // Reset start to firstCalDay if the actual start is before the current month.
-    start = start.isAfter(moment(firstCalDay).subtract(1, 'days')) ? start : firstCalDay;
+    start = start.isBefore(firstCalDay) ? firstCalDay : start;
 
     let span = Math.ceil(moment.duration(end.diff(start)).asDays());
     let daysSinceCalStart = Math.ceil(moment.duration(start.diff(firstCalDay)).asDays());
@@ -123,7 +123,7 @@ function placeEvent(event, start, end, filtered, init) {
 
     let startCol = col + 1;
     let eventRow = row + 1;
-    let endCol = Math.min(9, startCol + span) + 1;
+    let endCol = Math.min(9, startCol + span + 1);
     
     // If this event is long, if it intersects with another event in a later column, move this entire
     // event up one row to keep them from intersecting

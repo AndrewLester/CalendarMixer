@@ -1,13 +1,13 @@
 
 
-export default mountNetworking = csrfToken => {
+export const mountNetworking = csrfToken => {
     return {
         get: url => {
             return fetch(url, {
                 headers: {
                     'Accept': 'application/json'
                 }
-            });
+            }).then(res => res.json());
         },
         post: (url, data) => {
             return fetch(url, {

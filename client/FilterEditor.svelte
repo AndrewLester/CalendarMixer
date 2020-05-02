@@ -2,27 +2,36 @@
 import SkeletonLayout from './utility/SkeletonLayout.svelte';
 import SVGButton from './utility/SVGButton.svelte';
 import { fade } from 'svelte/transition';
-import { onMount } from 'svelte';
+import { getContext } from 'svelte';
+import { sleep } from './utility/async.js';
 
-const fetchCourseIdentifiers = fetch('/calendar/filter').then((res) => res.json());
+export let filters;
 
-let courseIdentifiers;
+let svgLink = '/static/img/save-button.svg';
 
-onMount(async () => {
-    courseIdentifiers = await fetchCourseIdentifiers;
-});
+const { identifiers: courseIdentifiers } = getContext('stores');
 
-function saveFilters() {
 
+async function saveFilters() {
+    if (svgLink === '/static/img/loading.svg') {
+        return;
+    }
+
+    svgLink = '/static/img/loading.svg';
+    await sleep(1000000);
+    svgLink = '/static/img/save-button.svg';
 }
 
 </script>
 
 <div id="filter-editor">
     <h1>Edit Filters</h1>
-    <SVGButton svgLink={'/static/img/save-button.svg'} symbolId={'icon'} on:click={saveFilters}/>
-    {#if courseIdentifiers}
-        <div transition:fade="{{ delay: 200 }}">{JSON.stringify(courseIdentifiers)}</div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" tabindex="0">
+        <use xlink:href="/static/img/loading.svg#icon"/>
+    </svg>
+    <SVGButton {svgLink} symbolId={'icon'} on:click={saveFilters} clickable={svgLink !== '/static/img/loading.svg'}/>
+    {#if $courseIdentifiers}
+        <div transition:fade="{{ delay: 200 }}">{JSON.stringify($courseIdentifiers)}</div>
     {:else}
         <SkeletonLayout>
             <fieldset class="course-filter-layout">
