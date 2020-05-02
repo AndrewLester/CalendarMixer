@@ -6,8 +6,6 @@ import moment from './libraries/moment.min.js';
 import { mountNetworking, key } from './utility/network.js';
 import { NetworkStore } from './utility/stores.js';
 
-let msg;
-
 let definedColors;
 let csrfToken;
 let now = moment();
