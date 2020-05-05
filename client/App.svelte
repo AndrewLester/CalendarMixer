@@ -1,3 +1,13 @@
+<script context="module">
+export class CourseIdentifier {
+    constructor(id, name, realm) {
+        this.id = id;
+        this.name = name;
+        this.realm = realm;
+    }
+}
+</script>
+
 <script>
 import Calendar from './Calendar.svelte';
 import FilterEditor from './FilterEditor.svelte';

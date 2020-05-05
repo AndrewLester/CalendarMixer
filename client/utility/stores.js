@@ -14,8 +14,12 @@ export class NetworkStore {
         this.api = api;
 
         if (this.writable) {
-            this.set = (value) => {
-                this.api.post(endpoint, value).then(() => this._store.set(value));
+            this.set = async (value) => {
+                try {
+                    await this.api.post(this.endpoint, value).then(() => this._store.set(value));
+                } catch (err) {
+                    throw err;
+                }
             }
         }
 
@@ -23,6 +27,6 @@ export class NetworkStore {
     }
 
     _reset() {
-        this.api.get(this.endpoint).then((value) => this._store.set(value))
+        this.api.get(this.endpoint).then((value) => this._store.set(value));
     }
 }

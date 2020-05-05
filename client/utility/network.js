@@ -5,7 +5,12 @@ export const mountNetworking = csrfToken => {
                 headers: {
                     'Accept': 'application/json'
                 }
-            }).then(res => res.json());
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Request error');
+                }
+                return res.json();
+            });
         },
         post: (url, data) => {
             return fetch(url, {
@@ -16,6 +21,10 @@ export const mountNetworking = csrfToken => {
                     'X-CSRFToken': csrfToken
                 },
                 body: JSON.stringify(data)
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Request error');
+                }
             });
         }
     }
