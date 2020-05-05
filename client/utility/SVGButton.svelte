@@ -6,6 +6,7 @@ export let symbolId
 export let width = 24;
 export let height = 24;
 export let clickable = true;
+export let classes = '';
 
 let active = false;
 let button;
@@ -32,7 +33,7 @@ async function release() {
     class:clickable style="--width: {width}px; --height: {height}px">
 
     <div></div>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" tabindex="0">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" tabindex="0" class="{classes}">
         <use xlink:href="{svgLink}#{symbolId}"/>
     </svg>
 </button>

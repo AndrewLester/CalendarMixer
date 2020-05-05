@@ -6,14 +6,6 @@ import moment from './libraries/moment.min.js';
 import { mountNetworking, key } from './utility/network.js';
 import { NetworkStore } from './utility/stores.js';
 
-let definedColors;
-let csrfToken;
-let now = moment();
-
-let today = moment(now).startOf('day');
-
-$: matching = now.month() === today.month() && now.year() === today.year();
-
 let events;
 let filters;
 let identifiers;
@@ -33,8 +25,17 @@ setContext('stores', {
     identifiers
 })
 
-let monthButtonWidth;
+let definedColors;
+let csrfToken;
 
+let now = moment();
+let today = moment(now).startOf('day');
+$: matching = now.month() === today.month() && now.year() === today.year();
+
+let condensed;
+let flyDirection;
+
+let monthButtonWidth;
 $: monthButtonTextFormat = monthButtonWidth && monthButtonWidth < 100 ? 'MMM' : 'MMMM';
 
 onMount(() => {
@@ -48,6 +49,7 @@ onMount(() => {
 });
 
 function navigateMonths(shift) {
+    flyDirection = -Math.sign(shift);
     today.add(shift, 'months');
     today = today;
 }
@@ -55,19 +57,26 @@ function navigateMonths(shift) {
 </script>
 
 <main>
-    <Calendar {today}>
-        <p id="current-month" class:matching>{today.format('MMMM YYYY')}</p>
-        <button on:click={() => navigateMonths(-1)} class="large-button" bind:clientWidth={monthButtonWidth}>← {moment(today).subtract(1, 'months').format(monthButtonTextFormat)}</button>
-        <button on:click={() => navigateMonths(1)} class="large-button">{moment(today).add(1, 'months').format(monthButtonTextFormat)} →</button>
-    </Calendar>
+    <div id="calendar-viewer">
+        <div id="button-bar">
+            <p id="current-month" class:matching>{today.format('MMMM YYYY')}</p>
+            <button on:click={() => navigateMonths(-1)} class="large-button" bind:clientWidth={monthButtonWidth}>← {moment(today).subtract(1, 'months').format(monthButtonTextFormat)}</button>
+            <button on:click={() => navigateMonths(1)} class="large-button">{moment(today).add(1, 'months').format(monthButtonTextFormat)} →</button>
+            <label class="calendar-option" for="condensed-checkbox">Condensed:</label>
+            <input class="calendar-option" type="checkbox" bind:checked={condensed}>
+        </div>
+        <Calendar {today} {condensed} {flyDirection} />
+    </div>
     <FilterEditor/>
 </main>
 
 <style>
 main {
     display: flex;
-    height: 100%;
+    /* 55px is the height of the header + hr */
+    height: calc(100vh - 55px);
     width: 100%;
+    overflow: hidden;
 }
 #current-month {
     display: inline-block;
@@ -76,6 +85,18 @@ main {
 #current-month.matching {
     font-weight: bold;
     color: #29b6f6;
+}
+#button-bar {
+    width: 100%;
+}
+#button-bar button {
+    width: 15%;
+    min-width: 75px;
+}
+#calendar-viewer {
+    width: 75%;
+    height: 100%;
+    overflow: hidden;
 }
 :global(*) {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -90,11 +111,10 @@ main {
     animation: rotate 2s linear infinite;
     z-index: 2;
     position: relative;
-    display: none;
     width: 24px;
     height: 24px;
 }
-:global(.spinner) > .path {
+:global(.spinner) > :global(.path) {
     stroke: rgba(0, 183, 255, 0.979);
     /*stroke-linecap: round;*/
     animation: dash 1.5s ease-in-out infinite;
@@ -121,6 +141,23 @@ main {
 :global(button.large-button:active), :global(input[type="submit"]:active) {
     box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.2);
     border-color: rgba(0, 0, 0, 0.8);
+}
+:global(.small-button) {
+    color: #29b6f6;
+    background: none;
+    border: none;
+    border-radius: 5px; 
+    cursor: pointer;
+    font-size: 15px;
+    height: 40px;
+    transition: all 0.15s ease;
+}
+:global(.small-button:hover) {
+    background-color: rgba(41, 182, 246, 0.1);
+}
+:global(.small-button:active) {
+    box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1);
+    background-color: rgba(54, 188, 250, 0.33);
 }
 @keyframes -global-rotate {
     100% {

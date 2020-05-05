@@ -8,27 +8,33 @@ import { sleep } from './utility/async.js';
 export let filters;
 
 let svgLink = '/static/img/save-button.svg';
+let saving = false;
 
 const { identifiers: courseIdentifiers } = getContext('stores');
 
 async function saveFilters() {
-    if (svgLink === '/static/img/loading.svg') {
+    if (saving) {
         return;
     }
+    saving = true;
 
-    svgLink = '/static/img/loading.svg';
-    await sleep(1000000);
-    svgLink = '/static/img/save-button.svg';
+    await sleep(2500000);
+    saving = false;
 }
 
 </script>
 
 <div id="filter-editor">
     <h1>Edit Filters</h1>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" tabindex="0">
-        <use xlink:href="/static/img/loading.svg#icon"/>
-    </svg>
-    <SVGButton {svgLink} symbolId={'icon'} on:click={saveFilters} clickable={svgLink !== '/static/img/loading.svg'}/>
+
+    {#if !saving}
+        <SVGButton {svgLink} symbolId={'icon'} on:click={saveFilters} />
+    {:else}
+        <svg class="spinner" viewBox="0 0 24 24" style="display: inline;">
+            <circle class="path" cx="12" cy="12" r="10" fill="none" stroke-width="3" />
+        </svg>
+    {/if}
+    
     {#if $courseIdentifiers}
         <div transition:fade="{{ delay: 200 }}">{JSON.stringify($courseIdentifiers)}</div>
     {:else}

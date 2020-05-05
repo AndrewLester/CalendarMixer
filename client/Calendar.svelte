@@ -1,63 +1,91 @@
 <script>
 import CalendarRow from './CalendarRow.svelte';
-import { getContext, onMount } from 'svelte';
+import { derived } from 'svelte/store';
+import { getContext, onMount, tick } from 'svelte';
 import { key } from './utility/network.js';
 import { sleep } from './utility/async.js';
-import { buildCalendarStructure, placeEvent, CalendarEventData } from './calendar-structure.js';
+import { buildCalendarStructure, placeEvent, applyFilters, CalendarEventData } from './calendar-structure.js';
+import { fade, fly } from 'svelte/transition';
 
 export let today;
+export let flyDirection;
+export let condensed;
 
 const { filters, events } = getContext('stores');
 
+let calendarView;
+
+let downloaded = false;
 let calendarReady = false;
+let readyToPlace = true;
+let firstLoad = true;
+$: flyParameters = { x: flyDirection * 300, duration: 250 }
 
-let calendar = buildCalendarStructure(today);
-
-events.subscribe(value => {
-    if (!value) {
-        return;
+derived([filters, events], ([$filters, $events]) => {
+    if ($filters && $events) {
+        return true;
     }
+    return false;
+}).subscribe((value) => downloaded = value);
 
-    for (let event of value) {
-        placeEvent(new CalendarEventData(event, true, false), calendar);
+$: {
+    // Whenever today changes, set calendar ready to false
+    today;
+    calendarReady = false;
+}
+$: calendar = buildCalendarStructure(today);
+
+$: if (downloaded && readyToPlace) {
+    // Reset scroll position after animating to a new month
+    calendarView.scrollTop = 0;
+    placeEvents().then(() => {
+        calendarReady = true;
+        firstLoad = false;
+        readyToPlace = false;
+    });
+}
+
+async function placeEvents() {
+    for (let event of $events) {
+        let filtered = false;
+
+        if (applyFilters(event, $filters)) {
+            filtered = true;
+        }
+
+        placeEvent(new CalendarEventData(event, true, filtered), calendar);
     }
-    calendarReady = true;
-})
+}
 
 </script>
 
-<div id="calendar-view">
-    <div id="button-bar">
-        <!-- Slot is for the button bar, which the app controls -->
-        <slot></slot>
-    </div>
-    <div id="calendar">
-        <div id="header" class="calendar-row">
-            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
-            <div>Thu</div> <div>Fri</div><div>Sat</div>
+<div id="calendar-view" bind:this={calendarView}>
+    {#if calendarReady || firstLoad }
+        <div id="calendar" out:fly="{flyParameters}" in:fade={{ duration: 50 }}
+          on:outroend={() => readyToPlace = true}>
+            <div id="header" class="calendar-row">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+                <div>Thu</div> <div>Fri</div><div>Sat</div>
+            </div>
+            {#if downloaded }
+                {#each calendar.rows.filter(row => !row.unused) as row, i (row)}
+                    <CalendarRow {...row} {today} calRowNum={i} />
+                {/each}
+            {:else}
+                {#each calendar.rows as row, i (row)}
+                    <CalendarRow {...row} {today} calRowNum={i} skeleton={true} />
+                {/each}
+            {/if}
         </div>
-        {#if calendarReady}
-            {#each calendar.rows.filter(row => !row.unused) as row (row)}
-                <CalendarRow {...row} />
-            {/each}
-        {:else}
-            {#each Array.from({ length: 5 }) as _, i}
-                <CalendarRow skeleton={true} />
-            {/each}
-        {/if}
-    </div>
+    {/if}
 </div>
 
 <style>
 #calendar-view {
-    width: 75%;
-}
-#button-bar {
-    width: 100%;
-}
-#button-bar :global(button) {
-    width: 15%;
-    min-width: 75px;
+    /* 40px for the button bar */
+    height: calc(100% - 40px);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 #header {
     display: grid;

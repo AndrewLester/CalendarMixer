@@ -1,13 +1,46 @@
-{% extends "base.html" %}
-{% block head %}
-{% if colors is defined %}
-    <script>const colors = {{ colors }};</script>
-{% endif %}
-<script>const csrf_token = "{{ csrf_token() }}";</script>
-<link href="/calendar/bundle/css/calendar_bundle.css" rel="stylesheet">
-<script src="/calendar/bundle/js/calendar_bundle.js" defer></script>
-{% endblock %}
-{% block content %}
-<main id="calendar-mixer">
-</main>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#29b6f6">
+        {% if title %}
+        <title>{{ title }} - Calendar Mixer</title>
+        {% else %}
+        <title>Calendar Mixer</title>
+        {% endif %}
+        <link rel="icon" href="https://img.icons8.com/metro/28/000000/calendar-{{ date.day }}.png" />
+        {% if colors is defined %}
+        <script>const colors = {{ colors }};</script>
+        {% endif %}
+        <script>const csrf_token = "{{ csrf_token() }}";</script>
+        <link href="/calendar/bundle/css/external.css" rel="stylesheet">
+        <link href="/calendar/bundle/css/calendar_bundle.css" rel="stylesheet">
+        <script src="/calendar/bundle/js/calendar_bundle.js" defer></script>
+    </head>
+    <body style="overflow: hidden;">
+        <div id="navbar">
+            Calendar Mixer:
+            <a href="{{ url_for('main.index') }}">Home</a>
+            {% if current_user.is_anonymous %}
+            <a href="{{ url_for('oauth.login') }}">Login</a>
+            {% else %}
+            <a href="{{ url_for('calendar.calendar') }}">Calendar</a>
+            <a href="{{ url_for('main.profile') }}">Profile</a>
+            <a href="{{ url_for('oauth.logout') }}">Logout</a>
+            {% endif %}
+            {% block navbar %}{% endblock %}
+        </div>
+        <hr>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <main id="calendar-mixer">
+        </main>
+    </body>
+</html>

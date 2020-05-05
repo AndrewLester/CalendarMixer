@@ -77,7 +77,7 @@ function addElement(parent, event, filtered, openRow, start, end, long, init) {
 function filterEvent(event, filters) {
     for (let filter of filters) {
         let eventRealmId = event[event['realm'] + '_id'];
-        // xor: only one side can be true for the output to be true;
+        // xor: positive filters invert the output of the normal filter
         if (filter.course_ids.map(e => e.id).some(id => id == eventRealmId) ^ filter.positive) {
             return false;
         }

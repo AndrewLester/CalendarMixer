@@ -136,12 +136,23 @@ export function placeEvent(event, calendar) {
         }
     }
     if (endCol > 8) {
-        placeEvent(new CalendarEventData(eventInfo, false, filtered, moment(start).add(7 - col, 'days')), calendar);
+        placeEvent(new CalendarEventData(eventInfo, true, filtered, moment(start).add(7 - col, 'days')), calendar);
     }
 
     event.startCol = startCol;
     event.endCol = endCol;
     calDay.events.push(event);
+}
+
+export function applyFilters(eventInfo, filters) {
+    for (let filter of filters) {
+        let eventRealmId = eventInfo[eventInfo['realm'] + '_id'];
+        // xor: positive filters invert the output of the normal filter
+        if (filter.course_ids.map(e => e.id).some(id => id == eventRealmId) ^ filter.positive) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // TODO: This should be turned into the templating structure of Svelte

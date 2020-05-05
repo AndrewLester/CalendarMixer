@@ -1,23 +1,28 @@
 <script>
 import CalendarEvent from './CalendarEvent.svelte';
 import SkeletonLayout from './utility/SkeletonLayout.svelte';
+import moment from './libraries/moment.min.js';
 
+export let today;
+export let calRowNum;
 export let dayNums = [];
 export let days = [];
 export let skeleton = false;
+
+let now = moment();
 </script>
 
 <div class="calendar-row">
     <div class="header">
-        {#if skeleton}
-            {#each Array.from({ length: 7}) as _, i}
-                <div></div>
-            {/each}
-        {:else}
-            {#each dayNums as num, i}
-                <div class:other-month={days[i].otherMonth}>{num}</div>
-            {/each}
-        {/if}
+        {#each dayNums as num, i}
+            <div class:other-month={days[i].otherMonth}>
+                {#if now.year() === today.year() && now.month() == today.month() && num == now.date()}
+                    <span class="today">{num}</span>
+                {:else}
+                    {num}
+                {/if}
+            </div>
+        {/each}
     </div>
     <div class="event-row" class:skeleton>
         {#if skeleton}
@@ -29,7 +34,7 @@ export let skeleton = false;
         {:else}
             {#each days as day (day)}
                 {#each day.events as event, i}
-                    <CalendarEvent {...event} eventNum={i} />
+                    <CalendarEvent {...event} eventNum={i} {calRowNum} />
                 {/each}
             {/each}
         {/if}
@@ -69,6 +74,7 @@ export let skeleton = false;
 
 .header > div {
     cursor: pointer;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .header {
@@ -82,12 +88,16 @@ export let skeleton = false;
     line-height: 24px;
 }
 
-.header > div.today-wrapper {
-    display: flex;
-    justify-content: center;   
-}
-
 .other-month {
     color: gray;
+}
+
+:not(.other-month) > .today {
+    display: inline-block;
+    color: white;
+    border-radius: 50%;
+    background-color: #29b6f6;
+    height: 24px;
+    width: 25px;
 }
 </style>
