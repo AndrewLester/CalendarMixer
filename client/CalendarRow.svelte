@@ -33,7 +33,7 @@ let now = moment();
             <div class="skeleton-bar" style="grid-column: 7 / 8"></div> 
         {:else}
             {#each days as day (day)}
-                {#each day.events as event, i}
+                {#each day.events as event, i (event.eventInfo.id)}
                     <CalendarEvent {...event} eventNum={i} {calRowNum} />
                 {/each}
             {/each}
