@@ -18,7 +18,7 @@ async function saveFilters() {
     }
     saving = true;
 
-    await sleep(2500000);
+    await sleep(2500);
     saving = false;
 }
 
@@ -27,13 +27,16 @@ async function saveFilters() {
 <div id="filter-editor">
     <h1>Edit Filters</h1>
 
-    {#if !saving}
-        <SVGButton {svgLink} symbolId={'icon'} on:click={saveFilters} />
-    {:else}
-        <svg class="spinner" viewBox="0 0 24 24" style="display: inline;">
-            <circle class="path" cx="12" cy="12" r="10" fill="none" stroke-width="3" />
-        </svg>
-    {/if}
+    <div id="save-bar">
+        <span id="saving-text">Saving</span>
+        {#if !saving}
+            <SVGButton {svgLink} symbolId={'icon'} on:click={saveFilters} />
+        {:else}
+            <svg class="spinner" viewBox="0 0 24 24" style="display: inline;">
+                <circle class="path" cx="12" cy="12" r="10" fill="none" stroke-width="3" />
+            </svg>
+        {/if}
+    </div>
     
     {#if $courseIdentifiers}
         <div transition:fade="{{ delay: 200 }}">{JSON.stringify($courseIdentifiers)}</div>
@@ -74,5 +77,8 @@ h1 {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
     align-items: center;
     display: flex;
+}
+.spinner {
+    vertical-align: middle;
 }
 </style>

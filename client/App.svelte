@@ -114,7 +114,7 @@ main {
     width: 24px;
     height: 24px;
 }
-:global(.spinner) > :global(.path) {
+:global(.path) {
     stroke: rgba(0, 183, 255, 0.979);
     /*stroke-linecap: round;*/
     animation: dash 1.5s ease-in-out infinite;
