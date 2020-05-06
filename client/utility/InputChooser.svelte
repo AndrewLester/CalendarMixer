@@ -21,7 +21,7 @@ onMount(() => {
                 {#if input.value.length === 0 }
                     <p>{item[Object.keys(item).filter(key => key !== 'realm')[0]]}</p>
                 {:else}
-                    <p>{name_begin}<span style="font-weight: bold;">{bold}</span>{name_end}</p>
+                    <p><span style="font-weight: bold;"></span></p>
                 {/if}
             </div>
         </AutocompletePopup>
@@ -35,6 +35,6 @@ onMount(() => {
 }
 
 .course-identifier-wrapper {
-    
+
 }
 </style>
