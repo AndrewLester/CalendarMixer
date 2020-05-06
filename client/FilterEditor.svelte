@@ -1,6 +1,7 @@
 <script>
 import SkeletonLayout from './utility/SkeletonLayout.svelte';
 import SVGButton from './utility/SVGButton.svelte';
+import InputChooser from './utility/InputChooser.svelte';
 import Filter, { saveAll as saveAllFilters } from './Filter.svelte';
 import { fade } from 'svelte/transition';
 import { getContext } from 'svelte';
@@ -61,15 +62,7 @@ async function saveFilters() {
         </div>
     {:else}
         <SkeletonLayout>
-            <fieldset class="course-filter-layout">
-                <legend>Filter Id: 1</legend>
-                <label for="positive-filter-button">Positive Filter</label>
-                <input id="positive-filter-button" class="filter-type" type="checkbox">
-                <div class="course-input">
-                    <input class="course-chooser" type="text" placeholder="Add Course">
-                </div>
-                <input type="submit" class="form-submit" value="Save Filter">
-            </fieldset>
+            <Filter id={0} positive={false} course_ids={[]} />
         </SkeletonLayout>
     {/if}
 </div>

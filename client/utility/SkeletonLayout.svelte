@@ -25,22 +25,17 @@ export let simple = false;
 .wrapper :global(input[type="text"]), .wrapper :global(p),
 .wrapper :global(legend), .wrapper :global(div:empty),
 .wrapper :global(label), :global(.skeleton-bar)  {
-    /* Color transparent hides text, but allows the text to define the width */
-    height: 15px;
+    /* Color transparent hides text, but allows the text to define the width and height */
+    max-height: 15px;
     color: transparent;
     opacity: 1;
     border-radius: 3px;
     overflow: hidden;
     transform: none;
-    margin: 10px 5px;
     background-repeat: no-repeat;
     background-image: repeating-linear-gradient(to right, rgb(175,175,175), rgba(175, 175, 175, 0.333), rgb(175,175,175));
     background-size: 200% 100%;
     animation: loading 1s infinite ease;
-}
-
-:global(.skeleton-bar) {
-    margin: 0px;
 }
 
 .wrapper :global(::placeholder) {
