@@ -14,7 +14,7 @@ onMount(() => {
 </script>
 
 <div id="input-area">
-    <input id="" on:focus={() => focused = true} bind:this={input}>
+    <input id="" on:focus={() => focused = true} on:blur={() => focused = false} bind:this={input}>
     {#if focused }
         <AutocompletePopup {options} let:item>
             <div class="course-identifier-wrapper" data-realm="{item.realm}">
