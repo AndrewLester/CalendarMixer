@@ -26,10 +26,13 @@ filters.subscribe(($value) => {
         for (let row of calendar.rows) {
             for (let day of row.days) {
                 for (let event of day) {
-                    event.filtered = applyFilters(event, $value);
+                    if (applyFilters(event, $value)) {
+                        event.filtered = true;
+                    }
                 }
             }
         }
+        calendar = calendar;
     }
 })
 

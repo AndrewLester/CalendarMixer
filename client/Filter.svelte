@@ -35,24 +35,19 @@ export let id;
 export let positive;
 export let course_ids;
 
-const { identifiers: courseIdentifiers } = getContext('stores');
+const { identifiers: courseIdentifiers, filters } = getContext('stores');
 
 onMount(() => {
-    elements.add(this);
+    elements.add(self);
 });
 
-export function toFilterData() {
-    return new CourseFilterData(id, positive, courseIds);
-}
-
 export function save() {
-    const filterData = toFilterData();
     const formData = new FormData();
-    formData.append('filter_id', filterData.id);
-    formData.append('positive', filterData.positive);
-    formData.append('course_ids', JSON.stringify(filterData.filteredItems));
+    formData.append('filter_id', JSON.stringify({ data: id + '' }));
+    formData.append('positive', JSON.stringify({ data: positive + '' }));
+    formData.append('course_id', JSON.stringify({ data: course_ids }));
 
-    return filters.set(formData, null);
+    return filters.set(formData, null, {id, positive, course_ids});
 }
 
 </script>
@@ -64,7 +59,7 @@ export function save() {
     <div class="course-input">
         <InputChooser options={$courseIdentifiers} />
     </div>
-    <input type="submit" class="form-submit" value="Save Filter">
+    <input type="submit" on:click={save} class="form-submit" value="Save Filter">
 </fieldset>
 
 <style>
