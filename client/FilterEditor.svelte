@@ -1,22 +1,7 @@
-<script context="module">
-export class FilterData {
-    constructor(filterId, positive) {
-        this.id = filterId;
-        this.positive = positive;
-    }
-}
-
-export class CourseFilterData extends FilterData {
-    constructor(filterId, positive, courseIds) {
-        super(filterId, positive);
-        this.course_ids = courseIds;
-    }
-}
-</script>
-
 <script>
 import SkeletonLayout from './utility/SkeletonLayout.svelte';
 import SVGButton from './utility/SVGButton.svelte';
+import Filter, { saveAll as saveAllFilters } from './Filter.svelte';
 import { fade } from 'svelte/transition';
 import { getContext } from 'svelte';
 import { sleep } from './utility/async.js';
@@ -41,9 +26,9 @@ async function saveFilters() {
     saving = true;
     svgLink = SAVE_SVG_URL;
 
-    try {
-        await filters.set([{"course_ids": [{"id": "7448295", "name": "My Events", "realm": "user"}, {"id": "164181722", "name": "GMHS Robotics Team - 1418", "realm": "group"}], "id": 1, "positive": true}]);
-    } catch (err) {
+    const responses = await saveAllFilters();
+
+    if (responses.some((res) => res.status === 'rejected')) {
         svgLink = FAILED_SVG_URL;
         resetSVGTask = setTimeout(() => {
             svgLink = SAVE_SVG_URL;
@@ -69,7 +54,11 @@ async function saveFilters() {
     </div>
     
     {#if $filters }
-        <div transition:fade="{{ delay: 200 }}">{JSON.stringify($courseIdentifiers)}</div>
+        <div id="filters-list" transition:fade="{{ delay: 200 }}">
+            {#each $filters as filter (filter.id)}
+                <Filter {...filter} />
+            {/each}
+        </div>
     {:else}
         <SkeletonLayout>
             <fieldset class="course-filter-layout">
@@ -99,7 +88,7 @@ h1 {
     flex: 1 0 25%;
     align-items: center;
     position: relative;
-    height: calc(100vh - 87px);
+    height: calc(100vh - 53px);
 }
 .course-filter-layout {
     width: 100%;

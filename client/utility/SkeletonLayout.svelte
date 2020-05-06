@@ -8,7 +8,7 @@ export let simple = false;
 {#if simple}
     <slot name="simple"/>
 {:else}
-    <div id="wrapper" transition:fade="{{ duration: 200 }}">
+    <div class="wrapper" transition:fade="{{ duration: 200 }}">
         <slot>
             <!-- Default skeleton layout is a single bar -->
             <div></div>
@@ -17,14 +17,14 @@ export let simple = false;
 {/if}
 
 <style>
-#wrapper {
+.wrapper {
     width: auto;
     height: auto ;
 }
 
-#wrapper :global(input[type="text"]), #wrapper :global(p),
-#wrapper :global(legend), #wrapper :global(div:empty),
-#wrapper :global(label), :global(.skeleton-bar)  {
+.wrapper :global(input[type="text"]), .wrapper :global(p),
+.wrapper :global(legend), .wrapper :global(div:empty),
+.wrapper :global(label), :global(.skeleton-bar)  {
     /* Color transparent hides text, but allows the text to define the width */
     height: 15px;
     color: transparent;
@@ -43,7 +43,7 @@ export let simple = false;
     margin: 0px;
 }
 
-#wrapper :global(::placeholder) {
+.wrapper :global(::placeholder) {
     color: transparent;
 }
 

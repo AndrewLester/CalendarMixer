@@ -21,6 +21,18 @@ let readyToPlace = true;
 let firstLoad = true;
 $: flyParameters = { x: flyDirection * 300, duration: 250 }
 
+filters.subscribe(($value) => {
+    if (downloaded && readyToPlace) {
+        for (let row of calendar.rows) {
+            for (let day of row.days) {
+                for (let event of day) {
+                    event.filtered = applyFilters(event, $value);
+                }
+            }
+        }
+    }
+})
+
 derived([filters, events], ([$filters, $events]) => {
     if ($filters && $events) {
         return true;
@@ -83,8 +95,9 @@ async function placeEvents() {
 <style>
 #calendar-view {
     /* 40px for the button bar */
+    position: relative;
     height: calc(100% - 40px);
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
 }
 #header {

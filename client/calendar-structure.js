@@ -1,5 +1,13 @@
 import moment from './libraries/moment.min.js';
 
+export class CourseIdentifier {
+    constructor(courseId, name, realm) {
+        this.course_id = id;
+        this.course_name = name;
+        this.course_realm = realm;
+    }
+}
+
 export class CalendarData {
     constructor(rows, firstCalDay, firstMonthDay, lastCalDay, lastMonthDay) {
         this.rows = rows;
