@@ -32,22 +32,37 @@ import InputChooser from './utility/InputChooser.svelte';
 import { onMount, getContext } from 'svelte';
 
 export let id;
+// Bound to checkbox
 export let positive;
+// Updated from parent components and InputChooser child component
 export let course_ids;
+
+export let skeleton = false;
 
 const { identifiers: courseIdentifiers, filters } = getContext('stores');
 
 onMount(() => {
-    elements.add(self);
+    if (!skeleton) {
+        elements.add(self);
+        return () => elements.delete(self);
+    }
 });
 
+function removeCourse(courseId) {
+    course_ids = course_ids.filter(course => course !== courseId);
+}
+
 export function save() {
+    if (skeleton) {
+        return;
+    }
+
     const formData = new FormData();
     formData.append('filter_id', JSON.stringify({ data: id + '' }));
     formData.append('positive', JSON.stringify({ data: positive + '' }));
     formData.append('course_id', JSON.stringify({ data: course_ids }));
 
-    return filters.set(formData, null, {id, positive, course_ids});
+    return filters.set(formData, null, [...$filters.filter(f => f.id !== id), {id, positive, course_ids}]);
 }
 
 </script>
@@ -57,26 +72,31 @@ export function save() {
     <label for="positive-filter-button">Positive: </label>
     <input class="positive-filter-button filter-type" type="checkbox" bind:checked={positive}>
     <div class="course-input">
-        <InputChooser options={$courseIdentifiers} />
+        {#each course_ids as courseId (courseId.id) }
+            <div class="recognized-course">
+                <span class="course-name">{courseId.name}</span>
+                <img on:click={() => removeCourse(courseId)}
+                  class="delete-icon" src="/static/img/close.svg#icon" alt="Remove Course">
+            </div>
+        {/each}
+        <InputChooser options={$courseIdentifiers} bind:selected={course_ids} />
     </div>
-    <input type="submit" on:click={save} class="form-submit" value="Save Filter">
+    <input  type="submit" on:click={save} class="form-submit" value="Save Filter">
 </fieldset>
 
 <style>
 .course-filter-layout {
-    width: 100%;
+    width: 80%;
+    display: flex;
     flex-direction: column;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    align-items: center;
-    display: flex;
+    align-items: start;
 }
 
 .course-input {
     margin-top: 10px;
     margin-bottom: 10px;
-    border-bottom: 2px solid gray;
     flex-wrap: wrap;
-    transition: border-bottom 0.3s;
     font-size: 12px;
     line-height: 12px;
     width: 90%;
@@ -91,6 +111,39 @@ export function save() {
     height: 20px;
     width: 145px;
     min-width: 75px;
+}
+
+.form-submit {
+    align-self: center;
+    margin: 0px auto;
+}
+
+
+.recognized-course {
+    flex: 0 0 auto;
+    background-color: gray;
+    line-height: 20px;
+    color: white;
+    height: 20px;
+    border-radius: 15px;
+    padding: 0px 5px;
+    margin-right: 3px;
+}
+
+.recognized-course > .course-name {
+    margin: 0px 5px;
+}
+
+.recognized-course > * {
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+.delete-icon {
+    height: 15px;
+    width: 15px;
+    cursor: pointer;
+    vertical-align: middle;
 }
 
 :global(.autocomplete-popup-item-wrapper) > :global(div) {

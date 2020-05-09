@@ -62,7 +62,7 @@ async function saveFilters() {
         </div>
     {:else}
         <SkeletonLayout>
-            <Filter id={0} positive={false} course_ids={[]} />
+            <Filter id={0} positive={false} course_ids={[]} skeleton={true} />
         </SkeletonLayout>
     {/if}
 </div>
@@ -83,12 +83,12 @@ h1 {
     position: relative;
     height: calc(100vh - 53px);
 }
-.course-filter-layout {
+#filters-list {
+    display: flex;
     width: 100%;
     flex-direction: column;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    justify-content: start;
     align-items: center;
-    display: flex;
 }
 .spinner {
     vertical-align: middle;

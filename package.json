@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "sirv-cli": "^0.4.4",
+    "svelte-popper": "^0.1.4",
     "tippy.js": "^6.2.3"
   }
 }

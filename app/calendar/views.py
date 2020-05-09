@@ -131,11 +131,11 @@ def filter_modify():
 @cache_header(900, key_prefix=functools.partial(get_current_user, 'identifiers'))
 def courses():
     user = oauth.schoology.get('users/me', **request.cache).json()
-    sections = [{section['id']: section['course_title'], 'realm': 'section'} for section in oauth.schoology.get(f'users/{user["uid"]}/sections', **request.cache).json()['section']]
-    groups = [{group['id']: group['title'], 'realm': 'group'} for group in oauth.schoology.get(f'users/{user["uid"]}/groups', **request.cache).json()['group']]
-    school = [{str(user['building_id']): 'School Events', 'realm': 'school'}]
-    district = [{str(user['school_id']): 'District Events', 'realm': 'district'}]
-    userEvents = [{user['uid']: 'My Events', 'realm': 'user'}]
+    sections = [{'id': section['id'], 'name': section['course_title'], 'realm': 'section'} for section in oauth.schoology.get(f'users/{user["uid"]}/sections', **request.cache).json()['section']]
+    groups = [{'id': group['id'], 'name': group['title'], 'realm': 'group'} for group in oauth.schoology.get(f'users/{user["uid"]}/groups', **request.cache).json()['group']]
+    school = [{'id': str(user['building_id']), 'name': 'School Events', 'realm': 'school'}]
+    district = [{'id': str(user['school_id']), 'name': 'District Events', 'realm': 'district'}]
+    userEvents = [{'id': user['uid'], 'name': 'My Events', 'realm': 'user'}]
     return jsonify(userEvents + sections + groups + school + district)
 
 # TODO: Cache this with cache.memoize
