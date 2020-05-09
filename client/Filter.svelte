@@ -30,6 +30,7 @@ export async function saveAll() {
 <script>
 import InputChooser from './utility/InputChooser.svelte';
 import { onMount, getContext } from 'svelte';
+import { flip } from 'svelte/animate';
 
 export let id;
 // Bound to checkbox
@@ -73,7 +74,7 @@ export function save() {
     <input class="positive-filter-button filter-type" type="checkbox" bind:checked={positive}>
     <div class="course-input">
         {#each course_ids as courseId (courseId.id) }
-            <div class="recognized-course">
+            <div class="recognized-course" animate:flip={{ duration: 200 }}>
                 <span class="course-name">{courseId.name}</span>
                 <img on:click={() => removeCourse(courseId)}
                   class="delete-icon" src="/static/img/close.svg#icon" alt="Remove Course">
@@ -94,8 +95,7 @@ export function save() {
 }
 
 .course-input {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 10px auto;
     flex-wrap: wrap;
     font-size: 12px;
     line-height: 12px;

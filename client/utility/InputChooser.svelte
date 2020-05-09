@@ -17,7 +17,8 @@ onMount(() => {
 </script>
 
 <div class="input-area">
-    <input type="text" on:focus={() => focused = true} on:blur={() => focused = false} bind:this={input}>
+    <input class="input-chooser" type="text" on:focus={() => focused = true} 
+      on:blur={() => focused = false} bind:this={input}>
     {#if focused }
         <AutocompletePopup element={input} options={availableOptions} let:item>
             <div class="course-identifier-wrapper" data-realm="{item.realm}">
@@ -33,14 +34,19 @@ onMount(() => {
 
 <style>
 .input-area {
+    flex: 1 1 auto;
     position: relative;
-    display: flex;
-    width: auto;
+    min-width: 150px;
+}
+
+.input-chooser {
+    width: 100%;
+    border: 1px solid gray;
     border-bottom: 2px solid gray;
     transition: border-bottom 0.3s;
 }
 
-.input-area:focus {
+.input-chooser:focus {
     border-bottom-color: #29b6f6;
 }
 
