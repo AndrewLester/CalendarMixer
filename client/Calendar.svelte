@@ -49,7 +49,6 @@ $: if (downloaded && !calendarReady) {
     // Reset scroll position after animating to a new month
     placeEvents().then(() => {
         donePlacing = true;
-        calendarView.scrollTop = 0;
     });
 }
 
@@ -58,6 +57,7 @@ $: if ((readyToShow || firstLoad) && donePlacing) {
     calendarReady = true;
     firstLoad = false;
     donePlacing = false;
+    calendarView.scrollTop = 0;
 }
 
 async function placeEvents() {

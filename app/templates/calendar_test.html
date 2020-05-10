@@ -13,6 +13,7 @@
         <script>const colors = {{ colors }};</script>
         {% endif %}
         <script>const csrf_token = "{{ csrf_token() }}";</script>
+        <script>const ical_link = "webcal://{{ base_url }}calendar/ical/{{ id }}/{{ ical_secret }}/calendar.ics";</script>
         <link href="/calendar/bundle/css/external.css" rel="stylesheet">
         <link href="/calendar/bundle/css/calendar_bundle.css" rel="stylesheet">
         <script src="/calendar/bundle/js/calendar_bundle.js" defer></script>

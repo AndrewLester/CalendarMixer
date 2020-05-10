@@ -1,6 +1,7 @@
 <script>
 import Calendar from './Calendar.svelte';
 import FilterEditor from './FilterEditor.svelte';
+import CopyButton from './utility/CopyButton.svelte';
 import { onMount, setContext, tick } from 'svelte';
 import moment from './libraries/moment.min.js';
 import { mountNetworking, key } from './utility/network.js';
@@ -27,6 +28,7 @@ setContext('stores', {
 
 let definedColors;
 let csrfToken;
+let icalLink;
 
 let now = moment();
 let today = moment(now).startOf('day');
@@ -41,6 +43,7 @@ $: monthButtonTextFormat = monthButtonWidth && monthButtonWidth < 100 ? 'MMM' : 
 onMount(() => {
     definedColors = colors;
     csrfToken = csrf_token;
+    icalLink = ical_link;
 
     api = mountNetworking(csrfToken);
     events.setAPI(api);
@@ -64,6 +67,9 @@ function navigateMonths(shift) {
             <button on:click={() => navigateMonths(1)} class="large-button">{moment(today).add(1, 'months').format(monthButtonTextFormat)} →</button>
             <label class="calendar-option" for="condensed-checkbox">Condensed:</label>
             <input class="calendar-option" type="checkbox" bind:checked={condensed}>
+            {#if icalLink}
+                <CopyButton copy={icalLink} className="small-button">EXPORT CALENDAR</CopyButton>
+            {/if}
         </div>
         <Calendar {today} {condensed} {flyDirection} />
     </div>
@@ -88,15 +94,22 @@ main {
 }
 #button-bar {
     width: 100%;
+    margin-bottom: 1px;
 }
 #button-bar button {
     width: 15%;
     min-width: 75px;
 }
+#button-bar input[type="checkbox"] {
+    vertical-align: middle;
+}
 #calendar-viewer {
     width: 75%;
     height: 100%;
     overflow: hidden;
+}
+#button-bar :global(.small-button) {
+    float: right;
 }
 :global(*) {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
