@@ -62,13 +62,7 @@ $: if (downloaded && readyToPlace) {
 
 async function placeEvents() {
     for (let event of $events) {
-        let filtered = false;
-
-        if (applyFilters(event, $filters)) {
-            filtered = true;
-        }
-
-        placeEvent(new CalendarEventData(event, true, filtered), calendar);
+        placeEvent(new CalendarEventData(event, true, filtered), calendar, $filters);
     }
 }
 

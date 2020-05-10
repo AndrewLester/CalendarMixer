@@ -105,12 +105,18 @@ export function buildCalendarStructure(today) {
     return new CalendarData(calendar, firstCalDay, firstMonthDay, lastCalDay, lastMonthDay);
 }
 
-export function placeEvent(event, calendar) {
-    let { eventInfo, start, end, filtered } = event;
+export function placeEvent(event, calendar, filters) {
+    let { eventInfo, start, end } = event;
     let { firstCalDay, lastCalDay } = calendar;
 
     if (end.isBefore(firstCalDay) || start.isAfter(lastCalDay)) {
         return;
+    }
+
+    let filtered = false;
+
+    if (applyFilters(eventInfo, filters)) {
+        filtered = true;
     }
 
     // Reset start to firstCalDay if the actual start is before the current month.
