@@ -140,13 +140,11 @@ def register_email_logging(app):
 def register_request_mixins(app):
     def before_request():
         if current_user.is_authenticated:
-            current_user.last_seen = datetime.utcnow()
             cache = app.request_cache.get(current_user.id)
             if cache is None:
                 cache = app.request_cache[current_user.id] = {'cache_name': str(current_user.id)}
             request.cache = cache
             request.content = request.get_data()
-            db.session.commit()
         else:
             request.cache = {'cache_name': 'global'}
 

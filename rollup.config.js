@@ -1,7 +1,9 @@
 import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
+import replace from 'rollup-plugin-replace';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
+import css from 'rollup-plugin-css-only';
 import { terser } from 'rollup-plugin-terser';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -15,6 +17,14 @@ export default {
 		file: 'app/bundle/js/calendar_bundle.js'
 	},
 	plugins: [
+		replace({ 
+			// If you would like DEV messages, specify 'development'
+			// Otherwise use 'production'
+			'process.env.NODE_ENV': JSON.stringify('production') ? production : JSON.stringify('development')
+		}),
+
+		css({ output: 'app/bundle/css/external.css' }),
+
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,

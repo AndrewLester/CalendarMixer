@@ -19,7 +19,7 @@ from app.exts import cache, csrf, db, oauth
 from app.main.models import User
 from app.schoology.api import get_paged_data
 
-blueprint = Blueprint('calendar', __name__, url_prefix='/calendar', template_folder='../templates', static_folder='../static')
+blueprint = Blueprint('calendar', __name__, url_prefix='/calendar', template_folder='../templates', static_folder='../bundle')
 
 def cache_header(max_age, **ckwargs):
     def decorator(view):
@@ -43,10 +43,13 @@ def cache_header(max_age, **ckwargs):
 @blueprint.route('')
 @login_required
 def calendar():
-    return render_template('calendar.html', title='Calendar', 
-                            colors=current_user.colors.all(), id=current_user.id,
-                            ical_secret=current_user.ical_secret,
-                            base_url=request.url_root.split('://')[1])
+    return render_template(
+        'calendar.html',
+        colors=current_user.colors.all(),
+        id=current_user.id,
+        ical_secret=current_user.ical_secret,
+        base_url=request.url_root.split('://')[1]
+    )
 
 def get_current_user(extra=''):
     try:
@@ -126,11 +129,11 @@ def filter_modify():
 @cache_header(900, key_prefix=functools.partial(get_current_user, 'identifiers'))
 def courses():
     user = oauth.schoology.get('users/me', **request.cache).json()
-    sections = [{section['id']: section['course_title'], 'realm': 'section'} for section in oauth.schoology.get(f'users/{user["uid"]}/sections', **request.cache).json()['section']]
-    groups = [{group['id']: group['title'], 'realm': 'group'} for group in oauth.schoology.get(f'users/{user["uid"]}/groups', **request.cache).json()['group']]
-    school = [{str(user['building_id']): 'School Events', 'realm': 'school'}]
-    district = [{str(user['school_id']): 'District Events', 'realm': 'district'}]
-    userEvents = [{user['uid']: 'My Events', 'realm': 'user'}]
+    sections = [{'id': section['id'], 'name': section['course_title'], 'realm': 'section'} for section in oauth.schoology.get(f'users/{user["uid"]}/sections', **request.cache).json()['section']]
+    groups = [{'id': group['id'], 'name': group['title'], 'realm': 'group'} for group in oauth.schoology.get(f'users/{user["uid"]}/groups', **request.cache).json()['group']]
+    school = [{'id': str(user['building_id']), 'name': 'School Events', 'realm': 'school'}]
+    district = [{'id': str(user['school_id']), 'name': 'District Events', 'realm': 'district'}]
+    userEvents = [{'id': user['uid'], 'name': 'My Events', 'realm': 'user'}]
     return jsonify(userEvents + sections + groups + school + district)
 
 # TODO: Cache this with cache.memoize
