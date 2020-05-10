@@ -111,6 +111,9 @@ main {
 #button-bar :global(.small-button) {
     float: right;
 }
+:global(body) {
+    overflow: hidden;
+}
 :global(*) {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

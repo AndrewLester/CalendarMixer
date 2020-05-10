@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+{% endblock %}
+
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
     <h2>Calendar Mixer</h2>
