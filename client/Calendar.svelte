@@ -2,6 +2,7 @@
 import CalendarRow from './CalendarRow.svelte';
 import { derived } from 'svelte/store';
 import { getContext, onMount, tick } from 'svelte';
+import { cubicInOut } from 'svelte/easing';
 import { key } from './utility/network.js';
 import { sleep } from './utility/async.js';
 import { buildCalendarStructure, placeEvent, applyFilters, CalendarEventData } from './calendar-structure.js';
@@ -15,54 +16,55 @@ const { filters, events } = getContext('stores');
 
 let calendarView;
 
+let calendar;
 let downloaded = false;
 let calendarReady = false;
-let readyToPlace = true;
+let donePlacing = false;
+let readyToShow = false;
 let firstLoad = true;
-$: flyParameters = { x: flyDirection * 300, duration: 250 }
+$: flyParameters = { x: flyDirection * 300, duration: 200, easing: cubicInOut }
 
 filters.subscribe(($value) => {
     if (downloaded && calendarReady) {
-        for (let row of calendar.rows) {
-            for (let day of row.days) {
-                for (let event of day.events) {
-                    if (applyFilters(event, $value)) {
-                        event.filtered = true;
-                    }
+        for (let [i, row] of calendar.rows.entries()) {
+            for (let [j, day] of row.days.entries()) {
+                for (let [k, event] of day.events.entries()) {
+                    event.filtered = applyFilters(event.eventInfo, $value);
+                    calendar.rows[i].days[j].events[k] = event;
                 }
             }
         }
-        calendar = calendar;
     }
 })
 
-derived([filters, events], ([$filters, $events]) => {
-    if ($filters && $events) {
-        return true;
-    }
-    return false;
-}).subscribe((value) => downloaded = value);
+derived([filters, events], ([$f, $e]) => $f && $e).subscribe((both) => downloaded = both);
 
 $: {
-    // Whenever today changes, set calendar ready to false
-    today;
     calendarReady = false;
+    readyToShow = false;
+    calendar = buildCalendarStructure(today);
 }
-$: calendar = buildCalendarStructure(today);
 
-$: if (downloaded && readyToPlace) {
+$: if (downloaded && !calendarReady) {
     // Reset scroll position after animating to a new month
-    calendarView.scrollTop = 0;
     placeEvents().then(() => {
-        calendarReady = true;
-        firstLoad = false;
-        readyToPlace = false;
+        donePlacing = true;
+        calendarView.scrollTop = 0;
     });
 }
 
+// Either it's the first time loading the page, or the fly animation is done
+$: if ((readyToShow || firstLoad) && donePlacing) {
+    calendarReady = true;
+    firstLoad = false;
+    donePlacing = false;
+}
+
 async function placeEvents() {
+    const savedFilters = $filters;
+
     for (let event of $events) {
-        placeEvent(new CalendarEventData(event, true, filtered), calendar, $filters);
+        placeEvent(new CalendarEventData(event, true, event.filtered || false), calendar, savedFilters);
     }
 }
 
@@ -70,8 +72,7 @@ async function placeEvents() {
 
 <div id="calendar-view" bind:this={calendarView}>
     {#if calendarReady || firstLoad }
-        <div id="calendar" out:fly="{flyParameters}" in:fade={{ duration: 50 }}
-          on:outroend={() => readyToPlace = true}>
+        <div id="calendar" out:fly="{flyParameters}" in:fade={{ duration: 50 }} on:outroend={() => readyToShow = true}>
             <div id="header" class="calendar-row">
                 <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
                 <div>Thu</div> <div>Fri</div><div>Sat</div>

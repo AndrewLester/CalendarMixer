@@ -27,7 +27,8 @@ async function saveFilters() {
     saving = true;
     svgLink = SAVE_SVG_URL;
 
-    const responses = await saveAllFilters();
+    // Second element is just the sleep
+    const [responses] = await Promise.all([saveAllFilters(), sleep(1500)]);
 
     if (responses.some((res) => res.status === 'rejected')) {
         svgLink = FAILED_SVG_URL;

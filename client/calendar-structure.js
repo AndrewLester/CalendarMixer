@@ -70,10 +70,6 @@ export function buildCalendarStructure(today) {
     }
 
     for (let i = 0; i < td.daysInMonth(); i++) {
-        // TODO: Handle which day is "today" in the CalendarRow svelte file
-        /*
-        dayOfMonth == REALDATE.date() && cal.year() === REALDATE.year() && cal.month() === REALDATE.month()
-        */
         let calDay = new CalendarDayData(i + 1);
         let rowIndex = ~~((i + firstDayWeekPos) / 7);
         let dayIndex = (i + firstDayWeekPos) % 7;
@@ -117,6 +113,7 @@ export function placeEvent(event, calendar, filters) {
 
     if (applyFilters(eventInfo, filters)) {
         filtered = true;
+        event.filtered = filtered;
     }
 
     // Reset start to firstCalDay if the actual start is before the current month.
@@ -150,7 +147,7 @@ export function placeEvent(event, calendar, filters) {
         }
     }
     if (endCol > 8) {
-        placeEvent(new CalendarEventData(eventInfo, true, filtered, moment(start).add(7 - col, 'days')), calendar);
+        placeEvent(new CalendarEventData(eventInfo, true, filtered, moment(start).add(7 - col, 'days')), calendar, filters);
     }
 
     event.startCol = startCol;

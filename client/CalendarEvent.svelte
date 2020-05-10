@@ -24,7 +24,7 @@
 
     let color = colors[~~(Math.random() * colors.length)];
     // Animation delay calculation factors in column and eventNum
-    let animationDelay = 40 + (15 * startCol) + (5 * eventNum) + (100 * calRowNum);
+    let animationDelay = 20 + (15 * startCol) + (5 * eventNum) + (100 * calRowNum);
 
     let eventElement;
 

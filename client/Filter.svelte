@@ -14,15 +14,10 @@ export class CourseFilterData extends FilterData {
     }
 }
 
-const elements = new Set();
+const saves = [];
 
 export async function saveAll() {
-    let promises = [];
-
-    for (let element of elements) {
-        promises.push(element.save())
-    }
-
+    const promises = saves.map(save => save());
     return Promise.allSettled(promises);
 }
 </script>
@@ -42,25 +37,22 @@ export let skeleton = false;
 
 const { identifiers: courseIdentifiers, filters } = getContext('stores');
 
-onMount(() => {
-    if (!skeleton) {
-        elements.add(self);
-        return () => elements.delete(self);
-    }
-});
+if (!skeleton) {
+    saves.push(save);
+}
 
 function removeCourse(courseId) {
     course_ids = course_ids.filter(course => course !== courseId);
 }
 
-export function save() {
+function save() {
     if (skeleton) {
         return;
     }
 
     const formData = new FormData();
-    formData.append('filter_id', JSON.stringify({ data: id + '' }));
-    formData.append('positive', JSON.stringify({ data: positive + '' }));
+    formData.append('filter_id', JSON.stringify({ data: id }));
+    formData.append('positive', JSON.stringify({ data: positive }));
     formData.append('course_ids', JSON.stringify({ data: course_ids }));
 
     let updatedFilter = $filters.filter(f => f.id === id)[0];
