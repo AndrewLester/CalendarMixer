@@ -64,12 +64,12 @@ class CourseFilterForm(CustomForm):
     def process_course_ids(self, data):
         updated = []
         for obj in data:
-            self.valid = CustomForm.match_lengths((obj['course_id'], 36, 0), (obj['course_name'], 120, 0),
-                                                  (obj['course_realm'], 120, 0))
-            self.valid = CustomForm.match_regex((obj['course_id'], r'\d+'), (obj['course_name'], r'[\w ()\-\/\\]+'),
-                                                (obj['course_realm'], r'(user|group|section|school|district)'))
-            identifier = CourseIdentifier(course_id=obj['course_id'], course_name=obj['course_name'],
-                                          course_realm=obj['course_realm'])
+            self.valid = CustomForm.match_lengths((obj['id'], 36, 0), (obj['name'], 120, 0),
+                                                  (obj['realm'], 120, 0))
+            self.valid = CustomForm.match_regex((obj['id'], r'\d+'), (obj['name'], r'[\w ()\-\/\\]+'),
+                                                (obj['realm'], r'(user|group|section|school|district)'))
+            identifier = CourseIdentifier(course_id=obj['id'], course_name=obj['name'],
+                                          course_realm=obj['realm'])
             updated.append(identifier)
         return updated
 

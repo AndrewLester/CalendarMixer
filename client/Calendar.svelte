@@ -22,10 +22,10 @@ let firstLoad = true;
 $: flyParameters = { x: flyDirection * 300, duration: 250 }
 
 filters.subscribe(($value) => {
-    if (downloaded && readyToPlace) {
+    if (downloaded && calendarReady) {
         for (let row of calendar.rows) {
             for (let day of row.days) {
-                for (let event of day) {
+                for (let event of day.events) {
                     if (applyFilters(event, $value)) {
                         event.filtered = true;
                     }

@@ -24,7 +24,8 @@ export let simple = false;
 
 .wrapper :global(input[type="text"]), .wrapper :global(p),
 .wrapper :global(legend), .wrapper :global(div:empty),
-.wrapper :global(label), :global(.skeleton-bar)  {
+.wrapper :global(label), .wrapper :global(span),
+:global(.skeleton-bar)  {
     /* Color transparent hides text, but allows the text to define the width and height */
     max-height: 15px;
     color: transparent;

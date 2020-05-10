@@ -2,7 +2,43 @@
 import { Popper } from "svelte-popper";
 
 export let element;
+export let search = '';
 export let options = [];
+
+let matchingOptions = [];
+
+// Creating Matching Option Text
+$: {
+    if (search.length === 0) {
+        matchingOptions = options;
+    } else {
+        updateMatches();
+    }
+}
+
+function updateMatches() {
+    matchingOptions = [];
+    for (let option of options) {
+        let name = option.name;
+        let words = name.split(' ');
+        for (let word of words) {
+            let identifiedString = name.substring(name.indexOf(word));
+            if (identifiedString.toLowerCase().startsWith(search.toLowerCase())) {
+                let index = name.indexOf(identifiedString);
+                matchingOptions = [...matchingOptions, {
+                    id: option.id + 'match',
+                    item: option,
+                    match: {
+                        start: option.name.substring(0, index),
+                        match: option.name.substring(index, index + search.length),
+                        end: option.name.substring(index + search.length),
+                    }
+                }];
+                break;
+            }
+        }
+    }
+}
 
 function popperSizeModifier(data) {
     data.styles.width = data.offsets.reference.width;
@@ -21,14 +57,17 @@ const modifiers = {
         }
     }
 }
-
 </script>
 
 <Popper targetRef={element} className={"identifier-complete"}
   {modifiers} >
-    {#each options as option (option.id)}
-        <slot item={option}></slot>
-    {/each}
+    {#if matchingOptions.length > 0 }
+        {#each matchingOptions as option (option.id)}
+            <slot name="item" item={option.item || option} match={option.match}></slot>
+        {/each}
+    {:else}
+        <slot name="no-matches"/>
+    {/if}
 </Popper>
 
 <style>
@@ -39,6 +78,7 @@ const modifiers = {
     padding: 7px 0px;
     overflow-y: auto;
     max-height: 200px;
+    width: 100%;
     flex-wrap: wrap;
 }
 
@@ -50,10 +90,6 @@ const modifiers = {
     text-align: center;
     font-size: 12px;
     line-height: 20px;
-}
-
-:global(.identifier-complete) > :global(*:not(p):hover), :global(.identifier-complete) > :global(*.selected) {
-    cursor: pointer;
-    background-color: rgba(128, 128, 128, 0.2);
+    display: flex;
 }
 </style>

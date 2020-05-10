@@ -61,23 +61,29 @@ export function save() {
     const formData = new FormData();
     formData.append('filter_id', JSON.stringify({ data: id + '' }));
     formData.append('positive', JSON.stringify({ data: positive + '' }));
-    formData.append('course_id', JSON.stringify({ data: course_ids }));
+    formData.append('course_ids', JSON.stringify({ data: course_ids }));
 
-    return filters.set(formData, null, [...$filters.filter(f => f.id !== id), {id, positive, course_ids}]);
+    let updatedFilter = $filters.filter(f => f.id === id)[0];
+    updatedFilter.positive = positive;
+    updatedFilter.course_ids = course_ids;
+    return filters.set(formData, null, [...$filters.filter(f => f.id !== id), updatedFilter]);
 }
 
 </script>
 
-<fieldset class="course-filter-layout">
+<fieldset class="course-filter-layout" class:skeleton>
     <legend>Filter Id: {id}</legend>
-    <label for="positive-filter-button">Positive: </label>
-    <input class="positive-filter-button filter-type" type="checkbox" bind:checked={positive}>
+    <div class="filter-setting">
+        <label for="positive-filter-button">Positive: </label>
+        <input class="positive-filter-button filter-type" type="checkbox" bind:checked={positive}>
+    </div>
     <div class="course-input">
+        <label>Courses:</label>
         {#each course_ids as courseId (courseId.id) }
             <div class="recognized-course" animate:flip={{ duration: 200 }}>
                 <span class="course-name">{courseId.name}</span>
                 <img on:click={() => removeCourse(courseId)}
-                  class="delete-icon" src="/static/img/close.svg#icon" alt="Remove Course">
+                  class="delete-icon" src="/static/img/close.svg" alt="Remove Course">
             </div>
         {/each}
         <InputChooser options={$courseIdentifiers} bind:selected={course_ids} />
@@ -101,23 +107,20 @@ export function save() {
     line-height: 12px;
     width: 90%;
     display: flex;
+    margin-top: 5px;
 }
 
-.course-chooser {
-    flex: 1 1 145px;
-    border: none;
-    position: relative;
-    font-size: 12px;
-    height: 20px;
-    width: 145px;
-    min-width: 75px;
+.course-input > label {
+    line-height: 20px;
+    font-size: initial;
+    margin-right: 2px;
+    max-height: 100%;
 }
 
 .form-submit {
     align-self: center;
     margin: 0px auto;
 }
-
 
 .recognized-course {
     flex: 0 0 auto;
@@ -128,6 +131,7 @@ export function save() {
     border-radius: 15px;
     padding: 0px 5px;
     margin-right: 3px;
+    margin-bottom: 1px;
 }
 
 .recognized-course > .course-name {
@@ -146,7 +150,7 @@ export function save() {
     vertical-align: middle;
 }
 
-:global(.autocomplete-popup-item-wrapper) > :global(div) {
+:global(.course-identifier-wrapper) > :global(div) {
     flex: 0 0 auto;
     background: url('https://app.schoology.com/sites/all/themes/schoology_theme/images/icons_sprite_realm.png?5d0d37111b9f09da') no-repeat right;
     height: 20px;
@@ -155,26 +159,26 @@ export function save() {
     margin: 0px;
 }
 
-:global(.autocomplete-popup-item-wrapper)[data-realm='section'] > :global(div) {
+:global(.course-identifier-wrapper)[data-realm='section'] > :global(div) {
     background-position-y: -29px;
 }
-:global(.autocomplete-popup-item-wrapper)[data-realm='group'] > :global(div) {
+:global(.course-identifier-wrapper)[data-realm='group'] > :global(div) {
     background-position-y: -59px;
 }
-:global(.autocomplete-popup-item-wrapper)[data-realm='user'] > :global(div) {
+:global(.course-identifier-wrapper)[data-realm='user'] > :global(div) {
     background-position-y: -179px;
 }
-:global(.autocomplete-popup-item-wrapper)[data-realm='school'] > :global(div) {
+:global(.course-identifier-wrapper)[data-realm='school'] > :global(div) {
     background-position-y: -209px;
 }
-:global(.autocomplete-popup-item-wrapper)[data-realm='district'] > :global(div) {
+:global(.course-identifier-wrapper)[data-realm='district'] > :global(div) {
     background-position-y: -209px;
     background-repeat: repeat-x;
     background-position-x: 17px;
     margin-right: 3px;
 }
 
-:global(.autocomplete-popup-item-wrapper) > :global(p) {
+:global(.course-identifier-wrapper) > :global(p) {
     align-self: center;
     margin-right: auto;
 }

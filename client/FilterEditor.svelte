@@ -44,7 +44,7 @@ async function saveFilters() {
     <h1>Edit Filters</h1>
 
     <div id="save-bar">
-        <span id="saving-text">Saving</span>
+        <span id="saving-text">Save All</span>
         {#if !saving}
             <SVGButton {svgLink} symbolId={'icon'} on:click={saveFilters} />
         {:else}
@@ -61,9 +61,11 @@ async function saveFilters() {
             {/each}
         </div>
     {:else}
-        <SkeletonLayout>
-            <Filter id={0} positive={false} course_ids={[]} skeleton={true} />
-        </SkeletonLayout>
+        <div id="filters-list">
+            <SkeletonLayout>
+                <Filter id={0} positive={false} course_ids={[]} skeleton={true} />
+            </SkeletonLayout>
+        </div>
     {/if}
 </div>
 
@@ -89,6 +91,10 @@ h1 {
     flex-direction: column;
     justify-content: start;
     align-items: center;
+}
+/* For the skeleton layout */
+#filters-list :global(.wrapper) {
+    display: contents;
 }
 .spinner {
     vertical-align: middle;
