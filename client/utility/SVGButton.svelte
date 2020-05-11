@@ -2,7 +2,7 @@
 import { animationEnd } from './async.js';
 
 export let svgLink;
-export let symbolId
+export let symbolId;
 export let width = 24;
 export let height = 24;
 export let clickable = true;

@@ -2,6 +2,7 @@
 import Calendar from './Calendar.svelte';
 import FilterEditor from './FilterEditor.svelte';
 import CopyButton from './utility/CopyButton.svelte';
+import SVGButton from './utility/SVGButton.svelte';
 import { onMount, setContext, tick } from 'svelte';
 import moment from './libraries/moment.min.js';
 import { mountNetworking, key } from './utility/network.js';
@@ -34,8 +35,10 @@ let now = moment();
 let today = moment(now).startOf('day');
 $: matching = now.month() === today.month() && now.year() === today.year();
 
+let calendarViewer;
 let condensed;
 let flyDirection;
+let showToday = false;
 
 let monthButtonWidth;
 $: monthButtonTextFormat = monthButtonWidth && monthButtonWidth < 100 ? 'MMM' : 'MMMM';
@@ -57,11 +60,22 @@ function navigateMonths(shift) {
     today = today;
 }
 
+async function goToToday() {
+    if (!matching) {
+        flyDirection = moment(now).startOf('day').isBefore(today) ? 1 : -1;
+        today = moment(now).startOf('day');
+    }
+    showToday = true;
+}
+
 </script>
 
 <main>
-    <div id="calendar-viewer">
+    <div id="calendar-viewer" bind:this={calendarViewer}>
         <div id="button-bar">
+            <span>
+                <SVGButton svgLink={"/static/img/today-black-18dp.svg"} symbolId={'icon'} on:click={goToToday} />
+            </span>
             <p id="current-month" class:matching>{today.format('MMMM YYYY')}</p>
             <button on:click={() => navigateMonths(-1)} class="large-button" bind:clientWidth={monthButtonWidth}>← {moment(today).subtract(1, 'months').format(monthButtonTextFormat)}</button>
             <button on:click={() => navigateMonths(1)} class="large-button">{moment(today).add(1, 'months').format(monthButtonTextFormat)} →</button>
@@ -71,7 +85,7 @@ function navigateMonths(shift) {
                 <CopyButton copy={icalLink} className="small-button">EXPORT CALENDAR</CopyButton>
             {/if}
         </div>
-        <Calendar {today} {condensed} {flyDirection} />
+        <Calendar {today} {condensed} {flyDirection} bind:showToday />
     </div>
     <FilterEditor/>
 </main>
@@ -79,18 +93,22 @@ function navigateMonths(shift) {
 <style>
 main {
     display: flex;
-    /* 55px is the height of the header + hr */
-    height: calc(100vh - 55px);
+    /* 53px is the height of the header + hr */
+    height: calc(100vh - 53px);
     width: 100%;
     overflow: hidden;
 }
 #current-month {
+    margin-left: 1px;
     display: inline-block;
     width: 120px;
 }
 #current-month.matching {
     font-weight: bold;
     color: #29b6f6;
+}
+#button-bar > :global(*:first-child) {
+    margin-left: 10px;
 }
 #button-bar {
     width: 100%;

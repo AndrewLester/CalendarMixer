@@ -1,7 +1,7 @@
 <script>
 import CalendarRow from './CalendarRow.svelte';
 import { derived } from 'svelte/store';
-import { getContext, onMount, tick } from 'svelte';
+import { getContext, onMount, tick, afterUpdate } from 'svelte';
 import { cubicInOut } from 'svelte/easing';
 import { key } from './utility/network.js';
 import { sleep } from './utility/async.js';
@@ -11,6 +11,7 @@ import { fade, fly } from 'svelte/transition';
 export let today;
 export let flyDirection;
 export let condensed;
+export let showToday = false;
 
 const { filters, events } = getContext('stores');
 
@@ -60,12 +61,23 @@ $: if ((readyToShow || firstLoad) && donePlacing) {
     calendarView.scrollTop = 0;
 }
 
+afterUpdate(() => {
+    if (showToday && calendarReady && document.getElementsByClassName('today').length === 1) {
+        scrollToToday();
+    }
+})
+
 async function placeEvents() {
     const savedFilters = $filters;
 
     for (let event of $events) {
         placeEvent(new CalendarEventData(event, true, event.filtered || false), calendar, savedFilters);
     }
+}
+
+async function scrollToToday() {
+    document.getElementsByClassName('today')[0].scrollIntoView({ behavior: 'smooth' });
+    showToday = false;
 }
 
 </script>
@@ -92,9 +104,9 @@ async function placeEvents() {
 
 <style>
 #calendar-view {
-    /* 40px for the button bar */
+    /* 41px for the button bar */
     position: relative;
-    height: calc(100% - 40px);
+    height: calc(100% - 41px);
     overflow-y: scroll;
     overflow-x: hidden;
 }
