@@ -20,6 +20,7 @@ export class CalendarData {
 
 export class CalendarDayData {
     constructor(dayOfMonth, events=[], otherMonth=false) {
+        this.currentRow = 1;
         this.dayOfMonth = dayOfMonth;
         this.events = events;
         this.otherMonth = otherMonth;
@@ -29,8 +30,8 @@ export class CalendarDayData {
 export class CalendarEventData {
     constructor(eventInfo, initialPlacement=true, filtered=false, start, end) {
         this.eventInfo = eventInfo;
-        this.start = start || moment(eventInfo['start'].split(' ')[0], 'YYYY-MM-DD');
-        this.end = end || (eventInfo['has_end'] ? moment(eventInfo['end'].split(' ')[0], 'YYYY-MM-DD') : this.start);
+        this.start = start || moment(eventInfo['start'], 'YYYY-MM-DD hh:mm:ss');
+        this.end = end || (eventInfo['has_end'] ? moment(eventInfo['end'], 'YYYY-MM-DD hh:mm:ss') : this.start);
         this.initialPlacement = initialPlacement;
         this.filtered = filtered;
     }
@@ -120,8 +121,8 @@ export function placeEvent(event, calendar, filters) {
     start = start.isBefore(firstCalDay) ? firstCalDay : start;
 
     // The Math.ceil call corrects for messed up daylight savings timespans
-    let span = Math.ceil(moment.duration(end.diff(start)).asDays());
-    let daysSinceCalStart = Math.ceil(moment.duration(start.diff(firstCalDay)).asDays());
+    let span = Math.round(moment.duration(moment(end).diff(moment(start))).asDays());
+    let daysSinceCalStart = Math.floor(moment.duration(start.diff(firstCalDay)).asDays());
     let col = daysSinceCalStart % 7;
     let row = ~~(daysSinceCalStart / 7);
 
@@ -129,7 +130,7 @@ export function placeEvent(event, calendar, filters) {
 
     let startCol = col + 1;
     let eventRow = row + 1;
-    let endCol = Math.min(9, startCol + span + 1);
+    let endCol = Math.max(Math.min(9, startCol + span), startCol + 1);
     
     // TODO: Readd this
     // If this event is long, and if it intersects with another event in a later column, move this entire
@@ -147,7 +148,7 @@ export function placeEvent(event, calendar, filters) {
         }
     }
     if (endCol > 8) {
-        placeEvent(new CalendarEventData(eventInfo, true, filtered, moment(start).add(7 - col, 'days')), calendar, filters);
+        placeEvent(new CalendarEventData(eventInfo, true, filtered, moment(start).startOf('day').add(7 - col, 'days')), calendar, filters);
     }
 
     event.startCol = startCol;
@@ -164,41 +165,4 @@ export function applyFilters(eventInfo, filters) {
         }
     }
     return false;
-}
-
-// TODO: This should be turned into the templating structure of Svelte
-function addElement(parent, event, filtered, openRow, start, end, long, init) {
-    let name = event['title'];
-    let color = colors[~~(Math.random() * colors.length)];
-    let text = document.createElement('div');
-    text.classList.add(init ? 'added' : 'shown');
-    text.dataset.description = event['description'];
-    text.dataset.realm = event['realm'];
-    if (long) {
-        text.classList.add('long');
-    }
-    text.textContent = name;
-    text.style.backgroundColor = color;
-    text.style.gridColumn = start + ' / ' + end;
-    let endRow = openRow + 1;
-    let added = 0;
-    if (filtered) {
-        handleFilteredElement(text);
-    }
-    parent.append(text);
-    // -- Section * Styling that requires element dimensions --
-    if (isOverflown(text) && !long) {
-        // Correct for new height being 45px. This line height increase helps hide any third row of text.
-        text.style.lineHeight = '21px';
-        endRow += 1;
-        added = 1;
-    }
-    text.style.setProperty('--start-row', openRow);
-    text.style.gridRow = openRow + ' / ' + endRow;
-    // -- Section --
-    tippy(text, {content: name, arrow: true, duration: [100, 100]});
-    if (init) {
-        setTimeout(() => text.classList.replace('added', 'shown'), 100);
-    }
-    return added;
 }

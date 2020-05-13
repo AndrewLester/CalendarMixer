@@ -94,7 +94,7 @@ async function scrollToToday() {
                     <CalendarRow {...row} {today} calRowNum={i} />
                 {/each}
             {:else}
-                {#each calendar.rows as row, i (row)}
+                {#each calendar.rows as { unused, ...row }, i (row)}
                     <CalendarRow {...row} {today} calRowNum={i} skeleton={true} />
                 {/each}
             {/if}

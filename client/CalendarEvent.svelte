@@ -66,6 +66,7 @@
     line-height: 20px;        /* fallback */
     max-height: 45px;       /* fallback */
     will-change: transform, opacity;
+    transition: color 200ms ease, background-color 200ms ease;
     animation: slide-in 200ms ease 1 both;
     animation-delay: var(--animation-delay);
 }

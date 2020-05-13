@@ -33,6 +33,7 @@ let now = moment();
             <div class="skeleton-bar" style="grid-column: 7 / 8"></div> 
         {:else}
             {#each days as day (day)}
+                <!-- Can NOT destructure the event object here, messes up state deeper state updates -->
                 {#each day.events as event, i (event.eventInfo.id)}
                     <CalendarEvent {...event} eventNum={i} {calRowNum} />
                 {/each}
@@ -97,6 +98,7 @@ let now = moment();
     color: white;
     border-radius: 50%;
     background-color: #29b6f6;
+    scroll-margin-top: 24px;
     height: 24px;
     width: 25px;
 }
