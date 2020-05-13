@@ -35,7 +35,9 @@ let now = moment();
             {#each days as day (day)}
                 <!-- Can NOT destructure the event object here, messes up state deeper state updates -->
                 {#each day.events as event, i (event.eventInfo.id)}
-                    <CalendarEvent {...event} eventNum={i} {calRowNum} />
+                    {#if event.initialPlacement}
+                        <CalendarEvent {...event} eventNum={i} {calRowNum} />
+                    {/if}
                 {/each}
             {/each}
         {/if}

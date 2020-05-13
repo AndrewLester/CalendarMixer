@@ -40,12 +40,10 @@
     });
 </script>
 
-{#if initialPlacement }
-    <div class="calendar-event" class:filtered bind:this={eventElement} style="--bg-color: {color};
-     --animation-delay: {animationDelay}ms; grid-column: {startCol} / {endCol}">
-        {eventInfo.title}
-    </div>
-{/if}
+<div class="calendar-event" class:filtered bind:this={eventElement} style="--bg-color: {color};
+   --animation-delay: {animationDelay}ms; grid-column: {startCol} / {endCol}">
+    {eventInfo.title}
+</div>
 
 <style>
 .calendar-event {
