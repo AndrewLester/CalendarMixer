@@ -11,7 +11,7 @@
             <td>
                 <h1>User: {{ current_user.username }}</h1>
                 {% if current_user.about_me %}<p>{{ current_user.about_me }}</p>{% endif %}
-                {% if current_user.last_seen %}<p>Last seen on: {{ current_user.last_seen }}</p>{% endif %}
+                <p>Last seen: <em>Never</em> :(</p>
             </td>
         </tr>
     </table>

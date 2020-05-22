@@ -14,8 +14,8 @@ export class NetworkStore {
         this.api = api;
 
         if (this.writable) {
-            this.set = async (value, headers, storeValue=value) => {
-                await this.api.post(this.endpoint, value, headers).then(() => this._store.set(storeValue));
+            this.set = async (value, storeValue=value) => {
+                await this.api.post(this.endpoint, value).then(() => this._store.set(storeValue));
             }
         }
 

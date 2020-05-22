@@ -50,15 +50,12 @@ function save() {
         return;
     }
 
-    const formData = new FormData();
-    formData.append('filter_id', JSON.stringify({ data: id }));
-    formData.append('positive', JSON.stringify({ data: positive }));
-    formData.append('course_ids', JSON.stringify({ data: course_ids }));
+    const formData = { id, positive, course_ids };
 
     let updatedFilter = $filters.filter(f => f.id === id)[0];
     updatedFilter.positive = positive;
     updatedFilter.course_ids = course_ids;
-    return filters.set(formData, null, [...$filters.filter(f => f.id !== id), updatedFilter]);
+    return filters.set(formData, [...$filters.filter(f => f.id !== id), updatedFilter]);
 }
 
 </script>

@@ -1,16 +1,18 @@
-from authlib.client.oauth1_session import OAuth1Client, OAuth1Auth, OAuth1Session
+from functools import partial
+
+from authlib.client.errors import MissingTokenError
+from authlib.client.errors import OAuthError
+from authlib.client.oauth1_session import OAuth1Client, OAuth1Auth
 from authlib.client.oauth2_session import OAuth2Session
+from authlib.common.urls import urlparse
+from authlib.deprecate import deprecate
 from authlib.oauth1 import (
     SIGNATURE_HMAC_SHA1,
     SIGNATURE_TYPE_HEADER
 )
-from authlib.client.errors import OAuthError
-from authlib.deprecate import deprecate
-from authlib.common.urls import urlparse
-from authlib.client.errors import MissingTokenError
+from flask import current_app
+from flask_login import current_user
 from requests_cache import CachedSession
-from functools import partial
-import inspect
 
 
 # CachedSession inherited before OAuth1Session so the request method comes from there.
@@ -74,13 +76,20 @@ def get_cached_session(self, cache_name, backend, expire_after):
     session.headers['User-Agent'] = self.DEFAULT_USER_AGENT
     return session
 
+
 def request(self, method, url, token=None, **kwargs):
     if self.api_base_url and not url.startswith(('https://', 'http://')):
         url = urlparse.urljoin(self.api_base_url, url)
-    if 'cache_name' not in kwargs:
+
+    if 'cache' not in kwargs or not current_user.is_authenticated:
+        if 'cache' in kwargs:
+            current_app.logger.warn(f'Attempted to utilize user cache for url: {url}')
         function = self._get_session
     else:
-        function = partial(self.get_cached_session, self, kwargs.pop('cache_name'))
+        del kwargs['cache']
+        cache_name = str(current_user.id)
+        function = partial(self.get_cached_session, self, cache_name)
+
     with function() as session:
         if kwargs.get('withhold_token'):
             return session.request(method, url, **kwargs)

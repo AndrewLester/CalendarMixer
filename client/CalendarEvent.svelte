@@ -1,5 +1,7 @@
 <script>
-    import { onMount } from 'svelte';
+    import EventModalContent from './EventModalContent.svelte';
+    import { CalendarEventData } from './calendar-structure.js';
+    import { onMount, getContext } from 'svelte';
     import tippy from 'tippy.js';
     import 'tippy.js/dist/tippy.css';
     import 'tippy.js/animations/shift-away-subtle.css';
@@ -8,13 +10,32 @@
     export let start;
     export let end;
     export let calRowNum;
-    export let startCol = undefined;
-    export let endCol = unescape;
     export let initialPlacement;
     export let eventNum;
-    export let startRow = undefined;
-    export let endRow = startRow + 1;
+    export let startRow;
+    export let condensed = true;
+    export let startCol = undefined;
+    export let endCol = undefined;
     export let filtered = false;
+    export let endRow = startRow + 1;
+
+    const { open } = getContext('simple-modal');
+
+    let big = false;
+
+    // Since "endRow" is bound to a variable, it can be changed from a parent component without affecting
+    // The value of _endRow, since _endRow is not a reactive expression and is only evaluated once
+    let _endRow = endRow;
+
+    $: if (!condensed && startRow && (_endRow - (big ? 2 : 1) <= startRow)) {
+        _endRow = (startRow + 1) + (big ? 1 : 0);
+        endRow = _endRow;
+    }
+
+    if (condensed) {
+        startRow = undefined;
+        endRow = undefined;
+    }
 
     const colors = [
         'rgba(236, 252, 17, 0.5)', 'rgba(17, 182, 252, 0.5)', 'rgba(248, 17, 252, 0.5)', 
@@ -31,19 +52,37 @@
     onMount(() => {
         if (eventElement) {
             tippy(eventElement, {
-                content: eventInfo.title,
+                content: decodeURI(eventInfo.title),
                 arrow: true,
                 duration: [100, 100],
                 animation: 'shift-away-subtle'
             });
+
+            if (!condensed && isOverflown(eventElement) && (endCol - startCol < 2)) {
+                _endRow += 1;
+                endRow = _endRow;
+                big = true;
+            }
         }
     });
+
+    function isOverflown(element) {
+        return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+    }
+
+    function displayEventInfo() {
+        const data = new CalendarEventData(eventInfo, true, filtered, start, end);
+        open(EventModalContent, { ...data }, { closeButton: false, transitionBgProps: { duration: 200 } });
+    }
 </script>
 
-<div class="calendar-event" class:filtered bind:this={eventElement} style="--bg-color: {color};
-   --animation-delay: {animationDelay}ms; grid-column: {startCol} / {endCol}">
-    {eventInfo.title}
-</div>
+{#if initialPlacement}
+    <div class="calendar-event" class:filtered bind:this={eventElement} on:click={displayEventInfo}
+      style="--bg-color: {color}; --animation-delay: {animationDelay}ms; grid-column: {startCol} / {endCol};
+      grid-row: {startRow || 'unset'} / {_endRow || 'unset'};" class:multi-line={_endRow - startRow > 1}>
+        {@html eventInfo.title}
+    </div>
+{/if}
 
 <style>
 .calendar-event {
@@ -58,9 +97,8 @@
     transform: none;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    white-space: nowrap;
+    padding: 0px 10px;
     line-height: 20px;        /* fallback */
     max-height: 45px;       /* fallback */
     will-change: transform, opacity;
@@ -74,6 +112,10 @@
 .calendar-event.filtered {
     color: gray;
     background-color: rgba(128, 128, 128, 0.2);
+}
+
+.calendar-event.multi-line {
+    line-height: 21px;
 }
 
 @keyframes slide-in {

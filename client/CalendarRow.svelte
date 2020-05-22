@@ -7,7 +7,9 @@ export let today;
 export let calRowNum;
 export let dayNums = [];
 export let days = [];
+export let calendar = undefined;
 export let skeleton = false;
+export let condensed = false;
 
 let now = moment();
 </script>
@@ -32,11 +34,22 @@ let now = moment();
             <div class="skeleton-bar" style="grid-column: 2 / 5"></div> 
             <div class="skeleton-bar" style="grid-column: 7 / 8"></div> 
         {:else}
-            {#each days as day (day)}
-                <!-- Can NOT destructure the event object here, messes up state deeper state updates -->
+            {#each days as day, dayIndex (day)}
                 {#each day.events as event, i (event.eventInfo.id)}
-                    {#if event.initialPlacement}
-                        <CalendarEvent {...event} eventNum={i} {calRowNum} />
+                    {#if condensed}
+                        {#if event.initialPlacement}
+                            <CalendarEvent {...event} eventNum={i} {calRowNum} />
+                        {/if}
+                    {:else}
+                        {#if i === 0}
+                            <CalendarEvent {...event} eventNum={i} {calRowNum} startRow={event.startRow || 1}
+                                bind:endRow={calendar.rows[calRowNum].days[dayIndex].events[i].endRow} condensed={false} />
+                        {:else}
+                            <CalendarEvent {...event} eventNum={i} {calRowNum}
+                                bind:startRow={calendar.rows[calRowNum].days[dayIndex].events[i-1].endRow}
+                                bind:endRow={calendar.rows[calRowNum].days[dayIndex].events[i].endRow}
+                                condensed={false} />
+                        {/if}
                     {/if}
                 {/each}
             {/each}

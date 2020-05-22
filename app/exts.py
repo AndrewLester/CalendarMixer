@@ -1,14 +1,15 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_login import LoginManager
-from authlib.flask.client import OAuth
+import wtforms_json
 from authlib.client.client import OAuthClient
+from authlib.flask.client import OAuth
 from authlib.oauth1.client import OAuth1Client
-from flask_wtf.csrf import CSRFProtect
-from flask_caching import Cache
-from .oauth1_session import get_cached_session, request
 from flask_bootstrap import Bootstrap
+from flask_caching import Cache
+from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 
+from .oauth1_session import request
 
 login = LoginManager()
 db = SQLAlchemy()
@@ -17,6 +18,7 @@ cache = Cache()
 oauth = OAuth()
 bootstrap = Bootstrap()
 csrf = CSRFProtect()
+wtforms_json.init()
 
 
 # # Janky compliance fix because schoology only accepts GET requests when fetching request tokens.

@@ -1,3 +1,8 @@
+from datetime import datetime
+import pytz
+from app.view_utils import LocalizedTz
+
+
 def get_paged_data(
     request_function, 
     endpoint: str, 
@@ -20,3 +25,14 @@ def get_paged_data(
         page += 1
 
     return data
+
+
+def schoology_to_datetime(string: str, tz: LocalizedTz = pytz.utc, return_localized: bool = False) -> datetime:
+    """Turn a Schoology time string into a datetime object with tz set to UTC"""
+    time: datetime = datetime.strptime(string, '%Y-%m-%d %H:%M:%S')
+    # Turn naive time into local time at the specified timezone. Accounts for DST
+    time = tz.localize(time)
+    # Return time back in UTC
+    if return_localized:
+        return time
+    return time.astimezone(pytz.utc)

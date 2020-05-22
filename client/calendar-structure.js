@@ -34,6 +34,7 @@ export class CalendarEventData {
         this.end = end || (eventInfo['has_end'] ? moment(eventInfo['end'], 'YYYY-MM-DD hh:mm:ss') : this.start);
         this.initialPlacement = initialPlacement;
         this.filtered = filtered;
+        this.endRow = 2;  // The default event starts at row 1 and ends at row 2, for a one line event
     }
 }
 
@@ -132,15 +133,17 @@ export function placeEvent(event, calendar, filters) {
     let eventRow = row + 1;
     let endCol = Math.max(Math.min(9, startCol + span), startCol + 1);
     
-    // TODO: Readd this
     // If this event is long, and if it intersects with another event in a later column, move this entire
     // event up one row to keep them from intersecting
-    // for (let checkCol = startCol; checkCol < endCol - 1; checkCol++) {
-    //     if (calendar[row].days[checkCol] && calendar[row].days[checkCol].currentRow > calDay.currentRow) {
-    //         calDay.currentRow = calendar[row].days[checkCol].currentRow;
-    //         break;
-    //     }
-    // }
+    if (endCol > startCol + 1) {
+        for (let checkCol = startCol; checkCol < endCol; checkCol++) {
+            if (calendar.rows[row].days[checkCol]) {
+                event.startRow = calendar.rows[row].days[checkCol].events.length + 1;
+                event.endRow = event.startRow + 1;
+                break;
+            }
+        }
+    }
     
     if (endCol > (startCol + 1)) {
         for (let i = 1; i < Math.min(7 - col, span + 1); i++) {

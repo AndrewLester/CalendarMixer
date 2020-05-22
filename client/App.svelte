@@ -1,4 +1,5 @@
 <script>
+import Modal from 'svelte-simple-modal';
 import Calendar from './Calendar.svelte';
 import FilterEditor from './FilterEditor.svelte';
 import CopyButton from './utility/CopyButton.svelte';
@@ -8,23 +9,22 @@ import moment from './libraries/moment.min.js';
 import { mountNetworking, key } from './utility/network.js';
 import { NetworkStore } from './utility/stores.js';
 
-let events;
-let filters;
-let identifiers;
 let api;
 // The tick call here waits for this component to mount, allowing the api variable to be set before
 // Sub-Components can use it from the context. Another option is wrapping the Calendar and FilterEditor
 // with an if (api) statement
 const getAPI = () => tick().then(() => api);
-events = new NetworkStore('/calendar/events');
-filters = new NetworkStore('/calendar/filter', undefined, true);
-identifiers = new NetworkStore('/calendar/identifiers');
+let events = new NetworkStore('/calendar/events');
+let filters = new NetworkStore('/calendar/filter', undefined, true);
+let alerts = new NetworkStore('/calendar/alerts', undefined, true);
+let identifiers = new NetworkStore('/calendar/identifiers');
 
 setContext(key, getAPI);
 setContext('stores', {
     events,
     filters,
-    identifiers
+    identifiers,
+    alerts
 })
 
 let definedColors;
@@ -52,6 +52,7 @@ onMount(() => {
     events.setAPI(api);
     filters.setAPI(api);
     identifiers.setAPI(api);
+    alerts.setAPI(api);
 });
 
 function navigateMonths(shift) {
@@ -70,6 +71,7 @@ async function goToToday() {
 
 </script>
 
+<Modal styleContent={{ padding: 0 }}>
 <main>
     <div id="calendar-viewer" bind:this={calendarViewer}>
         <div id="button-bar">
@@ -85,10 +87,12 @@ async function goToToday() {
                 <CopyButton copy={icalLink} className="small-button">EXPORT CALENDAR</CopyButton>
             {/if}
         </div>
-        <Calendar {today} {condensed} {flyDirection} bind:showToday />
+        <!-- Non-condensed functionality is not complete yet -->
+        <Calendar {today} condensed={true} {flyDirection} bind:showToday />
     </div>
     <FilterEditor/>
 </main>
+</Modal>
 
 <style>
 main {

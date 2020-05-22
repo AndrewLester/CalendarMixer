@@ -20,11 +20,25 @@ export const mountNetworking = csrfToken => {
                     ...headers,
                     'X-CSRFToken': csrfToken
                 },
-                body: data
+                body: JSON.stringify(data)
             }).then((res) => {
                 if (!res.ok) {
                     throw new Error('Request error');
                 }
+            });
+        },
+        delete: url => {
+            return fetch(url, {
+                method: 'DELETE',
+                mode: 'cors',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Request error');
+                }
+                return res.json();
             });
         }
     }

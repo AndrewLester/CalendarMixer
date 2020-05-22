@@ -91,7 +91,7 @@ async function scrollToToday() {
             </div>
             {#if downloaded }
                 {#each calendar.rows.filter(row => !row.unused) as row, i (row)}
-                    <CalendarRow {...row} {today} calRowNum={i} />
+                    <CalendarRow {...row} {today} {condensed} {calendar} calRowNum={i} />
                 {/each}
             {:else}
                 {#each calendar.rows as { unused, ...row }, i (row)}
