@@ -42,6 +42,7 @@ let showToday = false;
 
 let monthButtonWidth;
 $: monthButtonTextFormat = monthButtonWidth && monthButtonWidth < 100 ? 'MMM' : 'MMMM';
+$: currentMonthFormat = monthButtonWidth && monthButtonWidth < 100 ? 'MMM YYYY' : 'MMMM YYYY';
 
 onMount(() => {
     definedColors = colors;
@@ -78,13 +79,13 @@ async function goToToday() {
             <span>
                 <SVGButton svgLink={"/static/img/today-black-18dp.svg"} symbolId={'icon'} on:click={goToToday} />
             </span>
-            <p id="current-month" class:matching>{today.format('MMMM YYYY')}</p>
+            <p id="current-month" class:matching>{today.format(currentMonthFormat)}</p>
             <button on:click={() => navigateMonths(-1)} class="large-button" bind:clientWidth={monthButtonWidth}>← {moment(today).subtract(1, 'months').format(monthButtonTextFormat)}</button>
             <button on:click={() => navigateMonths(1)} class="large-button">{moment(today).add(1, 'months').format(monthButtonTextFormat)} →</button>
             <label class="calendar-option" for="condensed-checkbox">Condensed:</label>
             <input class="calendar-option" type="checkbox" bind:checked={condensed}>
             {#if icalLink}
-                <CopyButton copy={icalLink} className="small-button">EXPORT CALENDAR</CopyButton>
+                <CopyButton copy={icalLink} className="calendar-option small-button">EXPORT CALENDAR</CopyButton>
             {/if}
         </div>
         <!-- Non-condensed functionality is not complete yet -->
@@ -97,6 +98,7 @@ async function goToToday() {
 <style>
 main {
     display: flex;
+    flex-wrap: wrap;
     /* 53px is the height of the header + hr */
     height: calc(100vh - 53px);
     width: 100%;
@@ -126,6 +128,7 @@ main {
     vertical-align: middle;
 }
 #calendar-viewer {
+    flex: 0 0 auto;
     width: 75%;
     height: 100%;
     overflow: hidden;
@@ -164,6 +167,7 @@ main {
     transition: all 0.2s ease;
     border: 1px solid white;
     background-color: #29b6f6;
+    max-width: 200px;
     width: 75%;
     height: 40px;
 }
@@ -214,6 +218,27 @@ main {
     100% {
       stroke-dasharray: 45, 75;
       stroke-dashoffset: -62;
+    }
+}
+@media only screen and (max-width: 850px) {
+    :global(.calendar-option) {
+        display: none;
+    }
+}
+@media only screen and (max-width: 1015px) {
+    main {
+        height: auto;
+        overflow-y: scroll;
+    }
+    #calendar-viewer {
+        height: auto;
+        max-height: 100vh;
+        flex: 1 0 auto;
+    }
+}
+@media only screen and (max-width: 400px) {
+    #current-month {
+        width: 90px;
     }
 }
 </style>

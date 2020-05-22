@@ -5,6 +5,9 @@ import Alert, { AlertType } from './Alert.svelte';
 import moment from './libraries/moment.min.js';
 import { getContext } from 'svelte';
 import { derived } from 'svelte/store';
+import { flip } from 'svelte/animate';
+import { fade, fly } from 'svelte/transition';
+import { cubicInOut } from 'svelte/easing';
 
 export let eventInfo;
 export let start;
@@ -14,14 +17,13 @@ export let filtered;
 $: alertSvgLink = filtered ? '/static/img/alerts-off.svg' : '/static/img/add-alert.svg';
 
 const { close } = getContext('simple-modal');
-const { alerts: allAlerts } = getContext('stores');
-
-const alerts = derived(allAlerts, ($alerts) => {
-    return $alerts.filter(alert => alert.event_id == eventInfo['id']);
-});
-
+const { alerts } = getContext('stores');
 
 function addAlert() {
+    if (filtered) {
+        return;
+    }
+
     const newAlert = {
         id: -1,
         event_id: eventInfo['id'].toString(),
@@ -31,8 +33,7 @@ function addAlert() {
 
     // Don't update the store value yet, but post the newAlert over the network
     // Then call reset to update the store value by GETting the new Alert
-    allAlerts.set(newAlert, [...$allAlerts])
-    allAlerts._reset();
+    alerts.set(newAlert, null).then(() => alerts._reset());
 }
 
 </script>
@@ -73,10 +74,15 @@ function addAlert() {
                 text={filtered ? 'This event isn\'t exported' : 'Add an alert'}
                 on:click={addAlert} />
         </div>
-        <fieldset disabled={filtered}>
-            {#each $alerts as alert (alert.id)}
-                <Alert {...alert} />
-            {/each}
+        <fieldset>
+            {#if $alerts[eventInfo['id']]}
+                {#each $alerts[eventInfo['id']] as alert (alert.id)}
+                    <div animate:flip={{ duration: 100 }} out:fade={{ duration: 100 }}
+                        in:fly={{ y: -20, duration: 100, easing: cubicInOut }} class="alert-wrapper">
+                        <Alert {...alert} exported={!filtered} />
+                    </div>
+                {/each}
+            {/if}
         </fieldset>
     </div>
 </div>
@@ -129,7 +135,7 @@ h1.event-name {
     box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.3);
     position: sticky;
     padding: 5px;
-    z-index: 2;
+    z-index: 5;
     display: flex;
     align-items: center;
     box-sizing: border-box;

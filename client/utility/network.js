@@ -32,7 +32,8 @@ export const mountNetworking = csrfToken => {
                 method: 'DELETE',
                 mode: 'cors',
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-CSRFToken': csrfToken
                 }
             }).then((res) => {
                 if (!res.ok) {

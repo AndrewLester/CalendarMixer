@@ -2,9 +2,6 @@
     import EventModalContent from './EventModalContent.svelte';
     import { CalendarEventData } from './calendar-structure.js';
     import { onMount, getContext } from 'svelte';
-    import tippy from 'tippy.js';
-    import 'tippy.js/dist/tippy.css';
-    import 'tippy.js/animations/shift-away-subtle.css';
 
     export let eventInfo;
     export let start;
@@ -20,6 +17,7 @@
     export let endRow = startRow + 1;
 
     const { open } = getContext('simple-modal');
+    const { alerts } = getContext('stores');
 
     let big = false;
 
@@ -51,13 +49,6 @@
 
     onMount(() => {
         if (eventElement) {
-            tippy(eventElement, {
-                content: decodeURI(eventInfo.title),
-                arrow: true,
-                duration: [100, 100],
-                animation: 'shift-away-subtle'
-            });
-
             if (!condensed && isOverflown(eventElement) && (endCol - startCol < 2)) {
                 _endRow += 1;
                 endRow = _endRow;
@@ -79,7 +70,14 @@
 {#if initialPlacement}
     <div class="calendar-event" class:filtered bind:this={eventElement} on:click={displayEventInfo}
       style="--bg-color: {color}; --animation-delay: {animationDelay}ms; grid-column: {startCol} / {endCol};
-      grid-row: {startRow || 'unset'} / {_endRow || 'unset'};" class:multi-line={_endRow - startRow > 1}>
+      grid-row: {startRow || 'unset'} / {_endRow || 'unset'};" class:multi-line={_endRow - startRow > 1}
+      data-tippy-content="{decodeURI(eventInfo['title'])}">
+        {#if $alerts && $alerts[eventInfo['id']]}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" tabindex="0"
+                style="display: inline; width: 15px; height: 15px; vertical-align: middle;">
+                <use xlink:href="/static/img/alert.svg#icon" width="25" height="25"/>
+            </svg>
+        {/if}
         {@html eventInfo.title}
     </div>
 {/if}

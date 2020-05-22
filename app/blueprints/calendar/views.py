@@ -76,11 +76,18 @@ def events():
 @login_required
 def alerts(id: Optional[int] = None):
     if request.method == 'GET':
-        return jsonify([alert.to_json() for alert in current_user.alerts.all()])
+        all_alerts = [alert.to_json() for alert in current_user.alerts.all()]
+        alerts = defaultdict(list)
+
+        for alert in all_alerts:
+            alerts[str(alert['event_id'])].append(alert)
+
+        return jsonify(alerts)
 
     if request.method == 'DELETE' and id is not None:
-        if alert := current_user.alert.filter_by(id=id).first():
-            db.session.remove(alert)
+        if alert := current_user.alerts.filter_by(id=id).first():
+            current_user.alerts.remove(alert)
+            db.session.add(current_user)
             db.session.commit()
             return jsonify(success=True), 200
 

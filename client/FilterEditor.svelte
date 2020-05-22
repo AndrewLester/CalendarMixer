@@ -80,8 +80,8 @@ h1 {
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    min-width: 200px;
-    flex: 1 0 25%;
+    min-width: 250px;
+    flex: 0 1 25%;
     align-items: center;
     position: relative;
     height: calc(100vh - 53px);
@@ -99,5 +99,11 @@ h1 {
 }
 .spinner {
     vertical-align: middle;
+}
+@media only screen and (max-width: 1015px) {
+    #filter-editor {
+        height: auto;
+        flex: 1 1 auto;
+    }
 }
 </style>

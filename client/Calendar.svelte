@@ -7,6 +7,9 @@ import { key } from './utility/network.js';
 import { sleep } from './utility/async.js';
 import { buildCalendarStructure, placeEvent, applyFilters, CalendarEventData } from './calendar-structure.js';
 import { fade, fly } from 'svelte/transition';
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/animations/shift-away-subtle.css';
 
 export let today;
 export let flyDirection;
@@ -64,6 +67,14 @@ $: if ((readyToShow || firstLoad) && donePlacing) {
 afterUpdate(() => {
     if (showToday && calendarReady && document.getElementsByClassName('today').length === 1) {
         scrollToToday();
+    }
+
+    if (calendarReady && !firstLoad) {
+        tippy('[data-tippy-content]', {
+            arrow: true,
+            duration: [100, 100],
+            animation: 'shift-away-subtle'
+        });
     }
 })
 

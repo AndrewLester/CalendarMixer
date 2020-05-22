@@ -80,6 +80,7 @@ const modifiers = {
     max-height: 200px;
     width: 100%;
     flex-wrap: wrap;
+    z-index: 200;
 }
 
 :global(.identifier-complete) > :global(*) {
