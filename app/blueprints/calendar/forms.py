@@ -23,7 +23,7 @@ class CourseIDSubform(FlaskForm):
 class AlertForm(FlaskForm):
     id = IntegerField(validators=[DataRequired()])
     event_id = StringField(validators=[DataRequired(), Length(0, 120)])
-    timedelta: timedelta = IntervalField(validators=[DataRequired()])
+    timedelta: timedelta = IntervalField()
     type = IntegerField(validators=[NumberRange(0, len(EventAlertType) - 1)])
 
     def validate_type(self, type):

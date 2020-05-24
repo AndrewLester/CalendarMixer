@@ -8,6 +8,7 @@ export let height = 24;
 export let clickable = true;
 export let classes = '';
 export let text = '';
+export let textElem = undefined;
 
 let active = false;
 let button;
@@ -39,7 +40,7 @@ async function release() {
     </svg>
 </button>
 {#if text.length > 0 }
-    <span class="button-text" class:clickable on:mousedown={press} on:click>{text}</span>
+    <span class="button-text" bind:this={textElem} class:clickable on:mousedown={press} on:click>{text}</span>
 {/if}
 
 <style>

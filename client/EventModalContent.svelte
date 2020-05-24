@@ -14,6 +14,14 @@ export let start;
 export let end;
 export let filtered;
 
+let endTimeFormat;
+$: if (eventInfo.has_end && !eventInfo.all_day) {
+    if (moment(end).startOf('day').diff(start.startOf('day'), 'days') > 0) {
+        endTimeFormat = 'MMMM Do YYYY, h:mm a';
+    } else {
+        endTimeFormat = 'h:mm a';
+    }
+}
 $: alertSvgLink = filtered ? '/static/img/alerts-off.svg' : '/static/img/add-alert.svg';
 
 const { close } = getContext('simple-modal');
@@ -40,7 +48,7 @@ function addAlert() {
 
 <div class="body">
     <div class="header">
-        <span class="schoology-icon" data-event-type="{eventInfo.type}"></span>
+        <span class="schoology-icon" data-event-type="{eventInfo.type}" style="--picture-offset: {start.date() - 1}"></span>
         <h1 class="event-name" title="{eventInfo.title}">{@html eventInfo.title}</h1>
         <SVGButton svgLink={'/static/img/failed.svg'} symbolId={'icon'}
                 on:click={close} />
@@ -53,7 +61,7 @@ function addAlert() {
             {#if !eventInfo.has_end}
                 <span class="value">{start.format('MMMM Do YYYY, h:mm a')}</span>
             {:else}
-                <span class="value">{start.format('MMMM Do YYYY, h:mm a')} - {end.format('MMMM Do YYYY, h:mm a')}</span>
+                <span class="value">{start.format('MMMM Do YYYY, h:mm a')} - {end.format(endTimeFormat)}</span>
             {/if}
         {/if}
     </p>
@@ -69,7 +77,7 @@ function addAlert() {
     </p>
     <div class="section alerts" class:filtered>
         <p style="text-align: center;"><span class="key">Alerts</span></p>
-        <div>
+        <div style="margin-top: 5px; margin-bottom: 1px;">
             <SVGButton svgLink={alertSvgLink} symbolId={"icon"} clickable={!filtered} 
                 text={filtered ? 'This event isn\'t exported' : 'Add an alert'}
                 on:click={addAlert} />
@@ -82,6 +90,8 @@ function addAlert() {
                         <Alert {...alert} exported={!filtered} />
                     </div>
                 {/each}
+            {:else}
+                <p style="text-align: center;"><em>No Alerts</em></p>
             {/if}
         </fieldset>
     </div>
@@ -106,7 +116,6 @@ h1 {
     margin: 0px;
 }
 div.section, .body {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -121,6 +130,10 @@ div.section, .body {
 }
 span.schoology-icon[data-event-type="assignment"] {
     background-position: 0 -40px;
+}
+span.schoology-icon[data-event-type="event"] {
+    background-position: 0 calc(-40px * var(--picture-offset));
+    background-image: url('http://app.schoology.com/sites/all/themes/schoology_theme/images/icons_sprite_calendar_large.png?5ec6b32722ee47a9');
 }
 h1.event-name {
     margin: 0px auto;
@@ -162,5 +175,13 @@ h1.event-name {
 }
 div.alerts > fieldset {
     width: 100%;
+}
+.alert-wrapper {
+    display: flex;
+    align-items: center;
+    line-height: 24px;
+}
+.alert-wrapper:not(:last-child) {
+    margin-bottom: 5px;
 }
 </style>

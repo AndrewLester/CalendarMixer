@@ -201,6 +201,9 @@ main {
     box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1);
     background-color: rgba(54, 188, 250, 0.33);
 }
+:global(.window) > :global(.content) {
+    position: initial;
+}
 @keyframes -global-rotate {
     100% {
       transform: rotate(360deg);

@@ -16,6 +16,7 @@ export let flyDirection;
 export let condensed;
 export let showToday = false;
 
+const getPreferences = getContext('preferences');
 const { filters, events } = getContext('stores');
 
 let calendarView;
@@ -64,19 +65,26 @@ $: if ((readyToShow || firstLoad) && donePlacing) {
     calendarView.scrollTop = 0;
 }
 
-afterUpdate(() => {
+afterUpdate(async () => {
     if (showToday && calendarReady && document.getElementsByClassName('today').length === 1) {
         scrollToToday();
     }
 
-    if (calendarReady && !firstLoad) {
-        tippy('[data-tippy-content]', {
+    if (calendarReady && localStorage.getItem('firstEverLoad') !== 'false') {
+        tippy(document.getElementsByClassName('calendar-event')[0], {
+            content: 'Click to show info',
             arrow: true,
-            duration: [100, 100],
-            animation: 'shift-away-subtle'
+            allowHTML: true,
+            placement: 'bottom',
+            animation: 'shift-away-subtle',
+            delay: [250, 100],
+            theme: 'info',
+            trigger: 'manual',
+            showOnCreate: true
         });
+        localStorage.setItem('firstEverLoad', 'false');
     }
-})
+});
 
 async function placeEvents() {
     const savedFilters = $filters;
@@ -136,5 +144,13 @@ async function scrollToToday() {
 :global(.calendar-row) {
     grid-column: 1 / 8;
     border: 1px solid gray;
+}
+:global(.tippy-box[data-theme~='info']) {
+    background-color: #29b6f6;
+    color: black;
+}
+:global(.tippy-box[data-theme~='info'][data-placement^='top'] > .tippy-arrow::before,
+    .tippy-box[data-theme~='info'][data-placement^='bottom'] > .tippy-arrow::before) {
+    color: #29b6f6;
 }
 </style>

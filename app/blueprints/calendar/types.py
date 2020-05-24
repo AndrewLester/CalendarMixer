@@ -49,13 +49,18 @@ class SchoologyCalendar:
         relative = end_time - start_time
         return relative
 
-    @property
-    def ical_alarms(self) -> Generator[Union[DisplayAlarm, EmailAlarm], None, None]:
+    def ical_alarms(self, event_id: int) -> Generator[Union[DisplayAlarm, EmailAlarm], None, None]:
         for alert in self.alerts:
+            if int(alert.event_id) != event_id:
+                continue
+
+            # Invert timedelta to make it represent time before the event
+            inverted_timedelta = -alert.timedelta
+
             if alert.type == EventAlertType.DISPLAY:
-                alarm = DisplayAlarm(alert.timedelta)
+                alarm = DisplayAlarm(inverted_timedelta)
             elif alert.type == EventAlertType.EMAIL:
-                alarm = EmailAlarm(alert.timedelta)
+                alarm = EmailAlarm(inverted_timedelta)
             
             yield alarm
 
@@ -72,10 +77,10 @@ class SchoologyCalendar:
                 schoology_to_datetime(event['start'], self.timezone, all_day),
                 schoology_to_datetime(event['end'], self.timezone, all_day),
                 uid=str(event['id']),
-                description=event['description']
+                description=event['description'],
+                alarms=list(self.ical_alarms(int(event['id'])))
             )
             cal_event.extra.append(ContentLine(name="DTSTAMP", value=current_time))
-            cal_event.alarms.extend(self.ical_alarms)
 
             if all_day:
                 cal_event.make_all_day()

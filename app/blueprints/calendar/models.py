@@ -102,7 +102,7 @@ class EventAlert(db.Model):
     def to_json(self):
         return {'id': self.id, 'event_id': self.event_id, 
                 'timedelta': isodate.duration_isoformat(self.timedelta),
-                'type': EventAlertType(self.type).name.lower()}
+                'type': self.type}
     
     def __repr__(self):
         return f'EventAlert<{self.id=}, {self.user_id=}, {self.event_id=}, {self.timedelta=}, {self.type=}>'
