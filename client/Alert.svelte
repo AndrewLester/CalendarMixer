@@ -39,7 +39,7 @@ async function save() {
         timedelta: relativetime.toISOString()
     };
 
-    await api.post('/calendar/alerts', alertData);
+    await api.post('/calendar/alerts', alertData).then(() => alerts._reset());
 }
 
 async function deleteAlert() {

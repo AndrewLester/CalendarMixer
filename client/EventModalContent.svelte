@@ -133,7 +133,7 @@ span.schoology-icon[data-event-type="assignment"] {
 }
 span.schoology-icon[data-event-type="event"] {
     background-position: 0 calc(-40px * var(--picture-offset));
-    background-image: url('http://app.schoology.com/sites/all/themes/schoology_theme/images/icons_sprite_calendar_large.png?5ec6b32722ee47a9');
+    background-image: url('https://app.schoology.com/sites/all/themes/schoology_theme/images/icons_sprite_calendar_large.png?5ec6b32722ee47a9');
 }
 h1.event-name {
     margin: 0px auto;

@@ -46,7 +46,7 @@ function close() {
         
         <select bind:value={selectedUnit}>
             {#each UNITS as unit }
-                <option value={unit} selected={selectedUnit.startsWith(unit)}>{unit}</option>
+                <option value={unit} selected={selectedUnit.startsWith(unit.substring(0, 2))}>{unit}</option>
             {/each}
         </select>
     </div>

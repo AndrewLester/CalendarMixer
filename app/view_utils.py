@@ -23,8 +23,6 @@ def cache_header(max_age, **ckwargs):
             if response.last_modified is None:
                 response.last_modified = datetime.utcnow()
             response.expires = response.last_modified + extra
-            response.headers['Content-Type'] = 'application/json; charset=utf-8'
-            response.headers['mimetype'] = 'application/json'
             response.add_etag()
             return response.make_conditional(request)
         return wrapper
