@@ -13,7 +13,7 @@ class Config:
     if os.environ.get('DATABASE_URL'):
         SQLALCHEMY_POOL_SIZE = 5
         SQLALCHEMY_POOL_RECYCLE = 70
-        SQLALCHEMY_POOL_TIMEOUT = 7
+        SQLALCHEMY_POOL_TIMEOUT = 5
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
