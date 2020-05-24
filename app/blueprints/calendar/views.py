@@ -107,7 +107,6 @@ def alerts(id: Optional[int] = None):
             db.session.add(current_user)
             db.session.commit()
             return jsonify(success=True), 201
-    print(form.errors)
     return jsonify(data='Invalid alert data'), 400
 
 

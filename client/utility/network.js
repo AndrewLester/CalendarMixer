@@ -1,3 +1,5 @@
+import * as notifier from './notifications/notifier.js';
+
 export const mountNetworking = csrfToken => {
     return {
         get: url => {
@@ -7,6 +9,7 @@ export const mountNetworking = csrfToken => {
                 }
             }).then((res) => {
                 if (!res.ok) {
+                    notifier.danger('Network request failed', 2500);
                     throw new Error('Request error');
                 }
                 return res.json();
@@ -23,6 +26,7 @@ export const mountNetworking = csrfToken => {
                 body: JSON.stringify(data)
             }).then((res) => {
                 if (!res.ok) {
+                    notifier.danger('Network request failed', 2500);
                     throw new Error('Request error');
                 }
             });
@@ -37,6 +41,7 @@ export const mountNetworking = csrfToken => {
                 }
             }).then((res) => {
                 if (!res.ok) {
+                    notifier.danger('Network request failed', 2500);
                     throw new Error('Request error');
                 }
                 return res.json();

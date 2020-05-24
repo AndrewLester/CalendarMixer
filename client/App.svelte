@@ -1,5 +1,6 @@
 <script>
 import Modal from 'svelte-simple-modal';
+import NotificationDisplay from './utility/notifications/NotificationDisplay.svelte';
 import Calendar from './Calendar.svelte';
 import FilterEditor from './FilterEditor.svelte';
 import CopyButton from './utility/CopyButton.svelte';
@@ -72,6 +73,7 @@ async function goToToday() {
 
 </script>
 
+<NotificationDisplay options={{ timeout: 2500, width: '200px' }} />
 <Modal styleContent={{ padding: 0 }}>
 <main>
     <div id="calendar-viewer" bind:this={calendarViewer}>
@@ -203,6 +205,10 @@ main {
 }
 :global(.window) > :global(.content) {
     position: initial;
+}
+:global(.toasts) {
+    top: unset !important;
+    bottom: 0;
 }
 @keyframes -global-rotate {
     100% {
