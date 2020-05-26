@@ -12,7 +12,7 @@ class Config:
     # ClearDB's idle limit is 90 seconds, so set the recycle to be under 90
     if os.environ.get('DATABASE_URL'):
         SQLALCHEMY_POOL_SIZE = 5
-        SQLALCHEMY_POOL_RECYCLE = 70
+        SQLALCHEMY_POOL_RECYCLE = 65
         SQLALCHEMY_POOL_TIMEOUT = 5
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
