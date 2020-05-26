@@ -2,7 +2,7 @@ import functools
 from datetime import timedelta, datetime
 from typing import Protocol
 
-from flask import Response, request
+from flask import Response, request, make_response
 
 from app.exts import cache
 
@@ -17,7 +17,8 @@ def cache_header(max_age, **ckwargs):
 
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            response: Response = f(*args, **kwargs)
+            # Coerce view-function output to a response
+            response: Response = make_response(f(*args, **kwargs))
             response.cache_control.max_age = max_age
             extra = timedelta(seconds=max_age)
             if response.last_modified is None:

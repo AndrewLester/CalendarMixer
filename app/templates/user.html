@@ -1,8 +1,4 @@
-{% extends "base.html" %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-{% endblock %}
+{% extends "static_page.html" %}
 
 {% block content %}
     <table>
@@ -19,7 +15,4 @@
         <p><a href="#">Edit your profile</a></p>
     {% endif %}
     <hr>
-{#    {% for post in posts %}#}
-{#        {% include '_post.html' %}#}
-{#    {% endfor %}#}
 {% endblock %}

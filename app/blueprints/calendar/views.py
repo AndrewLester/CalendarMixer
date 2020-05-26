@@ -61,7 +61,7 @@ def ical_file(user_id: int, secret: str):
         return response
 
     flash('File not found')
-    return make_response(render_template('500.html'), 500)
+    return render_template('500.html'), 500
 
 
 @blueprint.route('/events')

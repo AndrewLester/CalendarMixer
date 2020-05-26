@@ -18,7 +18,7 @@ let now = moment();
     <div class="header">
         {#each dayNums as num, i}
             <div class:other-month={days[i].otherMonth}>
-                {#if now.year() === today.year() && now.month() == today.month() && num == now.date()}
+                {#if !days[i].otherMonth && now.year() === today.year() && now.month() == today.month() && num == now.date()}
                     <span class="today">{num}</span>
                 {:else}
                     {num}
