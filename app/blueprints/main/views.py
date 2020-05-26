@@ -33,6 +33,6 @@ def profile():
     return render_template('user.html', profile=resp.json())
 
 
-@blueprint.route('/google6413d979ca6a82e4.html')
+@blueprint.route('/googleef1db03e70a6de9a.html')
 def google_site_verif():
-    return render_template('google6413d979ca6a82e4.html')
+    return render_template('googleef1db03e70a6de9a.html')
