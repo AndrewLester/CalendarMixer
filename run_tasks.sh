@@ -1,1 +1,0 @@
-rq worker calendarmixer-tasks

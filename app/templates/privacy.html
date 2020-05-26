@@ -8,15 +8,31 @@
     <p>User info:
     
     <ol>
-        <li>Identifies your account from an external application attempting to access your calendar. (e.x. Google Calendar). Does not provide authentication</li>
-        <li>Primary key for user data</li>
+        <li><span>User ID:</span> Identifies your account from an external application attempting to access your calendar. (e.x. Google Calendar). Does not provide authentication</li>
+        <li><span>Username:</span> Used for filtering purposes</li>
+        <li><span>Email:</span> Used for email notifications on Calendar Alarms</li>
+        <li><span>Timezone:</span> Used for displaying the correct Date image favicon as well as setting the exported Calendar's timezone</li>
+    </ol>
+    </p>
+    <p>Course info:
+    
+    <ol>
+        <li><span>Course ID:</span></li>
+        <li><span>Name:</span></li>
+        <li><span>Realm name:</span></li>
     </ol>
     </p>
     <h3>Schoology Data We Access</h3>
     <p>Most of the Schoology Data we use is only viewed on a per request basis. This means that it is not stored by our website's persistent storage, but it may exist in a user-specific cache for a short amount of time.</p>
     <p>Realm Identifiers (Groups, Courses, Schools, etc.)
     <ol>
+        <li>Used on the client to provide options for filtering. Only selected items in a filter are stored in persistent storage</li>
+    </ol>
+    </p>Calendar Event Information (Title, Description, etc.)
+    <ol>
+        <li>Used on the client to display the user's calendar. The only piece of information that might be stored permanently is an Event's ID if it is part of an Alert</li>
     </ol>
     </p>
+    
 {% endblock %}
 

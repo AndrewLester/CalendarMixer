@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<p>This website was made primarily for me to get a few of my Schoology calendar events to automatically update on my phone, for notification purposes. Because of this, many of the features in the calendar viewer are built for this reason and were provided with the most care.</p>
+
+<p><strong>A note on Google Calendar.</strong> Even so, I thought I had hit a road block when it appeared as though Google Calendars stripped Alarm data off of iCal files imported through a URL. As it turns out, by utilizing the google apps scripting site, it's possible to make a program which does the processing and event creating for you, keeping the alarms. To make this process even easier, I've modified a simple <a href="https://script.google.com/macros/s/AKfycbyURKhzXN8wQ1nwFUDmaj_nIf-aNzgzolNL_SGp6bNlxzBSjLU/exec">web app</a> on the google apps platform to do one thing: import your Calendar Mixer URL into Google Calendars and keep the alarms on events. In theory, you could even use this web app for any web calendar url.</p>
+
+<p>Yes, the web app could only be embeded in Google Sites, so this is the app embeded in my google site that is also embeded in this page.</p>
+
+<iframe src="https://sites.google.com/student.fccps.org/andrew/sites" width="100%" height="50%"></iframe>
+
+{% endblock %}

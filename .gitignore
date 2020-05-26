@@ -17,3 +17,7 @@ app/bundle/
 *.rdb
 
 debug_app.sh
+
+*.crt
+*.csr
+*.key

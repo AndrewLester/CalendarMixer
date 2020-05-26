@@ -10,6 +10,16 @@ def index():
     return render_template('index.html', title='Home')
 
 
+@blueprint.route('/about')
+def about():
+    return render_template('about.html', title='About')
+
+
+@blueprint.route('/privacy')
+def privacy():
+    return render_template('privacy.html', title='Privacy Policy')
+
+
 @blueprint.route('/profile')
 @login_required
 def profile():
@@ -18,3 +28,4 @@ def profile():
         flash('Schoology API error...')
         return render_template('index.html')
     return render_template('user.html', profile=resp.json())
+
