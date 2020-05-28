@@ -3,5 +3,6 @@ Disallow: /calendar/identifiers
 Disallow: /calendar/events
 Disallow: /calendar/alerts
 Disallow: /calendar/filter
+Allow: /calendar
 
 Sitemap: https://www.calendarmixer.com/sitemap.xml
