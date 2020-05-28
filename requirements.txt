@@ -6,6 +6,7 @@ attrs==19.3.0
 Authlib==0.11
 bandit==1.6.2
 black==19.10b0
+blinker==1.4
 certifi==2019.3.9
 cffi==1.12.3
 chardet==3.0.4
@@ -19,6 +20,7 @@ Flask-Bootstrap==3.3.7.1
 Flask-Caching==1.7.2
 Flask-Login==0.4.1
 Flask-Migrate==2.5.2
+Flask-Sitemap==0.3.0
 Flask-SQLAlchemy==2.4.0
 Flask-WTF==0.14.3
 gevent==20.5.0
