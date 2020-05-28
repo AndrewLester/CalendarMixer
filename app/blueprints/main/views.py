@@ -11,14 +11,12 @@ def index():
     return render_template('index.html', title='Home')
 
 
-@blueprint.route('/about')
-@cache_header(1800)
+@blueprint.route('/about')s
 def about():
     return render_template('about.html', title='About')
 
 
 @blueprint.route('/privacy')
-@cache_header(1800)
 def privacy():
     return render_template('privacy.html', title='Privacy Policy')
 

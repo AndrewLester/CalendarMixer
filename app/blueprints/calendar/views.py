@@ -29,7 +29,8 @@ def calendar():
         colors=current_user.colors.all(),
         id=current_user.id,
         ical_secret=current_user.ical_secret,
-        base_url=request.url_root.split('://')[1]
+        base_url=request.url_root.split('://')[1],
+        title='Calendar'
     )
 
 
