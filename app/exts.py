@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+from flask_sitemap import Sitemap
 
 from .oauth1_session import request
 
@@ -18,6 +19,7 @@ cache = Cache()
 oauth = OAuth()
 bootstrap = Bootstrap()
 csrf = CSRFProtect()
+sitemap = Sitemap()
 wtforms_json.init()
 
 

@@ -1,5 +1,6 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
+blueprints = 'app.blueprints.'
 
 
 class Config:
@@ -30,3 +31,10 @@ class Config:
     CACHE_KEY_PREFIX = 'redis_flask_cache'
     CACHE_REDIS_HOST = REDIS_URL.rsplit(':', 1)[0]
     CACHE_REDIS_PORT = REDIS_URL.rsplit(':', 1)[1]
+    SITEMAP_MAX_URL_COUNT = 30
+    SITEMAP_URL_SCHEME = 'https'
+    SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True
+    SITEMAP_IGNORE_ENDPOINTS = [
+        'calendar.filter_modify', 'calendar.events', 'calendar.courses', 'calendar.alerts',
+        'calendar.ical_file', 'main.google_site_verif', 'oauth.authorize', 'flask_sitemap.sitemap'
+    ]

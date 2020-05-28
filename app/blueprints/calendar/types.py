@@ -1,8 +1,9 @@
+from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import List, Dict, Union, Generator
 
 import ics
-from ics.alarm import DisplayAlarm, EmailAlarm
+from ics.alarm import DisplayAlarm, EmailAlarm, base
 from ics.parse import ContentLine
 
 from app.schoology.api import schoology_to_datetime
@@ -49,23 +50,26 @@ class SchoologyCalendar:
         relative = end_time - start_time
         return relative
 
-    def ical_alarms(self, event_id: int) -> Generator[Union[DisplayAlarm, EmailAlarm], None, None]:
-        for alert in self.alerts:
-            if int(alert.event_id) != event_id:
-                continue
+    @property
+    def ical_alarms(self) -> Dict[int, List[base.BaseAlarm]]:
+        alarms: Dict[int, List[base.BaseAlarm]] = defaultdict(list)
 
+        for alert in self.alerts:
             # Invert timedelta to make it represent time before the event
             inverted_timedelta = -alert.timedelta
 
-            if alert.type == EventAlertType.DISPLAY:
-                alarm = DisplayAlarm(inverted_timedelta)
-            elif alert.type == EventAlertType.EMAIL:
+            if alert.type == EventAlertType.EMAIL:
                 alarm = EmailAlarm(inverted_timedelta)
-            
-            yield alarm
+            else:
+                alarm = DisplayAlarm(inverted_timedelta)
+
+            alarms[int(alert.event_id)].append(alarm)
+        return alarms
 
     def make_ical_events(self, events: List[Dict]) -> List[ics.Event]:
         current_time = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
+        alarms = self.ical_alarms
+
         events_list = []
         for event in events:
             all_day = event['all_day'] == 1
@@ -78,7 +82,7 @@ class SchoologyCalendar:
                 schoology_to_datetime(event['end'], self.timezone, all_day),
                 uid=str(event['id']),
                 description=event['description'],
-                alarms=list(self.ical_alarms(int(event['id'])))
+                alarms=alarms[event['id']]
             )
             cal_event.extra.append(ContentLine(name="DTSTAMP", value=current_time))
 

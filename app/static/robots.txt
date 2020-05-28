@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /calendar/identifiers
+Disallow: /calendar/events
+Disallow: /calendar/alerts
+Disallow: /calendar/filter
+
+Sitemap: https://www.calendarmixer.com/sitemap.xml

@@ -5,12 +5,13 @@ from datetime import datetime
 import pytz
 import redis
 from authlib.client.client import OAuthClient
-from flask import Flask, render_template, request, jsonify, g
+from flask import Flask, render_template, request, jsonify, g, send_from_directory
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
+from flask_sitemap import sitemap_page_needed
 from requests_cache.backends import RedisCache
 
-from app import login, db, migrate, bootstrap, cache, csrf
+from app import login, db, migrate, bootstrap, cache, csrf, sitemap
 from app.blueprints import calendar, main, oauth
 from app.exts import oauth as oauth_client
 from app.oauth1_session import get_cached_session
@@ -21,6 +22,7 @@ def create_app(config_name=Config):
     app = Flask(__name__.split('.')[0])
     app.config.from_object(config_name)
     app.redis = redis.from_url(app.config['REDIS_URL'])
+    app.config['SITEMAP_VIEW_DECORATORS'] = [load_page]
     # Register before requests mixins prior to those that are inside extensions
     register_extensions(app)
     register_blueprints(app)
@@ -54,6 +56,10 @@ def register_extensions(app):
         else:
             migrate.init_app(app, db)
     csrf.init_app(app)
+    sitemap.init_app(app)
+    def static_from_route():
+        return send_from_directory(app.static_folder, request.path[1:])
+    app.add_url_rule('/robots.txt', 'static_from_root', static_from_route)
     cache.init_app(app, config=app.config)
 
     def fetch_token(name):
@@ -97,3 +103,15 @@ def register_errorhandlers(app):
         return render_template('500.html'), 500
 
     app.register_error_handler(500, internal_error)
+
+@sitemap_page_needed.connect
+def create_page(app, page, urlset):
+    cache.set(str(page), sitemap.render_page(urlset=urlset))
+
+def load_page(fn):
+    @functools.wraps(fn)
+    def loader(*args, **kwargs):
+        page = kwargs.get('page')
+        data = cache.get(str(page))
+        return data if data else fn(*args, **kwargs)
+    return loader
