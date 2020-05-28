@@ -11,7 +11,7 @@ def index():
     return render_template('index.html', title='Home')
 
 
-@blueprint.route('/about')s
+@blueprint.route('/about')
 def about():
     return render_template('about.html', title='About')
 
