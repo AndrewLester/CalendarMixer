@@ -60,7 +60,6 @@ onMount(() => {
 
         tippy(eventElement, {
             content: eventInfo['title'],
-            allowHTML: true,
             arrow: true,
             duration: [100, 100],
             animation: 'shift-away-subtle'
@@ -82,13 +81,13 @@ function displayEventInfo() {
     <div class="calendar-event" class:filtered bind:this={eventElement} on:click={displayEventInfo}
       style="--bg-color: {color}; --animation-delay: {animationDelay}ms; grid-column: {startCol} / {endCol};
       grid-row: {startRow || 'unset'} / {_endRow || 'unset'};" class:multi-line={_endRow - startRow > 1}>
-        {#if $alerts && $alerts[eventInfo['id']]}
+        {#if $alerts && $alerts[eventInfo['id']] && $alerts[eventInfo['id']].length > 0 }
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" tabindex="0"
                 style="display: inline; width: 15px; height: 15px; vertical-align: middle;">
                 <use xlink:href="/static/img/alert.svg#icon" width="25" height="25"/>
             </svg>
         {/if}
-        {@html eventInfo.title}
+        {eventInfo['title']}
     </div>
 {/if}
 

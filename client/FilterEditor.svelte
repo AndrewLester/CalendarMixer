@@ -84,7 +84,7 @@ h1 {
     flex: 0 1 25%;
     align-items: center;
     position: relative;
-    height: calc(100vh - 53px);
+    height: calc(100vh - calc(var(--header-height) + 8px));
 }
 #filters-list {
     display: flex;

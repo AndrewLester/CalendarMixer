@@ -41,7 +41,7 @@ function addAlert() {
 
     // Don't update the store value yet, but post the newAlert over the network
     // Then call reset to update the store value by GETting the new Alert
-    alerts.set(newAlert, null).then(() => alerts._reset());
+    alerts.update(newAlert, null).then(() => alerts._reset());
 }
 
 </script>
@@ -49,7 +49,7 @@ function addAlert() {
 <div class="body">
     <div class="header">
         <span class="schoology-icon" data-event-type="{eventInfo.type}" style="--picture-offset: {start.date() - 1}"></span>
-        <h1 class="event-name" title="{eventInfo.title}">{@html eventInfo.title}</h1>
+        <h1 class="event-name" title="{eventInfo.title}">{eventInfo.title}</h1>
         <SVGButton svgLink={'/static/img/failed.svg'} symbolId={'icon'}
                 on:click={close} />
     </div>
@@ -83,7 +83,7 @@ function addAlert() {
                 on:click={addAlert} />
         </div>
         <fieldset>
-            {#if $alerts[eventInfo['id']]}
+            {#if $alerts[eventInfo['id']] && $alerts[eventInfo['id']].length > 0 }
                 {#each $alerts[eventInfo['id']] as alert (alert.id)}
                     <div animate:flip={{ duration: 100 }} out:fade={{ duration: 100 }}
                         in:fly={{ y: 20, duration: 100, easing: cubicInOut }} class="alert-wrapper">

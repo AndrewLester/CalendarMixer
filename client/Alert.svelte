@@ -45,7 +45,8 @@ async function save() {
 async function deleteAlert() {
     const api = await getAPI();
 
-    api.delete(`/calendar/alerts/${id}`).then(() => alerts._reset());
+    $alerts[event_id] = $alerts[event_id].filter(alert => alert.id != id);
+    api.delete(`/calendar/alerts/${id}`);
 }
 
 function closePopper() {

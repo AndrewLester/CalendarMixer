@@ -98,12 +98,19 @@ async function goToToday() {
 </Modal>
 
 <style>
+:root {
+    --header-height: 50px;
+}
+:global(body) {
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
 main {
     display: flex;
     flex-wrap: wrap;
-    /* 53px is the height of the header + hr */
-    height: calc(100vh - 53px);
+    height: calc(100vh - calc(var(--header-height) + 8px));
     width: 100%;
+    margin-top: calc(var(--header-height) + 8px) !important;
     overflow: hidden;
 }
 #current-month {

@@ -55,7 +55,7 @@ function save() {
     let updatedFilter = $filters.filter(f => f.id === id)[0];
     updatedFilter.positive = positive;
     updatedFilter.course_ids = course_ids;
-    return filters.set(formData, [...$filters.filter(f => f.id !== id), updatedFilter]);
+    return filters.update(formData, [...$filters.filter(f => f.id !== id), updatedFilter]);
 }
 
 </script>

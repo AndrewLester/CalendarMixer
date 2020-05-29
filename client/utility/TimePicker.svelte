@@ -97,7 +97,7 @@ legend {
 }
 
 span::before {
-  transition: transform 200ms ease-out, font-size 200ms ease-out, color 200ms ease-out;
+  transition: transform 150ms, font-size 150ms, color 150ms;
   transform: translate(0px);
   position: absolute;
   top: 0;

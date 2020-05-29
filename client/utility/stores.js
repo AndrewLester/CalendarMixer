@@ -14,13 +14,15 @@ export class NetworkStore {
         this.api = api;
 
         if (this.writable) {
-            this.set = async (value, storeValue=value) => {
+            this.set = this._store.set;
+
+            this.update = async (value, storeValue=value) => {
                 await this.api.post(this.endpoint, value).then(() => {
                     if (storeValue != null) {
                         this._store.set(storeValue);
                     }
                 });
-            }
+            };
         }
 
         this._reset()

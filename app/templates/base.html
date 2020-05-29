@@ -4,9 +4,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#29b6f6">
         {% if title %}
-        <title>{{ title }} - Calendar Mixer</title>
+        <title>{{ title }} - {{ config.APP_NAME }}</title>
         {% else %}
-        <title>Calendar Mixer</title>
+        <title>{{ config.APP_NAME }}</title>
         {% endif %}
         <link rel="icon" href="https://img.icons8.com/metro/28/000000/calendar-{{ date.day }}.png" />
         <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">

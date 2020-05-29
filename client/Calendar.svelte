@@ -16,6 +16,7 @@ export let flyDirection;
 export let condensed;
 export let showToday = false;
 
+const SCROLL_DELAY = 350;  // Milliseconds
 const getPreferences = getContext('preferences');
 const { filters, events } = getContext('stores');
 
@@ -27,6 +28,7 @@ let calendarReady = false;
 let donePlacing = false;
 let readyToShow = false;
 let firstLoad = true;
+let scrollDelay = 0;
 $: flyParameters = { x: flyDirection * 300, duration: 200, easing: cubicInOut }
 
 filters.subscribe(($value) => {
@@ -66,8 +68,15 @@ $: if ((readyToShow || firstLoad) && donePlacing) {
 }
 
 afterUpdate(async () => {
-    if (showToday && calendarReady && document.getElementsByClassName('today').length === 1) {
-        scrollToToday();
+    if (showToday) {
+        if (calendarReady && document.getElementsByClassName('today').length === 1) {
+            scrollToToday(scrollDelay).then(() => {
+                showToday = false;
+                scrollDelay = 0;
+            });
+        } else {
+            scrollDelay = SCROLL_DELAY;
+        }
     }
 
     if (calendarReady && localStorage.getItem('firstEverLoad') !== 'false') {
@@ -94,9 +103,9 @@ async function placeEvents() {
     }
 }
 
-async function scrollToToday() {
+async function scrollToToday(delay) {
+    await sleep(delay);
     document.getElementsByClassName('today')[0].scrollIntoView({ behavior: 'smooth' });
-    showToday = false;
 }
 
 </script>
