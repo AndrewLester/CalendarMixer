@@ -1,6 +1,10 @@
 * {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+body {
+    margin: 0px;
+    padding: 0px;
+}
 textarea {
     outline: none;
     border: 1px solid rgb(128, 128, 128);
@@ -14,6 +18,10 @@ p {
 }
 fieldset {
     padding: 0px;
+}
+main:first-of-type {
+    position: relative;
+    top: var(--header-height);
 }
 .spinner {
     animation: rotate 2s linear infinite;

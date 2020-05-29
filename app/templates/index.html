@@ -1,6 +1,23 @@
-{% extends "static_page.html" %}
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<meta name="description" content="Calendar Mixer lets you filter, export feeds, and add alarms to your Schoology Calendar. Works with Google Calendar and other Calendar applications.">
+{% endblock %}
 
 {% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
+<main>
     <h2>Calendar Mixer</h2>
+
+    
+    <a href="{{ url_for('calendar.calendar') }}">
+    {% if current_user.is_anonymous %}
+    <button class="small-button">Sign in to view your Calendar</button>
+    {% else %}
+    <button class="small-button">View your Calendar</button>
+    {% endif %}
+    </a>
+
+    
+</main>
 {% endblock %}

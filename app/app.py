@@ -42,7 +42,8 @@ def inject_date():
     if current_user.is_authenticated:
         tz = pytz.timezone(current_user.timezone)
         return {'date': pytz.utc.localize(datetime.utcnow()).astimezone(tz)}
-    return {'date': datetime.now()}
+    # The only thing that matters here is the day, which should be 31 if the user isn't logged in
+    return {'date': datetime(2020, 1, 31)}
 
 
 def register_extensions(app):

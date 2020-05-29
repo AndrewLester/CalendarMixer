@@ -1,6 +1,11 @@
-{% extends "static_page.html" %}
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+{% endblock %}
 
 {% block content %}
+<main>
     <h1>Privacy Information</h1>
     <h2>Schoology Data</h2>
     <h3>Schoology Data We Store</h3>
@@ -30,9 +35,9 @@
     </ol>
     </p>Calendar Event Information (Title, Description, etc.)
     <ol>
-        <li>Used on the client to display the user's calendar. The only piece of information that might be stored permanently is an Event's ID if it is part of an Alert</li>
+        <li>Used on the client to display the user's calendar. The only piece of information that might be stored permanently is an Event's ID if it has an alert attached.</li>
     </ol>
     </p>
-    
+</main>
 {% endblock %}
 

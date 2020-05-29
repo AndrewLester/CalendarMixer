@@ -9,25 +9,30 @@
         <title>Calendar Mixer</title>
         {% endif %}
         <link rel="icon" href="https://img.icons8.com/metro/28/000000/calendar-{{ date.day }}.png" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/flashed_messages.css') }}">
         {% block head %}{% endblock %}
     </head>
     <body>
-        <div id="navbar">
-            Calendar Mixer:
-            <a href="{{ url_for('main.index') }}">Home</a>
-            {% if current_user.is_anonymous %}
-            <a href="{{ url_for('oauth.login') }}">Login</a>
-            {% else %}
-            <a href="{{ url_for('calendar.calendar') }}">Calendar</a>
-            <a href="{{ url_for('main.profile') }}">Profile</a>
-            <a href="{{ url_for('oauth.logout') }}">Logout</a>
-            {% endif %}
-            {% block navbar %}{% endblock %}
-        </div>
-        <hr>
+        <header class="shown">
+            <nav>
+                Calendar Mixer:
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.about') }}">About</a>
+                <a href="{{ url_for('main.privacy') }}">Privacy</a>
+                {% if current_user.is_anonymous %}
+                <a href="{{ url_for('oauth.login') }}">Login</a>
+                {% else %}
+                <a href="{{ url_for('calendar.calendar') }}">Calendar</a>
+                <a href="{{ url_for('main.profile') }}">Profile</a>
+                <a href="{{ url_for('oauth.logout') }}">Logout</a>
+                {% endif %}
+                {% block navbar %}{% endblock %}
+            </nav>
+        </header>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-        <ul>
+        <ul class="flashed-messages">
             {% for message in messages %}
             <li>{{ message }}</li>
             {% endfor %}
@@ -35,5 +40,6 @@
         {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     </body>
 </html>

@@ -1,0 +1,32 @@
+:root {
+    --flashed-messages-display: none;
+}
+
+ul.flashed-messages {
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 30px;
+    display: var(--flashed-messages-display);
+    width: max-content;
+    position: absolute;
+    z-index: 99999;
+    background-color: red;
+    color: white;
+    list-style: none;
+    line-height: 1;
+    font-size: 20px;
+    animation: fade-out 5s ease-in forwards;
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    99% {
+        pointer-events: none;
+    }
+    to {
+        opacity: 0;
+    }
+}

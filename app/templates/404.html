@@ -1,6 +1,12 @@
-{% extends "static_page.html" %}
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+{% endblock %}
 
 {% block content %}
+<main>
     <h1>File Not Found</h1>
     <p><a href="{{ url_for('main.index') }}">Back</a></p>
+</main>
 {% endblock %}

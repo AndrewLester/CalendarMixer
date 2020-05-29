@@ -185,7 +185,6 @@ def get_user_events(user: User, filter: bool = False):
 
     # Add all events that are in unfiltered realms to the combined events list
     combined_events = []
-    for realm_id in events.keys():
-        if realm_id in realm_ids:
-            combined_events += events[realm_id]
+    for realm_id in realm_ids:
+        combined_events += events[realm_id]
     return combined_events

@@ -1,6 +1,11 @@
-{% extends "static_page.html" %}
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+{% endblock %}
 
 {% block content %}
+<main>
     <table>
         <tr valign="top">
             <td><img src="{{ profile['picture_url'] }}"></td>
@@ -15,4 +20,5 @@
         <p><a href="#">Edit your profile</a></p>
     {% endif %}
     <hr>
+</main>
 {% endblock %}

@@ -7,6 +7,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from authlib.client.errors import MissingTokenError
 from authlib.common.errors import AuthlibBaseError
 from secrets import token_urlsafe
+from werkzeug.routing import BuildError
 
 
 blueprint = Blueprint('oauth', __name__, url_prefix='/oauth',
@@ -26,7 +27,9 @@ def login():
     if current_user.is_authenticated:
         flash('You\'re already logged in.')
         return redirect(url_for('main.index'))
-    redirect_uri = url_for('.authorize', _external=True)
+
+    original_endpoint = request.args.get('next') or ''
+    redirect_uri = url_for('.authorize', _external=True) + f'?next={original_endpoint}'
     return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri)
 
 
@@ -60,4 +63,5 @@ def authorize():
     db.session.commit()
 
     login_user(user, remember=True)
-    return redirect(url_for('main.index'))
+    next_endpoint = request.args.get('next')
+    return redirect(next_endpoint)
