@@ -66,5 +66,5 @@ def authorize():
     db.session.commit()
 
     login_user(user, remember=True)
-    next_endpoint = request.args.get('next') or '/'
+    next_endpoint = request.args.get('next') or url_for('main.index')
     return redirect(next_endpoint)
