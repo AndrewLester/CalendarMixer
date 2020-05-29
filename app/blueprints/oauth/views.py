@@ -29,7 +29,10 @@ def login():
         return redirect(url_for('main.index'))
 
     original_endpoint = request.args.get('next') or ''
-    redirect_uri = url_for('.authorize', _external=True) + f'?next={original_endpoint}'
+
+    if len(original_endpoint) > 0:
+        original_endpoint = f'?next={original_endpoint}'
+    redirect_uri = url_for('.authorize', _external=True) + original_endpoint
     return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri)
 
 
@@ -63,5 +66,5 @@ def authorize():
     db.session.commit()
 
     login_user(user, remember=True)
-    next_endpoint = request.args.get('next')
+    next_endpoint = request.args.get('next') or '/'
     return redirect(next_endpoint)
