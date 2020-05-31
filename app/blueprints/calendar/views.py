@@ -3,35 +3,24 @@ from datetime import datetime
 from functools import partial
 from typing import Optional
 
-from dateutil.relativedelta import relativedelta
-from flask import (Blueprint, current_app, flash, jsonify, make_response,
-                   render_template, request, g)
-from flask_login import current_user, login_required
 import pytz
+from dateutil.relativedelta import relativedelta
+from flask import (Blueprint, current_app, flash, g, jsonify, make_response,
+                   render_template, request)
+from flask_login import current_user
 
-from app.blueprints.calendar.forms import CourseFilterForm, AlertForm
-from app.blueprints.calendar.models import CourseFilter, EventAlert, CourseIdentifier
+from app.blueprints.calendar.forms import AlertForm, CourseFilterForm
+from app.blueprints.calendar.models import (CourseFilter, CourseIdentifier,
+                                            EventAlert)
 from app.blueprints.main.models import User
 from app.exts import db, oauth
 from app.schoology.api import get_paged_data
-from app.view_utils import cache_header
+from app.view_utils import cache_header, login_required
+
 from .types import SchoologyCalendar
 
 blueprint = Blueprint('calendar', __name__, url_prefix='/calendar', template_folder='../../templates',
                       static_folder='../../bundle')
-
-
-@blueprint.route('')
-@login_required
-def calendar():
-    return render_template(
-        'calendar.html',
-        colors=current_user.colors.all(),
-        id=current_user.id,
-        ical_secret=current_user.ical_secret,
-        base_url=request.url_root.split('://')[1],
-        title='Calendar'
-    )
 
 
 def get_current_user(extra=''):
@@ -40,6 +29,24 @@ def get_current_user(extra=''):
     except Exception:
         current_app.logger.error('Caching error with user events.')
         return 'view/%s'
+
+
+@blueprint.route('')
+@login_required
+@cache_header(1800, key_prefix=partial(get_current_user, 'calendar_view'))
+def calendar():
+    """
+    View your Schoology Calendar on Calendar Mixer. Add alerts, filter events, and
+    make your Schoology Calendar more powerful than before.
+    """
+    return render_template(
+        'calendar.html',
+        colors=current_user.colors.all(),
+        id=current_user.id,
+        ical_secret=current_user.ical_secret,
+        base_url=request.url_root.split('://')[1],
+        title='Calendar'
+    )
 
 
 @blueprint.route('/ical/<int:user_id>/<secret>/calendar.ics')

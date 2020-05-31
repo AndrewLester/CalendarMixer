@@ -15,7 +15,6 @@ from flask_login import current_user
 from requests_cache import CachedSession
 
 
-# CachedSession inherited before OAuth1Session so the request method comes from there.
 class OAuth1CachedSession(OAuth1Client, CachedSession):
     auth_class = OAuth1Auth
 

@@ -2,6 +2,12 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+<style>
+:root {
+    --flashed-messages-display: block;
+}
+</style>
 {% endblock %}
 
 {% block content %}

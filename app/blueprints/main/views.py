@@ -1,14 +1,15 @@
-from flask import Blueprint, render_template, flash, url_for, request
-from flask_login import login_required, current_user
+from flask import Blueprint, flash, render_template, request, url_for
+from flask_login import current_user
+
 from app.exts import oauth
-from app.view_utils import cache_header
+from app.view_utils import cache_header, login_required
 
 blueprint = Blueprint('main', __name__, template_folder='../../templates', static_folder='../../static')
 
 
 @blueprint.route('/')
 def index():
-    return render_template('index.html', title='Home')
+    return render_template('index.html')
 
 
 @blueprint.route('/about')
@@ -24,6 +25,10 @@ def privacy():
 @blueprint.route('/profile')
 @login_required
 def profile():
+    """
+    Displays basic Schoology info for the current user signed into Calendar Mixer.
+    Not a replacement for Schoology's profile viewer, as this one is incomplete.
+    """
     resp = oauth.schoology.get('users/me', cache=True)
     if resp.status_code >= 400:
         flash('Schoology API error...')

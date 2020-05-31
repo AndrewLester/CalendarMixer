@@ -37,3 +37,9 @@ class Config:
         'calendar.filter_modify', 'calendar.events', 'calendar.courses', 'calendar.alerts',
         'calendar.ical_file', 'main.google_site_verif', 'oauth.authorize', 'flask_sitemap.sitemap'
     ]
+    # https://tedboy.github.io/flask/generated/generated/werkzeug.UserAgent.html#werkzeug.UserAgent
+    WEB_CRAWLER_USERAGENTS = {'google', 'yahoo', 'aol', 'ask'}
+    WEB_CRAWLER_DESCRIPTION = ('Calendar Mixer lets you filter, '
+                              'export feeds, and add alarms to your Schoology Calendar. '
+                              'Works with Google Calendar and other Calendar applications.'
+                              )

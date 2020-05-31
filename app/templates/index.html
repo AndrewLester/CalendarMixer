@@ -3,6 +3,11 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 <meta name="description" content="Calendar Mixer lets you filter, export feeds, and add alarms to your Schoology Calendar. Works with Google Calendar and other Calendar applications.">
+<style>
+:root {
+    --flashed-messages-display: block;
+}
+</style>
 {% endblock %}
 
 {% block content %}

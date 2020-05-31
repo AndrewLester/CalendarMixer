@@ -1,14 +1,17 @@
-from flask import Blueprint, session, url_for, request, redirect, flash, render_template
-from flask_login import current_user
-from app import oauth, db, cache
-from app.blueprints.main.models import User
-from .models import OAuth1Token
-from flask_login import current_user, login_user, logout_user, login_required
+from secrets import token_urlsafe
+
 from authlib.client.errors import MissingTokenError
 from authlib.common.errors import AuthlibBaseError
-from secrets import token_urlsafe
+from flask import (Blueprint, flash, redirect, render_template, request,
+                   session, url_for)
+from flask_login import current_user, login_user, logout_user
 from werkzeug.routing import BuildError
 
+from app import cache, db, oauth
+from app.blueprints.main.models import User
+from app.view_utils import login_required, web_crawler_cloak
+
+from .models import OAuth1Token
 
 blueprint = Blueprint('oauth', __name__, url_prefix='/oauth',
                       template_folder='../..templates', static_folder='../../static')
@@ -17,22 +20,30 @@ blueprint = Blueprint('oauth', __name__, url_prefix='/oauth',
 @blueprint.route('/logout')
 @login_required
 def logout():
+    """
+    Logs you out of Calendar Mixer. You will have to log in again to access your Calendar.
+    Your Calendar Mixer feed will continue to update even if you are logged out.
+    """
     if current_user.is_authenticated:
         logout_user()
     return redirect(url_for('main.index'))
 
 
 @blueprint.route('/login')
+@web_crawler_cloak
 def login():
+    """
+    Login to Calendar Mixer using your Schoology Account. This provides Calendar Mixer with
+    access to your events and allows it to add alerts and filters.
+    """
     if current_user.is_authenticated:
         flash('You\'re already logged in.')
         return redirect(url_for('main.index'))
 
-    original_endpoint = request.args.get('next') or ''
+    requested_url = request.args.get('next') or ''
 
-    if len(original_endpoint) > 0:
-        original_endpoint = f'?next={original_endpoint}'
-    redirect_uri = url_for('.authorize', _external=True) + original_endpoint
+    next_query_arg = f'?next={requested_url}' if requested_url else ''
+    redirect_uri = url_for('.authorize', _external=True) + next_query_arg
     return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri)
 
 
@@ -66,5 +77,5 @@ def authorize():
     db.session.commit()
 
     login_user(user, remember=True)
-    next_endpoint = request.args.get('next') or url_for('main.index')
-    return redirect(next_endpoint)
+    next_url = request.args.get('next') or url_for('main.index')
+    return redirect(next_url)

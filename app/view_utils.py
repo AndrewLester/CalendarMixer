@@ -2,7 +2,8 @@ import functools
 from datetime import timedelta, datetime
 from typing import Protocol
 
-from flask import Response, request, make_response
+from flask import Response, request, make_response, request, current_app, render_template
+from flask_login import current_user
 
 from app.exts import cache
 
@@ -28,3 +29,34 @@ def cache_header(max_age, **ckwargs):
             return response.make_conditional(request)
         return wrapper
     return decorator
+
+
+def web_crawler_cloak(func):
+    """
+    Cloaks a view function so that it only displays basic info to webcrawlers,
+    rather than redirecting to some form of login for normal users.
+
+    Uses the view functions name in title case as the info title and the view function's
+    docstring as the description.
+    """
+    @functools.wraps(func)
+    def decorated_view(*args, **kwargs):
+        if request.user_agent.browser in current_app.config['WEB_CRAWLER_USERAGENTS']:
+            return render_template('web_crawler.html', title=func.__name__.title(),
+                                   desc=(func.__doc__ or 'Calendar Mixer'))
+        return func(*args, **kwargs)
+    return decorated_view
+
+
+def login_required(func):
+    @functools.wraps(func)
+    def decorated_view(*args, **kwargs):
+        if current_app.config.get('LOGIN_DISABLED'):
+            return func(*args, **kwargs)
+        elif request.user_agent.browser in current_app.config['WEB_CRAWLER_USERAGENTS']:
+            return render_template('web_crawler.html', title=func.__name__.title(),
+                                   desc=(func.__doc__ or 'Calendar Mixer'))
+        elif not current_user.is_authenticated:
+            return current_app.login_manager.unauthorized()
+        return func(*args, **kwargs)
+    return decorated_view

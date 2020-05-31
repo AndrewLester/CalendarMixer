@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<meta name="description" content="{{ desc }}">
+{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<p>{{ desc }}</p>
+<p>Users that attempt to view this page must <a href="{{ url_for('oauth.login') }}">login</a> first.</p>
+{% endblock %}

@@ -5,7 +5,7 @@ from datetime import datetime
 import pytz
 import redis
 from authlib.client.client import OAuthClient
-from flask import Flask, render_template, request, jsonify, g, send_from_directory
+from flask import Flask, render_template, request, jsonify, g, send_from_directory, flash, current_app
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
 from flask_sitemap import sitemap_page_needed
@@ -25,6 +25,7 @@ def create_app(config_name=Config):
     app.config['SITEMAP_VIEW_DECORATORS'] = [load_page]
     # Register before requests mixins prior to those that are inside extensions
     register_extensions(app)
+    register_url_rules(app)
     register_blueprints(app)
     register_errorhandlers(app)
     app.shell_context_processor(lambda: {
@@ -58,9 +59,6 @@ def register_extensions(app):
             migrate.init_app(app, db)
     csrf.init_app(app)
     sitemap.init_app(app)
-    def static_from_route():
-        return send_from_directory(app.static_folder, request.path[1:])
-    app.add_url_rule('/robots.txt', 'static_from_root', static_from_route)
     cache.init_app(app, config=app.config)
 
     def fetch_token(name):
@@ -101,13 +99,23 @@ def register_errorhandlers(app):
 
     def internal_error(error):
         db.session.rollback()
+        flash('Internal Error: Try refreshing')
         return render_template('500.html'), 500
 
     app.register_error_handler(500, internal_error)
 
+
+def register_url_rules(app):
+    def static_from_route():
+        return send_from_directory(app.static_folder, request.path[1:])
+
+    app.add_url_rule('/robots.txt', 'static_from_root', static_from_route)
+
+
 @sitemap_page_needed.connect
 def create_page(app, page, urlset):
     cache.set(str(page), sitemap.render_page(urlset=urlset))
+
 
 def load_page(fn):
     @functools.wraps(fn)

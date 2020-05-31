@@ -3,24 +3,35 @@
 }
 
 ul.flashed-messages {
-    top: 40px;
+    top: 70px;
     left: 50%;
-    transform: translateX(-50%);
-    height: 30px;
     display: var(--flashed-messages-display);
     width: max-content;
     position: absolute;
+    transform-origin: left;
     z-index: 99999;
-    background-color: red;
+    background-color: rgba(244, 26, 26, 0.75);
     color: white;
+    border-radius: 10px;
+    margin: 0px;
+    padding: 10px 20px;
     list-style: none;
-    line-height: 1;
+    line-height: 1.5;
     font-size: 20px;
-    animation: fade-out 5s ease-in forwards;
+    animation: pop-in 350ms cubic-bezier(.6,2.24,.55,.47) both 1, fade-out 2s ease-in 7s forwards;
+}
+
+@keyframes pop-in {
+    from {
+        transform: scaleX(0.5) translateX(-50%);
+    }
+    to {
+        transform: scaleX(1) translateX(-50%);
+    }
 }
 
 @keyframes fade-out {
-    from {
+    from { 
         opacity: 1;
     }
     99% {
