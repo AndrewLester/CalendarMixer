@@ -1,5 +1,6 @@
 import functools
 from datetime import timedelta, datetime
+import inspect
 from typing import Protocol
 
 from flask import Response, request, make_response, request, current_app, render_template
@@ -44,7 +45,7 @@ def web_crawler_cloak(func):
         if request.user_agent.browser in current_app.config['WEB_CRAWLER_USERAGENTS']:
             desc = func.__doc__ or 'Calendar Mixer'
             return render_template('web_crawler.html', title=func.__name__.title(),
-                                   desc=desc.replace('\n', ' '))
+                                   desc=inspect.cleandoc(desc).replace('\n', ' '))
         return func(*args, **kwargs)
     return decorated_view
 
@@ -57,7 +58,7 @@ def login_required(func):
         elif request.user_agent.browser in current_app.config['WEB_CRAWLER_USERAGENTS']:
             desc = func.__doc__ or 'Calendar Mixer'
             return render_template('web_crawler.html', title=func.__name__.title(),
-                                   desc=desc.replace('\n', ' '))
+                                   desc=inspect.cleandoc(desc).replace('\n', ' '))
         elif not current_user.is_authenticated:
             return current_app.login_manager.unauthorized()
         return func(*args, **kwargs)
