@@ -14,7 +14,7 @@ from app.blueprints.calendar.models import (CourseFilter, CourseIdentifier,
                                             EventAlert)
 from app.blueprints.main.models import User
 from app.exts import db, oauth
-from app.schoology.api import get_paged_data
+from app.schoology.api import get_paged_data, schoology_to_datetime
 from app.view_utils import cache_header, login_required
 
 from .types import SchoologyCalendar
@@ -126,25 +126,23 @@ def filter_modify():
 
     form_data = CourseFilterForm.from_json(request.get_json())
     if form_data.validate_on_submit():
-        course_ids = []
+        course_filter = current_user.filters.filter_by(id=form_data.id.data).first()
+        if course_filter is None:
+            course_filter = CourseFilter(
+                positive=form_data.positive.data)
+            current_user.filters.append(course_filter)
+        else:
+            course_filter.positive = form_data.positive.data
+            course_filter.course_ids.delete()
+
         for course_data in form_data.course_ids.data:
             course_id = CourseIdentifier.query.get(course_data['id'])
             if course_id is None:
                 course_id = CourseIdentifier(**course_data)
                 db.session.add(course_id)
-            course_ids.append(course_id)
-
-        course_filter = current_user.filters.filter_by(id=form_data.id.data).first()
-        if course_filter is None:
-            course_filter = CourseFilter(
-                positive=form_data.positive.data,
-                course_ids=course_ids)
-            current_user.filters.append(course_filter)
-        else:
-            course_filter.positive = form_data.positive.data
-            course_filter.course_ids.delete()
-            course_filter.course_ids = course_ids
-
+            course_filter.course_ids.append(course_id)
+        
+        db.session.add(course_filter)
         db.session.add(current_user)
         db.session.commit()
         return jsonify(success=True), 201
@@ -173,8 +171,10 @@ def get_user_events(user: User, filter: bool = False):
     events = defaultdict(list)
 
     now = datetime.now()
-    period_start = now + relativedelta(months=-2)
-    period_end = now + relativedelta(months=2)
+    # The + and - 7 accounts for days from the 3rd month in either direction appearing
+    # At the top or bottom of the 2nd month in the calendar viewer
+    period_start = now + relativedelta(months=-2, days=-7)
+    period_end = now + relativedelta(months=+2, days=+7)
     time_queries = f'?start_date={period_start.strftime("%Y-%m-%d")}&end_date={period_end.strftime("%Y-%m-%d")}'
 
     req_function = oauth.schoology.get

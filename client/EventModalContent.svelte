@@ -16,7 +16,7 @@ export let filtered;
 
 let endTimeFormat;
 $: if (eventInfo.has_end && !eventInfo.all_day) {
-    if (moment(end).startOf('day').diff(start.startOf('day'), 'days') > 0) {
+    if (moment(end).startOf('day').diff(moment(start).startOf('day'), 'days') > 0) {
         endTimeFormat = 'MMMM Do YYYY, h:mm a';
     } else {
         endTimeFormat = 'h:mm a';
