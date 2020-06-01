@@ -52,7 +52,7 @@ def calendar():
 @blueprint.route('/ical/<int:user_id>/<secret>/calendar.ics')
 @cache_header(1800)
 def ical_file(user_id: int, secret: str):
-    user: User = User.query.filter_by(id=user_id).first()
+    user: Optional[User] = User.query.get(user_id)
 
     if user is not None and user.ical_secret == secret:
         g.current_id = user.id
@@ -128,13 +128,9 @@ def filter_modify():
     if form_data.validate_on_submit():
         course_ids = []
         for course_data in form_data.course_ids.data:
-            course_id = CourseIdentifier.query.get(course_data.id.data)
+            course_id = CourseIdentifier.query.get(course_data['id'])
             if course_id is None:
-                course_id = CourseIdentifier(
-                    id=course_data.id.data,
-                    name=course_data.name.data,
-                    realm=course_data.realm.data
-                )
+                course_id = CourseIdentifier(**course_data)
                 db.session.add(course_id)
             course_ids.append(course_id)
 
