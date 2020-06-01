@@ -9,6 +9,7 @@ from werkzeug.routing import BuildError
 
 from app import cache, db, oauth
 from app.blueprints.main.models import User
+from app.blueprints.calendar.models import CourseFilter
 from app.view_utils import login_required, web_crawler_cloak
 
 from .models import OAuth1Token
@@ -64,15 +65,16 @@ def authorize():
     if user is None:
         user = User(id=user_data['uid'], username=user_data['username'], email=user_data['primary_email'],
                     ical_secret=token_urlsafe(32), timezone=user_data['tz_name'])
+        user.filters.append(CourseFilter(positive=False, user_id=user.id))
 
     oauth_token = OAuth1Token(
         name='schoology',
         oauth_token=token['oauth_token'],
         oauth_token_secret=token['oauth_token_secret']
     )
+    user.oauth_token = oauth_token
 
     db.session.add(oauth_token)
-    user.oauth_token = oauth_token
     db.session.add(user)
     db.session.commit()
 
