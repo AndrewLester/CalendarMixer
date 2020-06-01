@@ -126,9 +126,19 @@ def filter_modify():
 
     form_data = CourseFilterForm.from_json(request.get_json())
     if form_data.validate_on_submit():
-        course_ids = [CourseIdentifier(**course_data) for course_data in form_data.course_ids.data]
-        course_filter = current_user.filters.filter_by(id=form_data.id.data).first()
+        course_ids = []
+        for course_data in form_data.course_ids.data:
+            course_id = CourseIdentifier.query.get(course_data.id.data)
+            if course_id is None:
+                course_id = CourseIdentifier(
+                    id=course_data.id.data,
+                    name=course_data.name.data,
+                    realm=course_data.realm.data
+                )
+                db.session.add(course_id)
+            course_ids.append(course_id)
 
+        course_filter = current_user.filters.filter_by(id=form_data.id.data).first()
         if course_filter is None:
             course_filter = CourseFilter(
                 positive=form_data.positive.data,
