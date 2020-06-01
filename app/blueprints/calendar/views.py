@@ -33,7 +33,6 @@ def get_current_user(extra=''):
 
 @blueprint.route('')
 @login_required
-@cache_header(1800, key_prefix=partial(get_current_user, 'calendar_view'))
 def calendar():
     """
     View your Schoology Calendar on Calendar Mixer. Add alerts, filter events, and
