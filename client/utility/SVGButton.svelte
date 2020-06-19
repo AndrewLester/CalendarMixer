@@ -19,19 +19,20 @@ function press() {
     active = true;
 }
 
-async function release() {
+function release() {
     if (active) {
-        await animationEnd(button, 'background-expand', 100);
-        active = false;
+        animationEnd(button, 'background-expand', 100).then(() => {
+            active = false;
+        });
     }
 }
 
 </script>
 
-<svelte:window on:mouseup={release}/>
+<svelte:window on:mouseup={release} on:touchend={release}/>
 
 <!-- Forward click events upwards -->
-<button class="icon-button" on:click bind:this={button} on:mousedown={press} class:active
+<button class="icon-button" on:click bind:this={button} on:mousedown={press} on:touchstart={press} class:active
     class:clickable style="--width: {width}px; --height: {height}px">
 
     <div></div>
@@ -40,7 +41,7 @@ async function release() {
     </svg>
 </button>
 {#if text.length > 0 }
-    <span class="button-text" bind:this={textElem} class:clickable on:mousedown={press} on:click>{text}</span>
+    <span class="button-text" bind:this={textElem} class:clickable on:mousedown={press} on:touchstart={press} on:click>{text}</span>
 {/if}
 
 <style>
@@ -59,6 +60,7 @@ button > svg {
     border: none;
     cursor: default;
     background-color: transparent;
+    -webkit-tap-highlight-color: transparent;
     height: var(--height);
     vertical-align: middle;
     width: var(--width);
@@ -92,6 +94,7 @@ button > svg {
     cursor: default;
     margin-left: 1px;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .button-text.clickable {

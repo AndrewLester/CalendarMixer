@@ -1,13 +1,14 @@
 <script>
 import AutocompletePopup from './AutocompletePopup.svelte';
-import { onMount } from 'svelte';
+import Input from './Input.svelte';
 
 export let options = [];
 export let selected = [];
 
 $: availableOptions = options.filter(option => !selected.map(c => c.id).includes(option.id));
-
+const test = 'test';
 let input;
+let inputElement
 let inputValue = '';
 let focused = false;
 
@@ -20,10 +21,12 @@ async function addSelected(option) {
 </script>
 
 <div class="input-area">
-    <input class="input-chooser" tabindex="0" type="text" on:focus={() => focused = true}
-      on:blur={() => focused = false} bind:this={input} bind:value={inputValue}>
+    <!-- <input class="input-chooser" tabindex="0" type="text" on:focus={() => focused = true}
+      on:blur={() => focused = false} bind:this={input} bind:value={inputValue}> -->
+    <Input placeholder='Course name' bind:value={inputValue} on:blur={() => focused = false}
+        on:focus={() => focused = true} bind:this={input} bind:root={inputElement} width={200} />
     {#if focused }
-        <AutocompletePopup element={input} options={availableOptions} search={inputValue} let:item let:match>
+        <AutocompletePopup element={inputElement} options={availableOptions} search={inputValue} let:item let:match>
             <div slot="item" class="course-identifier-wrapper"
               data-realm="{item.realm}" on:mousedown={() => addSelected(item)}>
                 <div></div>

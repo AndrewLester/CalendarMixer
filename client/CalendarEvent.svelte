@@ -80,7 +80,7 @@ function displayEventInfo() {
 {#if initialPlacement}
     <div class="calendar-event" class:filtered bind:this={eventElement} on:click={displayEventInfo}
       style="--bg-color: {color}; --animation-delay: {animationDelay}ms; grid-column: {startCol} / {endCol};
-      grid-row: {startRow || 'unset'} / {_endRow || 'unset'};" class:multi-line={_endRow - startRow > 1}>
+      grid-row: {startRow || 'unset'} / {_endRow || 'unset'};" class:multi-line={big}>
         {#if $alerts && $alerts[eventInfo['id']] && $alerts[eventInfo['id']].length > 0 }
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" tabindex="0"
                 style="display: inline; width: 15px; height: 15px; vertical-align: middle;">
@@ -123,6 +123,10 @@ function displayEventInfo() {
 
 .calendar-event.multi-line {
     line-height: 21px;
+    white-space: normal;
+    display: -webkit-box;
+   -webkit-line-clamp: 2; /* number of lines to show */
+   -webkit-box-orient: vertical;
 }
 
 @keyframes slide-in {

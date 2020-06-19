@@ -21,13 +21,14 @@ const getPreferences = getContext('preferences');
 const { filters, events } = getContext('stores');
 
 let calendarView;
-
+let avg = 0;
 let calendar;
 let downloaded = false;
 let calendarReady = false;
 let donePlacing = false;
 let readyToShow = false;
 let firstLoad = true;
+let readyToPlace = false;
 let scrollDelay = 0;
 $: flyParameters = { x: flyDirection * 300, duration: 200, easing: cubicInOut }
 
@@ -46,17 +47,17 @@ filters.subscribe(($value) => {
 
 derived([filters, events], ([$f, $e]) => $f && $e).subscribe((both) => downloaded = both);
 
-$: {
+$: if (today) {
     calendarReady = false;
     readyToShow = false;
     calendar = buildCalendarStructure(today);
+    readyToPlace = true;
 }
 
-$: if (downloaded && !calendarReady) {
-    // Reset scroll position after animating to a new month
-    placeEvents().then(() => {
-        donePlacing = true;
-    });
+$: if (downloaded && readyToPlace) {
+    placeEvents();
+    donePlacing = true;
+    readyToPlace = false;
 }
 
 // Either it's the first time loading the page, or the fly animation is done
@@ -64,6 +65,7 @@ $: if ((readyToShow || firstLoad) && donePlacing) {
     calendarReady = true;
     firstLoad = false;
     donePlacing = false;
+    // Reset scroll position after animating to a new month
     calendarView.scrollTop = 0;
 }
 
@@ -95,7 +97,7 @@ afterUpdate(async () => {
     }
 });
 
-async function placeEvents() {
+function placeEvents() {
     const savedFilters = $filters;
 
     for (let event of $events) {

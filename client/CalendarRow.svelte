@@ -34,7 +34,8 @@ let now = moment();
             <div class="skeleton-bar" style="grid-column: 2 / 5"></div> 
             <div class="skeleton-bar" style="grid-column: 7 / 8"></div> 
         {:else}
-            {#each days as day, dayIndex (day)}
+        <!-- CHANGE DAY each KEY to an integer -->
+            {#each days as day, dayIndex (dayIndex)}
                 {#each day.events as event, i (event.eventInfo.id)}
                     {#if condensed}
                         {#if event.initialPlacement}

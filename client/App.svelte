@@ -37,8 +37,8 @@ let today = moment(now).startOf('day');
 $: matching = now.month() === today.month() && now.year() === today.year();
 
 let calendarViewer;
-let condensed;
 let flyDirection;
+let condensed = true;
 let showToday = false;
 
 let monthButtonWidth;

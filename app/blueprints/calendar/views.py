@@ -160,7 +160,7 @@ def courses():
     school = {'id': str(user['building_id']), 'name': 'School Events', 'realm': 'school'}
     district = {'id': str(user['school_id']), 'name': 'District Events', 'realm': 'district'}
     user_identifier = {'id': user['uid'], 'name': 'My Events', 'realm': 'user'}
-    return jsonify(sections + groups + [school] + [district] + [user_identifier])
+    return jsonify([user_identifier] + sections + groups + [school] + [district])
 
 
 # TODO: Cache this with cache.memoize

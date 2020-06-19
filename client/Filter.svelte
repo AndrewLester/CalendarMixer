@@ -26,6 +26,8 @@ export async function saveAll() {
 import InputChooser from './utility/InputChooser.svelte';
 import { onMount, getContext } from 'svelte';
 import { flip } from 'svelte/animate';
+import { fade } from 'svelte/transition';
+
 
 export let id;
 // Bound to checkbox
@@ -69,7 +71,7 @@ function save() {
     <div class="course-input">
         <label>Courses:</label>
         {#each course_ids as courseId (courseId.id) }
-            <div class="recognized-course" animate:flip={{ duration: 200 }}>
+            <div class="recognized-course" animate:flip={{ duration: 100 }} transition:fade={{ duration: 100 }}>
                 <span class="course-name">{courseId.name}</span>
                 <img on:click={() => removeCourse(courseId)}
                   class="delete-icon" src="/static/img/close.svg" alt="Remove Course">

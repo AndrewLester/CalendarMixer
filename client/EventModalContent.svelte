@@ -91,7 +91,7 @@ function addAlert() {
                     </div>
                 {/each}
             {:else}
-                <p style="text-align: center;" in:fade={{ duration: 100, delay: 100 }}><em>No Alerts</em></p>
+                <p style="text-align: center;" in:fade|self={{ duration: 100, delay: 100 }}><em>No Alerts</em></p>
             {/if}
         </fieldset>
     </div>
