@@ -14,7 +14,7 @@ from app.blueprints.calendar.models import (CourseFilter, CourseIdentifier,
                                             EventAlert)
 from app.blueprints.main.models import User
 from app.exts import db, oauth
-from app.schoology.api import get_paged_data, schoology_to_datetime
+from app.schoology.api import get_paged_data
 from app.view_utils import cache_header, login_required
 
 from .types import SchoologyCalendar

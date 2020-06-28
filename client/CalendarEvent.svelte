@@ -62,7 +62,9 @@ onMount(() => {
             content: eventInfo['title'],
             arrow: true,
             duration: [100, 100],
-            animation: 'shift-away-subtle'
+            animation: 'shift-away-subtle',
+            touch: ['hold', 450],
+            trigger: 'mouseenter'
         });
     }
 });
@@ -104,6 +106,7 @@ function displayEventInfo() {
     transform: none;
     overflow: hidden;
     text-overflow: ellipsis;
+    user-select: none;
     white-space: nowrap;
     padding: 0px 10px;
     line-height: 20px;        /* fallback */

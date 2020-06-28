@@ -22,13 +22,11 @@ function updateMatches() {
         let name = option.name;
         let words = name.split(' ');
         for (let word of words) {
-            if (word.length == 0) continue;
-
             let identifiedString = name.substring(name.indexOf(word));
             if (identifiedString.toLowerCase().startsWith(search.toLowerCase())) {
                 let index = name.indexOf(identifiedString);
                 matchingOptions = [...matchingOptions, {
-                    id: option.id + 'match',
+                    id: option.id,
                     item: option,
                     match: {
                         start: option.name.substring(0, index),
@@ -36,6 +34,7 @@ function updateMatches() {
                         end: option.name.substring(index + search.length),
                     }
                 }];
+                break;
             }
         }
     }
