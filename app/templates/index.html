@@ -9,6 +9,7 @@
     --flashed-messages-display: block;
 }
 </style>
+<script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -24,9 +25,9 @@
         </a>
     </div>
     <div id="main-image">
-        <object data="/static/img/calendar.svg" type="image/svg+xml" width="100%" height="100%">
+        <object id="calendar-svg-obj" data="/static/img/calendar.svg" type="image/svg+xml" width="100%" height="100%">
             <img src="/static/img/calendar.svg">
         </object>
-    </div> 
+    </div>
 </main>
 {% endblock %}
