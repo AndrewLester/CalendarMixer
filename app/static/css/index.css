@@ -1,18 +1,22 @@
 main {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
 }
 main > div#main-info {
     flex: 0 0 25%;
     max-height: calc(100vh - 120px);
     display: flex;
     flex-direction: column;
-    min-width: 200px;
+    min-width: 250px;
+    max-width: 100%;
     align-items: center;
     justify-content: center;
 }
 main > div#main-image {
     position: relative;
     flex: 0 0 75%;
-    max-height: calc(100vh - 120px);
+    height: calc(100vh - 120px);
     bottom: 5px;
 }
