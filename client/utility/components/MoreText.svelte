@@ -1,8 +1,8 @@
-<script>
-export let text;
+<script lang="ts">
+export let text: string;
 export let maxLen = 36;
 
-let originalMaxLen = maxLen;
+const originalMaxLen = maxLen;
 
 let showingMore = false;
 

@@ -1,6 +1,6 @@
 <script>
 import { Popper } from "svelte-popper";
-import moment from '../libraries/moment.min.js';
+import moment from 'moment';
 import { createEventDispatcher } from 'svelte';
 
 export let parentElement;

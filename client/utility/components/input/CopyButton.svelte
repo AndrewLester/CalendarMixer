@@ -1,14 +1,14 @@
-<script>
+<script lang="ts">
 import { onMount, tick } from 'svelte';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away-subtle.css';
 
-export let copy;
+export let copy: string;
 export let className = '';
 
-let copyButton;
-let copyInput;
+let copyButton: HTMLElement;
+let copyInput: HTMLElement;
 let copying = false;
 
 onMount(() => {
@@ -20,19 +20,22 @@ onMount(() => {
     });
 })
 
-async function copyText(text) {
+async function copyText(text: string) {
+    const copyTextArea = copyInput as HTMLTextAreaElement;
+
     copying = true;
     await tick();
-    copyInput.value = text;
-    copyInput.focus();
-    copyInput.select();
+    copyTextArea.value = text;
+    copyTextArea.focus();
+    copyTextArea.select();
     document.execCommand('copy');
+    copyTextArea.value = '';
     copying = false;
 }
 
 </script>
 
-<button class="{className}" on:click={copyText(copy)} bind:this={copyButton}>
+<button class="{className}" on:click={() => copyText(copy)} bind:this={copyButton}>
     <slot>Button</slot>
 </button>
 {#if copying}

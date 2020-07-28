@@ -1,6 +1,8 @@
 import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
+import autoPreprocess from 'svelte-preprocess';
+import typescript from '@rollup/plugin-typescript';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import css from 'rollup-plugin-css-only';
@@ -9,7 +11,7 @@ import { terser } from 'rollup-plugin-terser';
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
-	input: 'client/main.js',
+	input: 'client/main.ts',
 	output: {
 		sourcemap: true,
 		format: 'iife',
@@ -32,7 +34,8 @@ export default {
 			// a separate file - better for performance
 			css: css => {
 				css.write('app/bundle/css/calendar_bundle.css');
-			}
+			},
+			preprocess: autoPreprocess()
 		}),
 
 		// If you have external dependencies installed from
@@ -45,6 +48,8 @@ export default {
 			dedupe: ['svelte', 'svelte/transition', 'svelte/internal']
 		}),
 		commonjs(),
+
+		typescript({ sourceMap: !production }),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated

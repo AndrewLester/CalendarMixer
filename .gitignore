@@ -18,6 +18,9 @@ app/bundle/
 
 debug_app.sh
 
+tsconfig.json
+.prettierrc
+
 *.crt
 *.csr
 *.key

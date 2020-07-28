@@ -1,12 +1,14 @@
-export function sleep(millis) {
+export function sleep(millis: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, millis));
 }
 
-export function animationEnd(element, animationName, timeout) {
+type AnimationEventListener = (ev: AnimationEvent) => any;
+
+export function animationEnd(element: HTMLElement, animationName: string, timeout?: number): Promise<void> {
     return new Promise(resolve => {
-        const callback = (e) => {
-            let svelteClassNameBase = element.className.split(' ').filter(className => className.startsWith('svelte'));
-            let baseAnimationName = svelteClassNameBase ? svelteClassNameBase[0] : '';
+        const callback: AnimationEventListener = (e) => {
+            const svelteClassNameBase = element.className.split(' ').filter(className => className.startsWith('svelte'));
+            const baseAnimationName = svelteClassNameBase ? svelteClassNameBase[0] : '';
 
             if (e.animationName === baseAnimationName + '-' + animationName) {
                 element.removeEventListener('animationend', callback);
@@ -14,8 +16,8 @@ export function animationEnd(element, animationName, timeout) {
             }
         };
         element.addEventListener('animationend', callback);
-        
-        if (timeout) {
+
+        if (timeout !== undefined) {
             sleep(timeout).then(() => {
                 element.removeEventListener('animationend', callback);
                 resolve();

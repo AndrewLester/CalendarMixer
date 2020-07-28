@@ -1,0 +1,173 @@
+<script lang="ts">
+import { notification } from "./store";
+import { onMount, onDestroy } from "svelte";
+import { flip } from "svelte/animate";
+import { themes } from './notification';
+
+type Theme = keyof typeof themes;
+
+interface Toast {
+    id: number,
+    msg: string,
+    background: string,
+    timeout: number,
+    width: string,
+}
+
+export let options;
+const DEFAULT_OPTIONS = {
+    timeout: 3000,
+    width: "40vw",
+};
+$: o = Object.assign({}, DEFAULT_OPTIONS, options || {});
+let count = 0;
+let toasts: Toast[] = [];
+let toastsElement: HTMLElement;
+let unsubscribe;
+onMount(() => {
+    toastsElement.style.setProperty("--width", o.width);
+});
+function animateOut(node, { delay = 0, duration = 300 }) {
+    function vhTOpx(value) {
+        var w = window,
+            d = document,
+            e = d.documentElement,
+            g = d.getElementsByTagName("body")[0],
+            x = w.innerWidth || e.clientWidth || g.clientWidth,
+            y = w.innerHeight || e.clientHeight || g.clientHeight;
+        return (y * value) / 100;
+    }
+
+    return {
+        delay,
+        duration,
+        css: (t) =>
+            `opacity: ${
+                (t - 0.5) * 1
+            }; transform-origin: top right; transform: scaleX(${(t - 0.5) * 1});`,
+    };
+}
+function createToast(msg: string, theme: Theme, to: number): void {
+    const background = themes[theme];
+    toasts = [
+        {
+            id: count,
+            msg,
+            background,
+            timeout: to || o.timeout,
+            width: "100%",
+        },
+        ...toasts,
+    ];
+    count = count + 1;
+}
+
+unsubscribe = notification.subscribe((value) => {
+    if (!value) {
+        return;
+    }
+
+    createToast(value.message, value.type, value.timeout);
+    notification.set(null);
+});
+
+onDestroy(unsubscribe);
+
+function removeToast(id: number) {
+    toasts = toasts.filter((t) => t.id != id);
+}
+</script>
+
+<style>
+:global(.toasts) {
+    list-style: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    z-index: 9999;
+}
+
+:global(.toasts) > .toast {
+    position: relative;
+    margin: 10px;
+    min-width: var(--width);
+    position: relative;
+    animation: animate-in 350ms forwards;
+    color: #fff;
+}
+
+:global(.toasts) > .toast > .content {
+    padding: 10px;
+    display: block;
+    font-weight: 500;
+}
+
+:global(.toasts) > .toast > .progress {
+    position: absolute;
+    bottom: 0;
+    background-color: rgb(0, 0, 0, 0.3);
+    height: 6px;
+    width: 100%;
+    animation-name: shrink;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+:global(.toasts) > .toast:before,
+:global(.toasts) > .toast:after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    bottom: 0;
+    left: 10px;
+    right: 10px;
+    border-radius: 100px / 10px;
+}
+
+:global(.toasts) > .toast:after {
+    right: 10px;
+    left: auto;
+    transform: skew(8deg) rotate(3deg);
+}
+
+@keyframes animate-in {
+    0% {
+        width: 0;
+        opacity: 0;
+        transform: scale(1.15) translateY(20px);
+    }
+    100% {
+        width: var(--width);
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes shrink {
+    0% {
+        width: var(--width);
+    }
+    100% {
+        width: 0;
+    }
+}
+</style>
+
+<ul class="toasts" bind:this={toastsElement}>
+    {#each toasts as toast (toast.id)}
+        <li
+            class="toast"
+            style="background: {toast.background};"
+            out:animateOut
+            animate:flip={{ delay: undefined, duration: undefined, easing: undefined }}>
+            <div class="content">{toast.msg}</div>
+            <div
+                class="progress"
+                style="animation-duration: {toast.timeout}ms;"
+                on:animationend={() => removeToast(toast.id)} />
+        </li>
+    {/each}
+</ul>

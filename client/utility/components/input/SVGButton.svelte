@@ -1,29 +1,27 @@
-<script>
-import { animationEnd } from './async.js';
+<script lang="ts">
+import { animationEnd } from '../../async';
 
-export let svgLink;
-export let symbolId;
+export let svgLink: string;
+export let symbolId: string;
 export let width = 24;
 export let height = 24;
-export let clickable = true;
+export let disabled: boolean = false;
 export let classes = '';
 export let text = '';
-export let textElem = undefined;
 
 let active = false;
-let button;
+let button: HTMLElement;
 
 function press() {
-    if (!clickable) return;
+    if (disabled) return;
 
     active = true;
 }
 
-function release() {
+async function release() {
     if (active) {
-        animationEnd(button, 'background-expand', 100).then(() => {
-            active = false;
-        });
+        await animationEnd(button, 'background-expand', 100);
+        active = false;
     }
 }
 
@@ -33,15 +31,15 @@ function release() {
 
 <!-- Forward click events upwards -->
 <button class="icon-button" on:click bind:this={button} on:mousedown={press} on:touchstart={press} class:active
-    class:clickable style="--width: {width}px; --height: {height}px">
+    class:disabled style="--width: {width}px; --height: {height}px">
 
     <div></div>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" tabindex="0" class="{classes}">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" class="{classes}">
         <use xlink:href="{svgLink}#{symbolId}"/>
     </svg>
 </button>
 {#if text.length > 0 }
-    <span class="button-text" bind:this={textElem} class:clickable on:mousedown={press} on:touchstart={press} on:click>{text}</span>
+    <span class="button-text" class:disabled on:mousedown={press} on:touchstart={press} on:click>{text}</span>
 {/if}
 
 <style>
@@ -68,7 +66,7 @@ button > svg {
     padding: 0px;
 }
 
-.icon-button.clickable {
+.icon-button:not(.disabled) {
     cursor: pointer;
 }
 

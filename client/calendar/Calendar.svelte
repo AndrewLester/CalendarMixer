@@ -1,24 +1,31 @@
-<script>
+<script lang="ts" context="module">
+    export type FlyAnimationDirection = -1 | 1 | 0;
+</script>
+
+<script lang="ts">
 import CalendarRow from './CalendarRow.svelte';
 import { derived } from 'svelte/store';
 import { getContext, onMount, tick, afterUpdate } from 'svelte';
 import { cubicInOut } from 'svelte/easing';
-import { key } from './utility/network.js';
-import { sleep } from './utility/async.js';
+import { sleep } from '../utility/async.js';
 import { buildCalendarStructure, placeEvent, applyFilters, CalendarEventData } from './calendar-structure.js';
 import { fade, fly } from 'svelte/transition';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away-subtle.css';
+import { Moment } from 'moment';
+import { Filter, EventInfo } from '../api/types';
+import { timeToMoment } from '../api/schoology';
+import { NetworkStores } from '../stores';
+import { NetworkStore } from '../utility/networkstore';
 
-export let today;
-export let flyDirection;
-export let condensed;
+export let today: Moment;
+export let flyDirection: FlyAnimationDirection;
+export let condensed: boolean;
 export let showToday = false;
 
 const SCROLL_DELAY = 350;  // Milliseconds
-const getPreferences = getContext('preferences');
-const { filters, events } = getContext('stores');
+const { filters, events }: NetworkStores = getContext('stores');
 
 let calendarView;
 let avg = 0;
@@ -33,7 +40,7 @@ let scrollDelay = 0;
 $: flyParameters = { x: flyDirection * 300, duration: 200, easing: cubicInOut }
 
 filters.subscribe(($value) => {
-    if (downloaded && calendarReady) {
+    if (downloaded && calendarReady && $value !== undefined) {
         for (let [i, row] of calendar.rows.entries()) {
             for (let [j, day] of row.days.entries()) {
                 for (let [k, event] of day.events.entries()) {
@@ -45,7 +52,7 @@ filters.subscribe(($value) => {
     }
 })
 
-derived([filters, events], ([$f, $e]) => $f && $e).subscribe((both) => downloaded = both);
+derived([filters, events], ([$f, $e]) => $f !== undefined && $e !== undefined).subscribe((both) => downloaded = !!both);
 
 $: if (today) {
     calendarReady = false;
@@ -98,10 +105,20 @@ afterUpdate(async () => {
 });
 
 function placeEvents() {
-    const savedFilters = $filters;
+    const eventInfo = $events;
+    const filterData = $filters;
+    if (eventInfo === undefined || filterData === undefined) {
+        return;
+    }
 
-    for (let event of $events) {
-        placeEvent(new CalendarEventData(event, true, event.filtered || false), calendar, savedFilters);
+    for (let event of eventInfo) {
+        placeEvent({ 
+            eventInfo: event, 
+            start: timeToMoment(event.start),
+            end: timeToMoment(event['']),
+            initialPlacement: true,
+            filtered: event.filtered ?? false 
+        }, calendar, filterData);
     }
 }
 
@@ -158,7 +175,7 @@ async function scrollToToday(delay) {
 }
 :global(.tippy-box[data-theme~='info']) {
     background-color: #29b6f6;
-    color: black;
+    color: white;
 }
 :global(.tippy-box[data-theme~='info'][data-placement^='top'] > .tippy-arrow::before,
     .tippy-box[data-theme~='info'][data-placement^='bottom'] > .tippy-arrow::before) {

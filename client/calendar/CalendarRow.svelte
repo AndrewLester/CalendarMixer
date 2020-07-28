@@ -1,7 +1,7 @@
 <script>
 import CalendarEvent from './CalendarEvent.svelte';
-import SkeletonLayout from './utility/SkeletonLayout.svelte';
-import moment from './libraries/moment.min.js';
+import SkeletonLayout from '../utility/components/SkeletonLayout.svelte';
+import moment from 'moment';
 
 export let today;
 export let calRowNum;
