@@ -3,7 +3,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
 import autoPreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
-// import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
 import css from 'rollup-plugin-css-only';
 import { terser } from 'rollup-plugin-terser';
