@@ -1,17 +1,16 @@
 <script>
-import CalendarEvent from './CalendarEvent.svelte';
-import SkeletonLayout from '../utility/components/SkeletonLayout.svelte';
-import moment from 'moment';
+    import CalendarEvent from './CalendarEvent.svelte';
+    import moment from 'moment';
 
-export let today;
-export let calRowNum;
-export let dayNums = [];
-export let days = [];
-export let calendar = undefined;
-export let skeleton = false;
-export let condensed = false;
+    export let today;
+    export let calRowNum;
+    export let dayNums = [];
+    export let days = [];
+    export let calendar = undefined;
+    export let skeleton = false;
+    export let condensed = false;
 
-let now = moment();
+    let now = moment();
 </script>
 
 <div class="calendar-row">
@@ -20,37 +19,44 @@ let now = moment();
             <div class:other-month={days[i].otherMonth}>
                 {#if !days[i].otherMonth && now.year() === today.year() && now.month() == today.month() && num == now.date()}
                     <span class="today">{num}</span>
-                {:else}
-                    {num}
-                {/if}
+                {:else}{num}{/if}
             </div>
         {/each}
     </div>
     <div class="event-row" class:skeleton>
         {#if skeleton}
-            <div class="skeleton-bar" style="grid-column: 2 / 6"></div>
-            <div class="skeleton-bar" style="grid-column: 1 / 3"></div> 
-            <div class="skeleton-bar" style="grid-column: 5 / 7"></div> 
-            <div class="skeleton-bar" style="grid-column: 2 / 5"></div> 
-            <div class="skeleton-bar" style="grid-column: 7 / 8"></div> 
+            <div class="skeleton-bar" style="grid-column: 2 / 6" />
+            <div class="skeleton-bar" style="grid-column: 1 / 3" />
+            <div class="skeleton-bar" style="grid-column: 5 / 7" />
+            <div class="skeleton-bar" style="grid-column: 2 / 5" />
+            <div class="skeleton-bar" style="grid-column: 7 / 8" />
         {:else}
-        <!-- CHANGE DAY each KEY to an integer -->
+            <!-- CHANGE DAY each KEY to an integer -->
             {#each days as day, dayIndex (dayIndex)}
                 {#each day.events as event, i (event.eventInfo.id)}
                     {#if condensed}
                         {#if event.initialPlacement}
-                            <CalendarEvent {...event} eventNum={i} {calRowNum} />
+                            <CalendarEvent
+                                {...event}
+                                eventNum={i}
+                                {calRowNum} />
                         {/if}
+                    {:else if i === 0}
+                        <CalendarEvent
+                            {...event}
+                            eventNum={i}
+                            {calRowNum}
+                            startRow={event.startRow || 1}
+                            bind:endRow={calendar.rows[calRowNum].days[dayIndex].events[i].endRow}
+                            condensed={false} />
                     {:else}
-                        {#if i === 0}
-                            <CalendarEvent {...event} eventNum={i} {calRowNum} startRow={event.startRow || 1}
-                                bind:endRow={calendar.rows[calRowNum].days[dayIndex].events[i].endRow} condensed={false} />
-                        {:else}
-                            <CalendarEvent {...event} eventNum={i} {calRowNum}
-                                bind:startRow={calendar.rows[calRowNum].days[dayIndex].events[i-1].endRow}
-                                bind:endRow={calendar.rows[calRowNum].days[dayIndex].events[i].endRow}
-                                condensed={false} />
-                        {/if}
+                        <CalendarEvent
+                            {...event}
+                            eventNum={i}
+                            {calRowNum}
+                            bind:startRow={calendar.rows[calRowNum].days[dayIndex].events[i - 1].endRow}
+                            bind:endRow={calendar.rows[calRowNum].days[dayIndex].events[i].endRow}
+                            condensed={false} />
                     {/if}
                 {/each}
             {/each}
@@ -59,63 +65,63 @@ let now = moment();
 </div>
 
 <style>
-.calendar-row > * {
-    display: grid;
-    text-align: center;
-    grid-auto-flow: column;
-    grid-template-columns: repeat(7, 1fr);
-}
+    .calendar-row > * {
+        display: grid;
+        text-align: center;
+        grid-auto-flow: column;
+        grid-template-columns: repeat(7, 1fr);
+    }
 
-.calendar-row > .header > div:not(:last-child) {
-    border-right: 1px solid gray;
-}
+    .calendar-row > .header > div:not(:last-child) {
+        border-right: 1px solid gray;
+    }
 
-.calendar-row > .header > div {
-    border-bottom: 1px solid gray;
-    vertical-align: middle;
-}
+    .calendar-row > .header > div {
+        border-bottom: 1px solid gray;
+        vertical-align: middle;
+    }
 
-.event-row {
-    grid-auto-rows: 20px;
-    grid-auto-flow: row dense;
-    transition: transform 0.3s, opacity 0.3s;
-    grid-gap: 5px;
-    margin-bottom: 5px;
-    margin-top: 5px;
-    min-height: 60px;
-}
+    .event-row {
+        grid-auto-rows: 20px;
+        grid-auto-flow: row dense;
+        transition: transform 0.3s, opacity 0.3s;
+        grid-gap: 5px;
+        margin-bottom: 5px;
+        margin-top: 5px;
+        min-height: 60px;
+    }
 
-.event-row.skeleton {
-    grid-template-rows: repeat(3, 15px);
-}
+    .event-row.skeleton {
+        grid-template-rows: repeat(3, 15px);
+    }
 
-.header > div {
-    cursor: pointer;
-    font-family: 'Times New Roman', Times, serif;
-}
+    .header > div {
+        cursor: pointer;
+        font-family: 'Times New Roman', Times, serif;
+    }
 
-.header {
-    grid-row-gap: 5px;
-    border-color: gray;
-    position: sticky;
-    z-index: 5;
-    background-color: white;
-    top: 21px;
-    grid-template-rows: 25px;
-    line-height: 24px;
-}
+    .header {
+        grid-row-gap: 5px;
+        border-color: gray;
+        position: sticky;
+        z-index: 5;
+        background-color: white;
+        top: 21px;
+        grid-template-rows: 25px;
+        line-height: 24px;
+    }
 
-.other-month {
-    color: gray;
-}
+    .other-month {
+        color: gray;
+    }
 
-:not(.other-month) > .today {
-    display: inline-block;
-    color: white;
-    border-radius: 50%;
-    background-color: #29b6f6;
-    scroll-margin-top: 24px;
-    height: 24px;
-    width: 25px;
-}
+    :not(.other-month) > .today {
+        display: inline-block;
+        color: white;
+        border-radius: 50%;
+        background-color: #29b6f6;
+        scroll-margin-top: 24px;
+        height: 24px;
+        width: 25px;
+    }
 </style>

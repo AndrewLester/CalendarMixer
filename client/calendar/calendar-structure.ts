@@ -1,13 +1,13 @@
-import moment, { Moment } from 'moment';
-import { EventInfo, Filter } from '../api/types';
+import moment from 'moment';
+import type { EventInfo, Filter } from '../api/types';
 
 
 export interface CalendarData {
     rows: CalendarRowData[],
-    firstCalDay: Moment,
-    firstMonthDay: Moment,
-    lastCalDay: Moment,
-    lastMonthDay: Moment
+    firstCalDay: moment.Moment,
+    firstMonthDay: moment.Moment,
+    lastCalDay: moment.Moment,
+    lastMonthDay: moment.Moment
 }
 
 export interface CalendarDayData {
@@ -19,8 +19,8 @@ export interface CalendarDayData {
 
 export interface CalendarEventData {
     eventInfo: EventInfo,
-    start: Moment,
-    end: Moment,
+    start: moment.Moment,
+    end: moment.Moment,
     initialPlacement: boolean,
     filtered?: boolean,
     endRow?: number,
@@ -35,7 +35,7 @@ export interface CalendarRowData {
     unused: boolean
 }
 
-export function buildCalendarStructure(today: Moment): CalendarData {
+export function buildCalendarStructure(today: moment.Moment): CalendarData {
     const calendar: CalendarRowData[] = [];
 
     // Duplicate moment because it's mutable value

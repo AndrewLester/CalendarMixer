@@ -1,11 +1,12 @@
 <script lang="ts" context="module">
     export type InputChoice = {
         id: number | string,
-        searchablePart?: string
-    }
+        [key: string]: any
+    } & SearchablePart;
 </script>
 
 <script lang="ts">
+    import type { SearchablePart }  from './AutocompletePopup.svelte';
     import AutocompletePopup from './AutocompletePopup.svelte';
     import Input from './Input.svelte';
 
@@ -43,21 +44,20 @@
             element={inputElement}
             options={availableOptions}
             search={inputValue}
-            let:item
-            let:match>
+            let:item>
             <div
                 slot="item"
                 class="course-identifier-wrapper"
                 data-realm={item.realm}
                 on:mousedown={() => addSelected(item)}>
                 <div />
-                {#if inputValue.length === 0 || match === undefined}
+                {#if inputValue.length === 0 || item.match === undefined}
                     <p>{item.name}</p>
                 {:else}
                     <p>
-                        {match.start}
-                        <strong>{match.match}</strong>
-                        {match.end}
+                        {item.match.start}
+                        <strong>{item.match.match}</strong>
+                        {item.match.end}
                     </p>
                 {/if}
             </div>

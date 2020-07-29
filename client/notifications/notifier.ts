@@ -1,5 +1,5 @@
 import { notification } from './store.js';
-import { Theme } from './notification';
+import type { Theme } from './themes';
 
 export function send(message: string, type: Theme = 'default', timeout: number) {
     notification.set({ type, message, timeout });

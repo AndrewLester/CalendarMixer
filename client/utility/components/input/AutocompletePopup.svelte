@@ -1,4 +1,9 @@
 <script lang="ts" context="module">
+    export interface SearchablePart {
+        id: number | string,
+        searchablePart?: string
+    }
+
     export interface Match {
         match: {
             start: string;
@@ -7,18 +12,17 @@
         };
     }
 
-    export type MatchingInputChoice = InputChoice & Partial<Match>;
+    export type MatchingSearchablePart = SearchablePart & Partial<Match>;
 </script>
 
 <script lang="ts">
     import { Popper } from 'svelte-popper';
-    import { InputChoice } from './InputChooser.svelte';
 
     export let element: HTMLElement;
     export let search = '';
-    export let options: InputChoice[] = [];
+    export let options: SearchablePart[] = [];
 
-    let matchingOptions: MatchingInputChoice[] = [];
+    let matchingOptions: MatchingSearchablePart[] = [];
 
     // Creating Matching Option Text
     $: {
@@ -47,7 +51,7 @@
                     matchingOptions = [
                         ...matchingOptions,
                         {
-                            id: option.id,
+                            ...option,
                             match: {
                                 start: name.substring(0, index),
                                 match: name.substring(index, index + search.length),

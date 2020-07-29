@@ -1,5 +1,5 @@
 import { writable as writableStore, Writable, Readable } from 'svelte/store';
-import { Networking } from '../api/network';
+import type { Networking } from '../api/network';
 
 
 declare type Subscriber<T> = (value: T) => void;
@@ -12,18 +12,19 @@ declare type Invalidator<T> = (value?: T) => void;
 
 type ErrorHandler = (error: Error) => void;
 
-export class NetworkStore<T> implements Readable<T | undefined> {
-    subscribe: (run: Subscriber<T | undefined>, invalidate?: Invalidator<T | undefined>) => Unsubscriber;
-    set?: (value: T | undefined) => void;
-    update?: (value: T | undefined, storeValue: T | undefined | null) => void;
+export class NetworkStore<T> implements Readable<T> {
+    subscribe: (run: Subscriber<T>, invalidate?: Invalidator<T>) => Unsubscriber;
+    set?: (value: T) => void;
+    update?: (value: T, storeValue: T | null) => void;
 
-    readonly store: Writable<T | undefined>;
+    readonly store: Writable<T>;
     private fetchErrorHandler: ErrorHandler;
     private api?: Networking;
+    private _loaded: boolean = false;
 
     constructor(
         private endpoint: string,
-        defaultValue: T | undefined = undefined,
+        defaultValue: T,
         private writable = false,
         fetchErrorHandler: ErrorHandler = () => {}
     ) {
@@ -40,15 +41,24 @@ export class NetworkStore<T> implements Readable<T | undefined> {
             this.set = this.store.set;
 
             this.update = async (value, storeValue = value) => {
-                await this.api?.post(this.endpoint, value).then(() => {
-                    if (storeValue !== null) {
-                        this.store.set(storeValue);
-                    }
-                });
+                try {
+                    await this.api?.post(this.endpoint, value);
+                } catch (e) {
+                    this.fetchErrorHandler(e);
+                    return;
+                }
+
+                if (storeValue !== null) {
+                    this.store.set(storeValue);
+                }
             };
         }
 
         this.reset();
+    }
+
+    get loaded(): boolean {
+        return this._loaded;
     }
 
     async reset() {
@@ -56,6 +66,7 @@ export class NetworkStore<T> implements Readable<T | undefined> {
 
         try {
             const value = await this.api.get(this.endpoint);
+            this._loaded = true;
             this.store.set(value);
         } catch (e) {
             this.fetchErrorHandler(e);

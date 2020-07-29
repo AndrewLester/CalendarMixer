@@ -23,14 +23,14 @@ export interface Filter {
     user_id?: string
 }
 
-export interface Alert {
-    id: number,
-    type: AlertType,
-    event_id: string,
-    timedelta: string
-}
-
-export enum AlertType {
+export const enum AlertType {
     Display = 'Display',
     Email = 'Email'
+}
+
+export interface Alert {
+    id: number;
+    type: AlertType;
+    event_id: string;
+    timedelta: string;
 }

@@ -1,19 +1,22 @@
+<script lang="ts" context="module">
+    import type { EventInfo } from '../api/types';
+    import type moment from 'moment';
+    import type { NetworkStores } from '../stores';
+    import type { ModalFunctions } from '../modals/types';
+    import type { CalendarEventData } from './calendar-structure';
+</script>
+
 <script lang="ts">
     import EventModalContent from '../modals/event/EventModalContent.svelte';
-    import { CalendarEventData } from './calendar-structure';
     import { onMount, getContext } from 'svelte';
     import tippy from 'tippy.js';
     import 'tippy.js/dist/tippy.css';
     import 'tippy.js/animations/shift-away-subtle.css';
-    import { EventInfo } from '../api/types';
-    import { Moment } from 'moment';
-    import { NetworkStores } from '../stores';
-    import { ModalFunctions } from '../modals/types';
 
 
     export let eventInfo: EventInfo;
-    export let start: Moment;
-    export let end: Moment;
+    export let start: moment.Moment;
+    export let end: moment.Moment;
     export let calRowNum: number;
     export let initialPlacement: boolean;
     export let eventNum: number;
@@ -124,7 +127,7 @@
         style="--bg-color: {color}; --animation-delay: {animationDelay}ms;
         grid-column: {startCol} / {endCol}; grid-row: {startRow || 'unset'} / {_endRow || 'unset'};"
         class:multi-line={big}>
-        {#if $alerts && $alerts[eventInfo['id']] && $alerts[eventInfo['id']].length > 0}
+        {#if alerts.loaded && $alerts[eventInfo['id']] && $alerts[eventInfo['id']].length > 0}
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 25 25"

@@ -1,14 +1,14 @@
 <script lang="ts">
     import SkeletonLayout from "../utility/components/SkeletonLayout.svelte";
-    import SVGButton from "../utility/components/input/SVGButton.svelte";
+    import SVGButton from "../utility/components/SVGButton.svelte";
     import InputChooser from "../utility/components/input/InputChooser.svelte";
     import Filter, { saveAll as saveAllFilters } from "./Filter.svelte";
     import { fade } from "svelte/transition";
     import { getContext } from "svelte";
     import { sleep } from "../utility/async.js";
     import { NetworkStore } from "../utility/networkstore";
-    import { CourseIdentifier } from "../api/types";
-    import { NetworkStores } from "../stores";
+    import type { CourseIdentifier } from "../api/types";
+    import type { NetworkStores } from "../stores";
 
     const SAVE_SVG_URL = "/static/img/save-button.svg";
     const FAILED_SVG_URL = "/static/img/failed.svg";
@@ -17,10 +17,7 @@
     let saving = false;
     let resetSVGTask: number | undefined;
 
-    const {
-        identifiers: courseIdentifiers,
-        filters,
-    }: NetworkStores = getContext("stores");
+    const { filters }: NetworkStores = getContext("stores");
 
     async function saveFilters() {
         if (saving) {
@@ -66,7 +63,7 @@
         {/if}
     </div>
 
-    {#if $filters !== undefined}
+    {#if filters.loaded }
         <div id="filters-list" transition:fade={{ delay: 200 }}>
             {#each $filters as filter (filter.id)}
                 <Filter {...filter} />

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { animationEnd } from '../../async';
+import { animationEnd } from '../async';
 
 export let svgLink: string;
 export let symbolId: string;

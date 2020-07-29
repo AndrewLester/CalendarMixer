@@ -1,23 +1,22 @@
 <script lang="ts" context="module">
     declare const colors: string[];
-    declare const csrf_token: string;
+declare const csrf_token: string;
     declare const ical_link: string;
 </script>
 
 <script lang="ts">
-    import Modal from 'svelte-simple-modal';
+    import Modal from 'svelte-simple-modal';    
     import NotificationDisplay from './notifications/NotificationDisplay.svelte';
-    import Calendar, {
-        FlyAnimationDirection,
-    } from './calendar/Calendar.svelte';
+    import Calendar from './calendar/Calendar.svelte';
+    import type { FlyAnimationDirection } from './calendar/Calendar.svelte';
     import FilterEditor from './filtering/FilterEditor.svelte';
-    import CopyButton from './utility/components/input/CopyButton.svelte';
-    import SVGButton from './utility/components/input/SVGButton.svelte';
+    import CopyButton from './utility/components/CopyButton.svelte';
+    import SVGButton from './utility/components/SVGButton.svelte';
     import { onMount, setContext, tick } from 'svelte';
     import moment from 'moment';
     import { NetworkStore } from './utility/networkstore';
-    import { Filter, Alert, CourseIdentifier, EventInfo } from './api/types';
-    import { Networking } from './api/network';
+    import type { Filter, Alert, CourseIdentifier, EventInfo } from './api/types';
+    import type { Networking } from './api/network';
     import * as networking from './api/network';
     import { events, filters, identifiers, alerts } from './stores';
 

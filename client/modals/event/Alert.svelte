@@ -1,11 +1,12 @@
 <script lang="ts">
     import TimePicker from '../../utility/components/input/TimePicker.svelte';
-    import SVGButton from '../../utility/components/input/SVGButton.svelte';
+    import SVGButton from '../../utility/components/SVGButton.svelte';
     import { getContext } from 'svelte';
     import * as networking from '../../api/network';
-    import { Alert, AlertType } from '../../api/types';
-    import moment, { Moment } from 'moment';
-    import { NetworkStores } from '../../stores';
+    import moment from 'moment';
+    import type { NetworkStores } from '../../stores';
+    import type { Alert } from '../../api/types';
+    import { AlertType } from '../../api/types';
 
     export let id: number;
     export let event_id: string;
@@ -80,7 +81,7 @@
     <SVGButton
         svgLink={exported ? '/static/img/alert.svg' : '/static/img/alerts-off.svg'}
         symbolId={'icon'}
-        clickable={false} />
+        disabled={true} />
     <span>
         <em>{type === AlertType.Display ? 'Notification' : 'Email'}</em>
     </span>
@@ -94,7 +95,7 @@
             symbolId={'icon'}
             on:click={togglePopper}
             text={alertTimeString}
-            clickable={exported} />
+            disabled={!exported} />
     </span>
     {#if pickerParent && popperVisible}
         <TimePicker

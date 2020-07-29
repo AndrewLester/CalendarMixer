@@ -1,6 +1,4 @@
 <script lang="ts" context="module">
-    import { EventInfo, CourseIdentifier } from '../api/types';
-
     const saves: (() => Promise<void>)[] = [];
 
     export async function saveAll() {
@@ -10,11 +8,12 @@
 </script>
 
 <script lang="ts">
+    import type { EventInfo, CourseIdentifier, Filter } from '../api/types';
     import InputChooser from '../utility/components/input/InputChooser.svelte';
     import { onMount, getContext } from 'svelte';
     import { flip } from 'svelte/animate';
     import { fade } from 'svelte/transition';
-    import { NetworkStores } from '../stores';
+    import type { NetworkStores } from '../stores';
 
     export let id: number;
     // Bound to checkbox
@@ -42,12 +41,12 @@
             return;
         }
 
-        const formData: FilterData = { id, positive, course_ids };
+        const formData: Filter = { id, positive, course_ids };
 
         let updatedFilter = $filters.filter((f) => f.id === id)[0];
         updatedFilter.positive = positive;
         updatedFilter.course_ids = course_ids;
-        filters.update(formData, [
+        filters.update([formData], [
             ...$filters.filter((f) => f.id !== id),
             updatedFilter,
         ]);
@@ -79,7 +78,7 @@
             </div>
         {/each}
         <InputChooser
-            options={$courseIdentifiers.map()}
+            options={$courseIdentifiers}
             bind:selected={course_ids} />
     </div>
     <input

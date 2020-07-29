@@ -1,19 +1,19 @@
 <script lang="ts">
-    import SVGButton from '../../utility/components/input/SVGButton.svelte';
+    import SVGButton from '../../utility/components/SVGButton.svelte';
     import MoreText from '../../utility/components/MoreText.svelte';
     import Alert from './Alert.svelte';
-    import { EventInfo, AlertType } from '../../api/types';
-    import moment, { Moment } from 'moment';
+    import type { EventInfo, AlertType } from '../../api/types';
+    import moment from 'moment';
     import { getContext } from 'svelte';
     import { derived } from 'svelte/store';
     import { flip } from 'svelte/animate';
     import { fade, fly } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
-    import { NetworkStores } from '../../stores';
+    import type { NetworkStores } from '../../stores';
 
     export let eventInfo: EventInfo;
-    export let start: Moment;
-    export let end: Moment;
+    export let start: moment.Moment;
+    export let end: moment.Moment;
     export let filtered: boolean;
 
     let endTimeFormat;
@@ -57,7 +57,7 @@
     <div class="header">
         <span
             class="schoology-icon"
-            data-event-type={eventInfo.type}
+            data-event-type={eventInfo.realm}
             style="--picture-offset: {start.date() - 1}" />
         <h1 class="event-name" title={eventInfo.title}>{eventInfo.title}</h1>
         <SVGButton
