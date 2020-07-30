@@ -7,6 +7,7 @@
     import type { NetworkStores } from '../../stores';
     import type { Alert } from '../../api/types';
     import { AlertType } from '../../api/types';
+    import type { Networking } from '../../api/network';
 
     export let id: number;
     export let event_id: string;
@@ -17,8 +18,9 @@
     let pickerParent;
     let popperVisible = false;
 
-    const getAPI = getContext(networking.key);
-    const { alerts } = getContext('stores');
+    const getAPI: () => Promise<Networking> = getContext(networking.key);
+    const { alerts }: NetworkStores = getContext('stores');
+    const alertsLoaded = alerts.loaded;
 
     $: relativetime = moment.duration(timedelta);
     $: alertTimeString =
@@ -42,6 +44,8 @@
     }
 
     async function deleteAlert() {
+        if (!$alertsLoaded) return;
+
         const api = await getAPI();
 
         $alerts[event_id] = $alerts[event_id].filter((alert) => alert.id != id);

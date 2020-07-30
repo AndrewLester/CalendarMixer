@@ -3,8 +3,8 @@ import type { EventInfo, Filter, Alert, CourseIdentifier } from "./api/types";
 import * as notifier from './notifications/notifier';
 
 
-const errorHandler = (error: Error) => {
-    notifier.danger('Network request failed', 2500);
+const errorHandler = (error: Error, retryTime?: number) => {
+    notifier.danger('Network request failed, retrying...', retryTime ?? 2500);
     console.error(error);
 }
 

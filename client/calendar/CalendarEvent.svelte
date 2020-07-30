@@ -25,8 +25,8 @@
     export let startRow: number | undefined;
     export let endRow: number | undefined =
         startRow === undefined ? startRow : startRow + 1;
-    export let condensed = true;
-    export let filtered = false;
+    export let condensed: boolean = true;
+    export let filtered: boolean = false;
 
     const { open }: ModalFunctions = getContext('simple-modal');
     const { alerts }: NetworkStores = getContext('stores');

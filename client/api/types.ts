@@ -24,8 +24,8 @@ export interface Filter {
 }
 
 export const enum AlertType {
-    Display = 'Display',
-    Email = 'Email'
+    Display = 0,
+    Email = 1
 }
 
 export interface Alert {

@@ -17,11 +17,14 @@
         placeEvent,
         applyFilters
     } from './calendar-structure.js';
+    import type { CalendarData } from './calendar-structure';
     import { fade, fly } from 'svelte/transition';
     import tippy from 'tippy.js';
     import 'tippy.js/dist/tippy.css';
     import 'tippy.js/animations/shift-away-subtle.css';
+    import * as networking from '../api/network';
     import { timeToMoment } from '../api/schoology';
+    import type { Networking } from '../api/network';
 
     export let today: moment.Moment;
     export let flyDirection: FlyAnimationDirection;
@@ -30,10 +33,11 @@
 
     const SCROLL_DELAY = 350; // Milliseconds
     const { filters, events }: NetworkStores = getContext('stores');
+    const [ filtersLoaded, eventsLoaded ] = [ filters.loaded, events.loaded ];
+
 
     let calendarView: HTMLElement | undefined;
-    let avg = 0;
-    let calendar;
+    let calendar: CalendarData;
     let downloaded = false;
     let calendarReady = false;
     let donePlacing = false;
@@ -48,7 +52,7 @@
     };
 
     filters.subscribe(($value) => {
-        if (downloaded && calendarReady && filters.loaded) {
+        if (downloaded && calendarReady && $filtersLoaded) {
             for (let [i, row] of calendar.rows.entries()) {
                 for (let [j, day] of row.days.entries()) {
                     for (let [k, event] of day.events.entries()) {
@@ -61,8 +65,8 @@
     });
 
     derived(
-        [filters, events],
-        ([_, __]) => filters.loaded && events.loaded
+        [filtersLoaded, eventsLoaded],
+        ([_filtersLoaded, _eventsLoaded]) => _filtersLoaded && _eventsLoaded
     ).subscribe((bothLoaded) => (downloaded = bothLoaded));
 
     $: if (today) {
@@ -124,28 +128,25 @@
     });
 
     function placeEvents() {
-        const eventInfo = $events;
-        const filterData = $filters;
-        if (eventInfo === undefined || filterData === undefined) {
-            return;
-        }
-
-        for (let event of eventInfo) {
+        for (let event of $events) {
             placeEvent(
                 {
                     eventInfo: event,
                     start: timeToMoment(event.start),
-                    end: timeToMoment(event['']),
+                    end: 
+                        event.has_end 
+                        ? timeToMoment(event.end as string)
+                        : timeToMoment(event.start),
                     initialPlacement: true,
                     filtered: event.filtered ?? false,
                 },
                 calendar,
-                filterData
+                $filters
             );
         }
     }
 
-    async function scrollToToday(delay) {
+    async function scrollToToday(delay: number) {
         await sleep(delay);
         document
             .getElementsByClassName('today')[0]
@@ -159,7 +160,7 @@
             id="calendar"
             out:fly={flyParameters}
             in:fade={{ duration: 50 }}
-            on:outroend={() => (readyToShow = true)}>
+            on:outroend={() => readyToShow = true}>
             <div id="header" class="calendar-row">
                 <div>Sun</div>
                 <div>Mon</div>
@@ -180,11 +181,13 @@
                 {/each}
             {:else}
                 {#each calendar.rows as { unused, ...row }, i (row)}
-                    <CalendarRow
-                        {...row}
-                        {today}
-                        calRowNum={i}
-                        skeleton={true} />
+                    {#if !unused }
+                        <CalendarRow
+                            {...row}
+                            {today}
+                            calRowNum={i}
+                            skeleton={true} />
+                    {/if}
                 {/each}
             {/if}
         </div>

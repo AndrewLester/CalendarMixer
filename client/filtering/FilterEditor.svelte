@@ -18,6 +18,7 @@
     let resetSVGTask: number | undefined;
 
     const { filters }: NetworkStores = getContext("stores");
+    const filtersLoaded = filters.loaded;
 
     async function saveFilters() {
         if (saving) {
@@ -63,7 +64,7 @@
         {/if}
     </div>
 
-    {#if filters.loaded }
+    {#if $filtersLoaded }
         <div id="filters-list" transition:fade={{ delay: 200 }}>
             {#each $filters as filter (filter.id)}
                 <Filter {...filter} />

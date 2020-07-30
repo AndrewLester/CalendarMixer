@@ -22,15 +22,15 @@
     });
 
     async function copyText(text: string) {
-        const copyTextArea = copyInput as HTMLTextAreaElement;
-
         copying = true;
         await tick();
+    
+        // Declare copyTextArea after tick event so that copyInput is no longer null
+        const copyTextArea = copyInput as HTMLTextAreaElement;
         copyTextArea.value = text;
         copyTextArea.focus();
         copyTextArea.select();
         document.execCommand('copy');
-        copyTextArea.value = '';
         copying = false;
 
         notifier.info('Link copied', 1500);

@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     export type InputChoice = {
-        id: number | string,
+        id: string | number,
         [key: string]: any
     } & SearchablePart;
 </script>
@@ -14,14 +14,14 @@
     export let selected: InputChoice[] = [];
 
     $: availableOptions = options.filter(
-        (option) => !selected.map((c) => c.id).includes(option.id)
+        (option) => !selected.map((choice) => choice.id).includes(option.id)
     );
     let input;
     let inputElement;
     let inputValue = '';
     let focused = false;
 
-    async function addSelected(option) {
+    async function addSelected(option: InputChoice) {
         selected = [...selected, option];
         inputValue = '';
         input.focus();

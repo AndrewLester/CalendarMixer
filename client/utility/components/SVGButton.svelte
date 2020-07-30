@@ -12,8 +12,11 @@ export let text = '';
 let active = false;
 let button: HTMLElement;
 
-function press() {
-    if (disabled) return;
+function press(e: Event) {
+    if (disabled) {
+        e.preventDefault();
+        return;
+    }
 
     active = true;
 }

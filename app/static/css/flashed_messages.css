@@ -17,6 +17,7 @@ ul.flashed-messages {
     padding: 10px 20px;
     list-style: none;
     line-height: 1.5;
+    pointer-events: none;
     font-size: 20px;
     animation: pop-in 350ms cubic-bezier(.6,2.24,.55,.47) both 1, fade-out 2s ease-in 7s forwards;
 }
@@ -33,9 +34,6 @@ ul.flashed-messages {
 @keyframes fade-out {
     from { 
         opacity: 1;
-    }
-    99% {
-        pointer-events: none;
     }
     to {
         opacity: 0;

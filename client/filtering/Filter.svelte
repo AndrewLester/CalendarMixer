@@ -8,9 +8,9 @@
 </script>
 
 <script lang="ts">
-    import type { EventInfo, CourseIdentifier, Filter } from '../api/types';
+    import type { CourseIdentifier, Filter } from '../api/types';
     import InputChooser from '../utility/components/input/InputChooser.svelte';
-    import { onMount, getContext } from 'svelte';
+    import { getContext } from 'svelte';
     import { flip } from 'svelte/animate';
     import { fade } from 'svelte/transition';
     import type { NetworkStores } from '../stores';
@@ -21,35 +21,32 @@
     // Updated from parent components and InputChooser child component
     export let course_ids: CourseIdentifier[];
 
-    export let skeleton = false;
+    export let skeleton: boolean = false;
 
     const {
         identifiers: courseIdentifiers,
         filters,
     }: NetworkStores = getContext('stores');
+    const filtersLoaded = filters.loaded;
 
     if (!skeleton) {
         saves.push(save);
     }
 
-    function removeCourse(courseId) {
-        course_ids = course_ids.filter((course) => course !== courseId);
+    function removeCourse(courseId: number) {
+        course_ids = course_ids.filter((course) => course.course_id !== courseId);
     }
 
-    function save(): Promise<void> {
-        if (skeleton || $filters === undefined) {
+    async function save() {
+        if (skeleton || !$filtersLoaded) {
             return;
         }
 
-        const formData: Filter = { id, positive, course_ids };
+        const filter: Filter = { id, positive, course_ids };
 
-        let updatedFilter = $filters.filter((f) => f.id === id)[0];
-        updatedFilter.positive = positive;
-        updatedFilter.course_ids = course_ids;
-        filters.update([formData], [
-            ...$filters.filter((f) => f.id !== id),
-            updatedFilter,
-        ]);
+        if (!filters.replace) return;
+
+        await filters.replace(filter, 'id');
     }
 </script>
 
@@ -64,14 +61,15 @@
     </div>
     <div class="course-input">
         <label>Courses:</label>
-        {#each course_ids as courseId (courseId.course_id)}
+
+        {#each course_ids as courseId (courseId.id)}
             <div
                 class="recognized-course"
                 animate:flip={{ duration: 100 }}
                 transition:fade={{ duration: 100 }}>
-                <span class="course-name">{courseId.course_name}</span>
+                <span class="course-name">{courseId.name}</span>
                 <img
-                    on:click={() => removeCourse(courseId)}
+                    on:click={() => removeCourse(courseId.course_id)}
                     class="delete-icon"
                     src="/static/img/close.svg"
                     alt="Remove Course" />

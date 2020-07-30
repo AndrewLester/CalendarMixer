@@ -5,7 +5,6 @@
     import { themes } from './themes';
     import type { Theme } from './themes';
 
-
     interface Toast {
         id: number;
         msg: string;
@@ -27,7 +26,7 @@
     onMount(() => {
         toastsElement.style.setProperty('--width', o.width);
     });
-    function animateOut(node, { delay = 0, duration = 300 }) {
+    function animateOut(node, { delay = 20, duration = 300 }) {
         function vhTOpx(value) {
             var w = window,
                 d = document,
@@ -86,7 +85,7 @@
             class="toast"
             style="background: {toast.background};"
             out:animateOut
-            animate:flip={{ delay: undefined, duration: undefined, easing: undefined }}>
+            animate:flip={{ delay: 20 }}>
             <div class="content">{toast.msg}</div>
             <div
                 class="progress"

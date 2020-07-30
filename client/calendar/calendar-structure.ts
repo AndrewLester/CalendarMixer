@@ -22,11 +22,11 @@ export interface CalendarEventData {
     start: moment.Moment,
     end: moment.Moment,
     initialPlacement: boolean,
+    startCol?: number,
+    endCol?: number,
     filtered?: boolean,
     endRow?: number,
     startRow?: number,
-    startCol?: number,
-    endCol?: number
 }
 
 export interface CalendarRowData {
@@ -65,19 +65,19 @@ export function buildCalendarStructure(today: moment.Moment): CalendarData {
         calendar[rowIndex].dayNumbers[dayIndex] = i + 1;
     }
 
-    let lastRow = calendar.length - 1;
-    if (calendar[calendar.length - 2].days.length !== 7) {
+    let lastRowIndex = calendar.length - 1;
+    if (calendar[lastRowIndex].days.length === 0) {
         // Set last calendar row to unused
-        calendar[calendar.length - 1].unused = true;
-        lastRow--;
+        calendar[lastRowIndex].unused = true;
+        lastRowIndex--;
     }
 
-    const row = calendar[lastRow];
-    const newChildrenCount = 7 - row.days.length;
+    const lastRow = calendar[lastRowIndex];
+    const newChildrenCount = 7 - lastRow.days.length;
     for (let i = 0; i < newChildrenCount; i++) {
         let calDay = { dayOfMonth: i + 1, events: [], otherMonth: true };
-        row.days[i + (7 - newChildrenCount)] = calDay;
-        row.dayNumbers[i + (7 - newChildrenCount)] = i + 1;
+        lastRow.days[i + (7 - newChildrenCount)] = calDay;
+        lastRow.dayNumbers[i + (7 - newChildrenCount)] = i + 1;
     }
 
     const firstMonthDay = moment(td).subtract(td.date() - 1, 'days');

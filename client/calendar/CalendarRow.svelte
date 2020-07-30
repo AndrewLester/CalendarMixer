@@ -1,21 +1,22 @@
-<script>
+<script lang="ts">
     import CalendarEvent from './CalendarEvent.svelte';
     import moment from 'moment';
+    import type { CalendarDayData, CalendarData } from './calendar-structure';
 
-    export let today;
+    export let today: moment.Moment;
     export let calRowNum;
-    export let dayNums = [];
-    export let days = [];
-    export let calendar = undefined;
-    export let skeleton = false;
-    export let condensed = false;
+    export let dayNumbers: number[] = [];
+    export let days: CalendarDayData[] = [];
+    export let calendar: CalendarData | undefined = undefined;
+    export let skeleton: boolean = false;
+    export let condensed: boolean = false;
 
     let now = moment();
 </script>
 
 <div class="calendar-row">
     <div class="header">
-        {#each dayNums as num, i}
+        {#each dayNumbers as num, i}
             <div class:other-month={days[i].otherMonth}>
                 {#if !days[i].otherMonth && now.year() === today.year() && now.month() == today.month() && num == now.date()}
                     <span class="today">{num}</span>

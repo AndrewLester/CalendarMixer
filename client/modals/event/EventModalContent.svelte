@@ -2,7 +2,8 @@
     import SVGButton from '../../utility/components/SVGButton.svelte';
     import MoreText from '../../utility/components/MoreText.svelte';
     import Alert from './Alert.svelte';
-    import type { EventInfo, AlertType } from '../../api/types';
+    import type { EventInfo } from '../../api/types';
+    import { AlertType } from '../../api/types';
     import moment from 'moment';
     import { getContext } from 'svelte';
     import { derived } from 'svelte/store';
@@ -49,7 +50,7 @@
 
         // Don't update the store value yet, but post the newAlert over the network
         // Then call reset to update the store value by GETting the new Alert
-        alerts.update(newAlert, null).then(() => alerts._reset());
+        alerts.update(newAlert, null).then(() => alerts.reset());
     }
 </script>
 
