@@ -17,7 +17,7 @@ app/bundle/
 *.rdb
 
 debug_app.sh
-
+.stubs/
 
 *.crt
 *.csr
