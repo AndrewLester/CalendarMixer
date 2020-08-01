@@ -76,7 +76,7 @@ def web_crawler_cloak(func):
 
     @functools.wraps(func)
     def decorated_view(*args, **kwargs):
-        if request.user_agent.bowser in current_app.config['WEB_CRAWLER_USERAGENTS']:
+        if request.user_agent.browser in current_app.config['WEB_CRAWLER_USERAGENTS']:
             desc = func.__doc__ or 'Calendar Mixer'
             return render_template(
                 'web_crawler.html',
