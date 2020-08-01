@@ -98,94 +98,25 @@ def events():
 
 
 @rest_endpoint(
-    'alerts',
     blueprint,
     '/alerts',
-    EventAlert,
-    AlertForm,
-    {'GET', 'POST', 'PUT', 'DELETE'},
+    model=EventAlert,
+    form=AlertForm,
+    methods={'GET', 'POST', 'PUT', 'DELETE'},
 )
 def alerts():
     pass
 
 
-# @blueprint.route('/alerts', methods=['GET', 'POST'])
-# @blueprint.route('/alerts/<int:id>', methods=['DELETE'])
-# @login_required
-# def alerts(id: Optional[int] = None):
-#     if request.method == 'GET':
-#         all_alerts = [alert.to_json() for alert in current_user.alerts.all()]
-#         alerts = defaultdict(list)
-
-#         for alert in all_alerts:
-#             alerts[str(alert['event_id'])].append(alert)
-
-#         return jsonify(alerts)
-
-#     if request.method == 'DELETE' and id is not None:
-#         if alert := current_user.alerts.filter_by(id=id).first():
-#             current_user.alerts.remove(alert)
-#             db.session.add(current_user)
-#             db.session.commit()
-#             return jsonify(success=True), 200
-
-#     if request.method == 'POST':
-#         form = AlertForm.from_json(request.get_json())
-#         if form.validate_on_submit():
-#             alert = current_user.alerts.filter_by(id=form.id.data).first()
-
-#             if alert is None:
-#                 alert = EventAlert(event_id=form.event_id.data, timedelta=form.timedelta.data, type=form.type.data)
-#                 current_user.alerts.append(alert)
-#             else:
-#                 alert.timedelta = form.timedelta.data
-#                 alert.type = form.type.data
-
-#             db.session.add(alert)
-#             db.session.add(current_user)
-#             db.session.commit()
-#             return jsonify(success=True), 201
-#     return jsonify(data='Invalid alert data'), 400
-
 @rest_endpoint(
-    'filters',
     blueprint,
     '/filter',
-    CourseFilter,
-    CourseFilterForm,
-    {'GET', 'POST', 'PUT', 'DELETE'},
+    model=CourseFilter,
+    form=CourseFilterForm,
+    methods={'GET', 'POST', 'PUT', 'DELETE'},
 )
 def filters():
     pass
-
-# @blueprint.route('/filter', methods=['GET', 'POST'])
-# @login_required
-# def filter_modify():
-#     if request.method == 'GET':
-#         return jsonify([item.to_json() for item in current_user.filters])
-
-#     form_data = CourseFilterForm.from_json(request.get_json())
-#     if form_data.validate_on_submit():
-#         course_filter = current_user.filters.filter_by(id=form_data.id.data).first()
-#         if course_filter is None:
-#             course_filter = CourseFilter(positive=form_data.positive.data)
-#             current_user.filters.append(course_filter)
-#         else:
-#             course_filter.positive = form_data.positive.data
-#             course_filter.course_ids.delete()
-
-#         for course_data in form_data.course_ids.data:
-#             course_id = CourseIdentifier.query.get(course_data['id'])
-#             if course_id is None:
-#                 course_id = CourseIdentifier(**course_data)
-#                 db.session.add(course_id)
-#             course_filter.course_ids.append(course_id)
-
-#         db.session.add(course_filter)
-#         db.session.add(current_user)
-#         db.session.commit()
-#         return jsonify(success=True), 201
-#     return jsonify(data='Invalid filter data'), 400
 
 
 @blueprint.route('/identifiers')

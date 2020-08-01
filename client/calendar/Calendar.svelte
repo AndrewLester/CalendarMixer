@@ -25,11 +25,12 @@
     import * as networking from '../api/network';
     import { timeToMoment } from '../api/schoology';
     import type { Networking } from '../api/network';
+    import type { Filter } from '../api/types';
 
     export let today: moment.Moment;
     export let flyDirection: FlyAnimationDirection;
     export let condensed: boolean;
-    export let showToday = false;
+    export let showToday: boolean = false;
 
     const SCROLL_DELAY = 350; // Milliseconds
     const { filters, events }: NetworkStores = getContext('stores');
@@ -51,16 +52,10 @@
         easing: cubicInOut,
     };
 
+    // Listen for changes to filter from FilterEditor
     filters.subscribe(($value) => {
         if (downloaded && calendarReady && $filtersLoaded) {
-            for (let [i, row] of calendar.rows.entries()) {
-                for (let [j, day] of row.days.entries()) {
-                    for (let [k, event] of day.events.entries()) {
-                        event.filtered = applyFilters(event.eventInfo, $value);
-                        calendar.rows[i].days[j].events[k] = event;
-                    }
-                }
-            }
+            filterEvents($value);
         }
     });
 
@@ -143,6 +138,17 @@
                 calendar,
                 $filters
             );
+        }
+    }
+
+    function filterEvents(filters: Filter[]) {
+        for (let [i, row] of calendar.rows.entries()) {
+            for (let [j, day] of row.days.entries()) {
+                for (let [k, event] of day.events.entries()) {
+                    event.filtered = applyFilters(event.eventInfo, filters);
+                    calendar.rows[i].days[j].events[k] = event;
+                }
+            }
         }
     }
 

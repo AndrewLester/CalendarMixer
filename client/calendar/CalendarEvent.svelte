@@ -10,6 +10,7 @@
     import EventModalContent from '../modals/event/EventModalContent.svelte';
     import { onMount, getContext } from 'svelte';
     import tippy from 'tippy.js';
+    import { alertsByEvent } from '../stores';
     import 'tippy.js/dist/tippy.css';
     import 'tippy.js/animations/shift-away-subtle.css';
 
@@ -30,6 +31,7 @@
 
     const { open }: ModalFunctions = getContext('simple-modal');
     const { alerts }: NetworkStores = getContext('stores');
+    const alertsLoaded = alerts.loaded;
 
     let big = false;
 
@@ -127,7 +129,7 @@
         style="--bg-color: {color}; --animation-delay: {animationDelay}ms;
         grid-column: {startCol} / {endCol}; grid-row: {startRow || 'unset'} / {_endRow || 'unset'};"
         class:multi-line={big}>
-        {#if alerts.loaded && $alerts[eventInfo['id']] && $alerts[eventInfo['id']].length > 0}
+        {#if $alertsLoaded && $alertsByEvent.has(eventInfo.id.toString())}
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 25 25"

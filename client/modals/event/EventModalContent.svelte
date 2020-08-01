@@ -11,7 +11,8 @@
     import { fade, fly } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import type { NetworkStores } from '../../stores';
-
+    import { alertsByEvent } from '../../stores';
+    console.log(alertsByEvent);
     export let eventInfo: EventInfo;
     export let start: moment.Moment;
     export let end: moment.Moment;
@@ -35,22 +36,21 @@
 
     const { close } = getContext('simple-modal');
     const { alerts }: NetworkStores = getContext('stores');
+    const alertsLoaded = alerts.loaded;
 
     function addAlert() {
         if (filtered) {
             return;
         }
 
-        const newAlert = {
+        const alert = {
             id: -1,
             event_id: eventInfo['id'].toString(),
             timedelta: moment.duration(15, 'minutes').toISOString(),
             type: AlertType.Display,
         };
 
-        // Don't update the store value yet, but post the newAlert over the network
-        // Then call reset to update the store value by GETting the new Alert
-        alerts.update(newAlert, null).then(() => alerts.reset());
+        alerts.create(alert);
     }
 </script>
 
@@ -103,23 +103,21 @@
                 on:click={addAlert} />
         </div>
         <fieldset>
-            {#if $alerts[eventInfo['id']] && $alerts[eventInfo['id']].length > 0}
-                {#each $alerts[eventInfo['id']] as alert (alert.id)}
-                    <div
-                        animate:flip={{ duration: 100 }}
-                        out:fade={{ duration: 100 }}
-                        in:fly={{ y: 20, duration: 100, easing: cubicInOut }}
-                        class="alert-wrapper">
-                        <Alert {...alert} exported={!filtered} />
-                    </div>
-                {/each}
+            {#each $alertsByEvent.get(eventInfo.id.toString()) || [] as alert (alert.id)}
+                <div
+                    animate:flip={{ duration: 100 }}
+                    out:fade={{ duration: 100 }}
+                    in:fly={{ y: 20, duration: 100, easing: cubicInOut }}
+                    class="alert-wrapper">
+                    <Alert {...alert} exported={!filtered} />
+                </div>
             {:else}
                 <p
                     style="text-align: center;"
                     in:fade|self={{ duration: 100, delay: 100 }}>
                     <em>No Alerts</em>
                 </p>
-            {/if}
+            {/each}
         </fieldset>
     </div>
 </div>

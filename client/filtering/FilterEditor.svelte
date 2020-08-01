@@ -6,7 +6,6 @@
     import { fade } from "svelte/transition";
     import { getContext } from "svelte";
     import { sleep } from "../utility/async.js";
-    import { NetworkStore } from "../utility/networkstore";
     import type { CourseIdentifier } from "../api/types";
     import type { NetworkStores } from "../stores";
 

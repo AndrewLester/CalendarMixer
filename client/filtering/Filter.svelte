@@ -44,9 +44,7 @@
 
         const filter: Filter = { id, positive, course_ids };
 
-        if (!filters.replace) return;
-
-        await filters.replace(filter, 'id');
+        await filters.update(filter, 'id');
     }
 </script>
 

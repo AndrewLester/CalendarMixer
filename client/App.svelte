@@ -14,7 +14,6 @@ declare const csrf_token: string;
     import SVGButton from './utility/components/SVGButton.svelte';
     import { onMount, setContext, tick } from 'svelte';
     import moment from 'moment';
-    import { NetworkStore } from './utility/networkstore';
     import type { Filter, Alert, CourseIdentifier, EventInfo } from './api/types';
     import type { Networking } from './api/network';
     import * as networking from './api/network';
@@ -83,6 +82,7 @@ declare const csrf_token: string;
         showToday = true;
     }
 </script>
+
 
 <NotificationDisplay options={{ timeout: 2500, width: '200px' }} />
 <Modal styleContent={{ padding: 0 }}>

@@ -29,27 +29,22 @@
             : `${durationToString(relativetime)} before`;
 
     async function save() {
-        const api = await getAPI();
+        if (!$alertsLoaded) return;
 
-        const alertData: Alert = {
+        const alertData = {
             id,
             type,
             event_id,
             timedelta,
         };
 
-        await api
-            .post('/calendar/alerts', alertData)
-            .then(() => alerts.reset());
+        await alerts.create(alertData);
     }
 
     async function deleteAlert() {
         if (!$alertsLoaded) return;
 
-        const api = await getAPI();
-
-        $alerts[event_id] = $alerts[event_id].filter((alert) => alert.id != id);
-        api.delete(`/calendar/alerts/${id}`);
+        await alerts.deleteByKey('id', id);
     }
 
     function closePopper() {

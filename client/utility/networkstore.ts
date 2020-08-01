@@ -1,7 +1,11 @@
-import { writable as writableStore, Writable, Readable, derived } from 'svelte/store';
+import {
+    writable as writableStore,
+    Writable,
+    Readable,
+    derived,
+} from 'svelte/store';
 import type { Networking } from '../api/network';
 import { sleep } from './async';
-
 
 declare type Subscriber<T> = (value: T) => void;
 /** Unsubscribes from value updates. */
@@ -12,26 +16,27 @@ declare type Updater<T> = (value: T) => T;
 declare type Invalidator<T> = (value?: T) => void;
 
 type ElementType<T> = T extends Array<infer U> ? U : never;
-
 type ErrorHandler = (error: Error, retryTime?: number) => void;
 
-export class NetworkStore<T> implements Readable<T> {
-    subscribe: (run: Subscriber<T>, invalidate?: Invalidator<T>) => Unsubscriber;
-    append?: (element: ElementType<T>) => Promise<void>;
-    replace?: (element: ElementType<T>, key: keyof ElementType<T>) => Promise<void>;
-    delete?: (element: ElementType<T>, idKey: keyof ElementType<T>) => Promise<void>;
+export class ReadableNetworkStore<T> implements Readable<T> {
+    subscribe: (
+        run: Subscriber<T>,
+        invalidate?: Invalidator<T>
+    ) => Unsubscriber;
 
     readonly store: Writable<T>;
-    private storeValue: T;
-    private fetchErrorHandler: ErrorHandler;
-    private api?: Networking;
-    private _loaded: boolean = false;
+    protected storeValue: T;
+    protected fetchErrorHandler: ErrorHandler;
+
+    // Store which holds the loading state for this store
     readonly _loadedStore: Readable<boolean>;
+    private _loaded: boolean = false;
+
+    protected api?: Networking;
 
     constructor(
-        private endpoint: string,
+        protected endpoint: string,
         defaultValue: T,
-        private writable = false,
         fetchErrorHandler: ErrorHandler = () => { }
     ) {
         this.store = writableStore(defaultValue);
@@ -40,60 +45,29 @@ export class NetworkStore<T> implements Readable<T> {
 
         this.fetchErrorHandler = fetchErrorHandler;
         this._loadedStore = derived([this], () => this._loaded);
-
-        if (this.writable && defaultValue instanceof Array) {
-            this.append = async (element: ElementType<T>) => {
-                await this.update(current => {
-                    const currentArray = current as unknown as ElementType<T>[];
-                    return ([element, ...currentArray]) as unknown as T;
-                });
-            }
-            this.replace = async (element: ElementType<T>, discriminator: keyof ElementType<T>) => {
-                await this.update(current => {
-                    const currentArray = current as unknown as ElementType<T>[];
-                    return ([element, ...currentArray.filter((elem) => {
-                        return elem[discriminator] !== element[discriminator];
-                    })]) as unknown as T;
-                });
-            }
-            this.delete = async (element: ElementType<T>, idKey: keyof ElementType<T>) => {
-                if (!this.api) return;
-                
-                
-                this.api.delete(this.endpoint + `/${element[idKey]}`);
-            }
-        }
-    }
-
-    async setAPI(api: Networking, overwrite: boolean = false) {
-        if (overwrite && this.api !== undefined) return;
-
-        this.api = api;
-
-        await this.reset();
     }
 
     get loaded(): Readable<boolean> {
         return this._loadedStore;
     }
 
-    async set(value: T) {
-        if (!this.writable) return;
+    async setAPI(api: Networking, overwrite: boolean = false) {
+        if (!overwrite && this.api !== undefined) return;
 
-        this.storeValue = value;
-        this.store.set(value);
-        await this.api?.post(this.endpoint, value);
-    }
+        this.api = api;
 
-    async update(updater: Updater<T>) {
-        if (!this.writable) return;
-
-        await this.set(updater(this.storeValue));
+        await this.reset();
     }
 
     async reset(retryTime?: number) {
+        if (!this.api) {
+            throw new Error(
+                'Networking must be loaded before a call to reset()'
+            );
+        }
+
         try {
-            const value = await this.api?.get(this.endpoint);
+            const value = await this.api.get(this.endpoint);
             this._loaded = true;
             this.store.set(value);
         } catch (e) {
@@ -102,5 +76,80 @@ export class NetworkStore<T> implements Readable<T> {
             this.fetchErrorHandler(e, retryTimeDef);
             await sleep(retryTimeDef).then(() => this.reset(retryTimeDef * 2));
         }
+    }
+}
+
+export class WritableNetworkStore<T> extends ReadableNetworkStore<T>
+    implements Writable<T> {
+    constructor(
+        endpoint: string,
+        defaultValue: T,
+        fetchErrorHandler: ErrorHandler = () => { }
+    ) {
+        super(endpoint, defaultValue, fetchErrorHandler);
+    }
+
+    async set(value: T) {
+        if (!this.api) throw new Error('Networking not loaded');
+
+        this.storeValue = value;
+        this.store.set(value);
+        await this.api.post(this.endpoint, value);
+    }
+
+    async update(updater: Updater<T>) {
+        await this.set(updater(this.storeValue));
+    }
+}
+
+export class ListNetworkStore<T extends Array<ElementType<T>>> extends ReadableNetworkStore<T> {
+    constructor(
+        endpoint: string,
+        defaultValue: T,
+        fetchErrorHandler: ErrorHandler = () => { }
+    ) {
+        super(endpoint, defaultValue, fetchErrorHandler);
+    }
+
+    async create(element: ElementType<T>) {
+        if (!this.api) throw new Error('Networking not loaded');
+
+        const created: ElementType<T> = await this.api.post(this.endpoint, element);
+        this.store.update((current) => [created, ...current] as any);
+    }
+
+    async update(element: ElementType<T>, discriminator: keyof ElementType<T>) {
+        if (!this.api) throw new Error('Networking not loaded');
+
+
+        this.store.update((current) => {
+            const updated = [
+                element,
+                ...current.filter((elem) => {
+                    return elem[discriminator] !== element[discriminator];
+                })
+            ]
+
+            return updated as any;
+        })
+        await this.api.put(this.endpoint + `/${element[discriminator]}`, element);
+    }
+
+    async delete(element: ElementType<T>, idKey: keyof ElementType<T>) {
+        if (!this.api) throw new Error('Networking not loaded');
+
+        this.store.update((current) => {
+            return current.filter((elem) => elem[idKey] !== element[idKey]) as any;
+        });
+        await this.api.delete(this.endpoint + `/${element[idKey]}`);
+    }
+
+    async deleteByKey(key: keyof ElementType<T>, value: ElementType<T>[typeof key]) {
+        if (!this.api) throw new Error('Networking not loaded');
+
+        this.store.update((current) => {
+            return current.filter((elem) => elem[key] !== value) as any;
+        });
+        await this.api.delete(this.endpoint + `/${value}`);
     }
 }

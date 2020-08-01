@@ -1,38 +1,37 @@
 import moment from 'moment';
 import type { EventInfo, Filter } from '../api/types';
 
-
 export interface CalendarData {
-    rows: CalendarRowData[],
-    firstCalDay: moment.Moment,
-    firstMonthDay: moment.Moment,
-    lastCalDay: moment.Moment,
-    lastMonthDay: moment.Moment
+    rows: CalendarRowData[];
+    firstCalDay: moment.Moment;
+    firstMonthDay: moment.Moment;
+    lastCalDay: moment.Moment;
+    lastMonthDay: moment.Moment;
 }
 
 export interface CalendarDayData {
-    dayOfMonth: number,
-    events: CalendarEventData[],
-    otherMonth: boolean,
-    currentRow?: number
+    dayOfMonth: number;
+    events: CalendarEventData[];
+    otherMonth: boolean;
+    currentRow?: number;
 }
 
 export interface CalendarEventData {
-    eventInfo: EventInfo,
-    start: moment.Moment,
-    end: moment.Moment,
-    initialPlacement: boolean,
-    startCol?: number,
-    endCol?: number,
-    filtered?: boolean,
-    endRow?: number,
-    startRow?: number,
+    eventInfo: EventInfo;
+    start: moment.Moment;
+    end: moment.Moment;
+    initialPlacement: boolean;
+    startCol?: number;
+    endCol?: number;
+    filtered?: boolean;
+    endRow?: number;
+    startRow?: number;
 }
 
 export interface CalendarRowData {
-    dayNumbers: number[],
-    days: CalendarDayData[],
-    unused: boolean
+    dayNumbers: number[];
+    days: CalendarDayData[];
+    unused: boolean;
 }
 
 export function buildCalendarStructure(today: moment.Moment): CalendarData {
@@ -41,7 +40,9 @@ export function buildCalendarStructure(today: moment.Moment): CalendarData {
     // Duplicate moment because it's mutable value
     const td = moment(today);
 
-    const firstDayWeekPos = moment(td).subtract(td.date() - 1, 'days').days();
+    const firstDayWeekPos = moment(td)
+        .subtract(td.date() - 1, 'days')
+        .days();
     const daysInPrevMonth = moment(td).subtract(1, 'months').daysInMonth();
 
     // Start calendar with 6 rows
@@ -81,14 +82,30 @@ export function buildCalendarStructure(today: moment.Moment): CalendarData {
     }
 
     const firstMonthDay = moment(td).subtract(td.date() - 1, 'days');
-    const firstCalDay = moment(firstMonthDay).subtract(firstMonthDay.days(), 'days');
+    const firstCalDay = moment(firstMonthDay).subtract(
+        firstMonthDay.days(),
+        'days'
+    );
     const lastMonthDay = moment(td).add(td.daysInMonth() - td.date(), 'days');
-    const lastCalDay = moment(lastMonthDay).add(6 - lastMonthDay.days(), 'days');
+    const lastCalDay = moment(lastMonthDay).add(
+        6 - lastMonthDay.days(),
+        'days'
+    );
 
-    return { firstMonthDay, firstCalDay, lastMonthDay, lastCalDay, rows: calendar, };
+    return {
+        firstMonthDay,
+        firstCalDay,
+        lastMonthDay,
+        lastCalDay,
+        rows: calendar,
+    };
 }
 
-export function placeEvent(event: CalendarEventData, calendar: CalendarData, filters: Filter[]) {
+export function placeEvent(
+    event: CalendarEventData,
+    calendar: CalendarData,
+    filters: Filter[]
+) {
     let { eventInfo, start, end } = event;
     let { firstCalDay, lastCalDay } = calendar;
 
@@ -106,8 +123,12 @@ export function placeEvent(event: CalendarEventData, calendar: CalendarData, fil
     start = start.isBefore(firstCalDay) ? firstCalDay : start;
 
     // The Math.ceil call corrects for messed up daylight savings timespans
-    const span = Math.round(moment.duration(moment(end).diff(moment(start))).asDays());
-    const daysSinceCalStart = Math.floor(moment.duration(start.diff(firstCalDay)).asDays());
+    const span = Math.round(
+        moment.duration(moment(end).diff(moment(start))).asDays()
+    );
+    const daysSinceCalStart = Math.floor(
+        moment.duration(start.diff(firstCalDay)).asDays()
+    );
     const col = daysSinceCalStart % 7;
     const row = ~~(daysSinceCalStart / 7);
 
@@ -121,32 +142,39 @@ export function placeEvent(event: CalendarEventData, calendar: CalendarData, fil
     if (endCol > startCol + 1) {
         for (let checkCol = startCol; checkCol < endCol; checkCol++) {
             if (calendar.rows[row].days[checkCol]) {
-                event.startRow = calendar.rows[row].days[checkCol].events.length + 1;
+                event.startRow =
+                    calendar.rows[row].days[checkCol].events.length + 1;
                 event.endRow = event.startRow + 1;
                 break;
             }
         }
     }
 
-    if (endCol > (startCol + 1)) {
+    if (endCol > startCol + 1) {
         for (let i = 1; i < Math.min(7 - col, span + 1); i++) {
             calendar.rows[row].days[col + i].events.push({
                 eventInfo,
                 start,
                 end,
                 filtered: event.filtered,
-                initialPlacement: false
+                initialPlacement: false,
             });
         }
     }
     if (endCol > 8) {
-        placeEvent({
-            eventInfo,
-            end,
-            initialPlacement: true,
-            filtered: event.filtered,
-            start: moment(start).startOf('day').add(7 - col, 'days')
-        }, calendar, filters);
+        placeEvent(
+            {
+                eventInfo,
+                end,
+                initialPlacement: true,
+                filtered: event.filtered,
+                start: moment(start)
+                    .startOf('day')
+                    .add(7 - col, 'days'),
+            },
+            calendar,
+            filters
+        );
     }
 
     event.startCol = startCol;
@@ -156,9 +184,14 @@ export function placeEvent(event: CalendarEventData, calendar: CalendarData, fil
 
 export function applyFilters(eventInfo: EventInfo, filters: Filter[]): boolean {
     for (let filter of filters) {
-        const eventRealmId = eventInfo[eventInfo.realm + '_id'];
+        const eventRealmId: string = eventInfo[eventInfo.realm + '_id'].toString();
         // !== is an xor: positive filters invert the output of the normal filter
-        if (filter.course_ids.map(identifier => identifier.course_id).some(id => id == eventRealmId) !== filter.positive) {
+        if (
+            filter.course_ids
+                // @ts-ignore
+                .map((identifier) => identifier.id)
+                .some((id) => id == eventRealmId) !== filter.positive
+        ) {
             return true;
         }
     }

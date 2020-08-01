@@ -1,45 +1,51 @@
-import { NetworkStore } from "./utility/networkstore";
-import type { EventInfo, Filter, Alert, CourseIdentifier } from "./api/types";
+import { ReadableNetworkStore, ListNetworkStore } from './utility/networkstore';
+import type { EventInfo, Filter, Alert, CourseIdentifier } from './api/types';
 import * as notifier from './notifications/notifier';
-
+import { derived } from 'svelte/store';
 
 const errorHandler = (error: Error, retryTime?: number) => {
     notifier.danger('Network request failed, retrying...', retryTime ?? 2500);
     console.error(error);
-}
+};
 
-
-const events = new NetworkStore<EventInfo[]>(
+const events = new ReadableNetworkStore<EventInfo[]>(
     '/calendar/events',
     [],
-    false,
     errorHandler
 );
-const filters = new NetworkStore<Filter[]>(
+const filters = new ListNetworkStore<Filter[]>(
     '/calendar/filter',
     [],
-    true,
     errorHandler
 );
-const alerts = new NetworkStore<Alert[]>(
+const alerts = new ListNetworkStore<Alert[]>(
     '/calendar/alerts',
     [],
-    true,
     errorHandler
 );
-const identifiers = new NetworkStore<CourseIdentifier[]>(
+const identifiers = new ReadableNetworkStore<CourseIdentifier[]>(
     '/calendar/identifiers',
     [],
-    false,
     errorHandler
 );
 
+const alertsByEvent = derived([alerts], ([ values ]) => {
+    const alertsMap = new Map<string, Alert[]>();
+
+    for (const alert of values) {
+        const alertsForEvent = alertsMap.get(alert.event_id) ?? [];
+        alertsForEvent.push(alert);
+        alertsMap.set(alert.event_id, alertsForEvent);
+    }
+
+    return alertsMap;
+});
 
 export type NetworkStores = {
-    events: NetworkStore<EventInfo[]>,
-    filters: NetworkStore<Filter[]>,
-    identifiers: NetworkStore<CourseIdentifier[]>,
-    alerts: NetworkStore<Alert[]>
-}
+    events: ReadableNetworkStore<EventInfo[]>;
+    filters: ListNetworkStore<Filter[]>;
+    identifiers: ReadableNetworkStore<CourseIdentifier[]>;
+    alerts: ListNetworkStore<Alert[]>;
+};
 
-export { events, filters, alerts, identifiers };
+export { events, filters, alerts, identifiers, alertsByEvent };

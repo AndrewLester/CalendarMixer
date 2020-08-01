@@ -26,28 +26,18 @@
     onMount(() => {
         toastsElement.style.setProperty('--width', o.width);
     });
-    function animateOut(node, { delay = 20, duration = 300 }) {
-        function vhTOpx(value) {
-            var w = window,
-                d = document,
-                e = d.documentElement,
-                g = d.getElementsByTagName('body')[0],
-                x = w.innerWidth || e.clientWidth || g.clientWidth,
-                y = w.innerHeight || e.clientHeight || g.clientHeight;
-            return (y * value) / 100;
-        }
 
+    function animateOut(node, { delay = 20, duration = 300 }): SvelteTransitionConfig {
         return {
             delay,
             duration,
             css: (t) =>
-                `opacity: ${
-                    (t - 0.5) * 1
-                }; transform-origin: top right; transform: scaleX(${
-                    (t - 0.5) * 1
-                });`,
+                `opacity: ${(t - 0.5)}; 
+                transform-origin: top right;
+                transform: scaleX(${(t - 0.5)});`,
         };
     }
+
     function createToast(msg: string, theme: Theme, to: number): void {
         const background = themes[theme];
         toasts = [
@@ -84,8 +74,7 @@
         <li
             class="toast"
             style="background: {toast.background};"
-            out:animateOut
-            animate:flip={{ delay: 20 }}>
+            out:animateOut>
             <div class="content">{toast.msg}</div>
             <div
                 class="progress"

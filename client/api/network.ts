@@ -1,52 +1,67 @@
 export type Networking = {
-    get(url: string): Promise<any>,
-    post(url: string, data: any, headers?: HeadersInit): Promise<void>,
-    delete(url: string): Promise<any>
-}
+    get(url: string): Promise<any>;
+    post(url: string, data: any, headers?: HeadersInit): Promise<any>;
+    put(url: string, data: any, headers?: HeadersInit): Promise<any>;
+    delete(url: string): Promise<any>;
+};
 
+type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+const defaultHeaders: HeadersInit = {
+    Accept: 'application/json',
+};
 
 export function mountNetworking(csrfToken: string): Networking {
+    async function request(
+        url: string,
+        method: HTTPMethod,
+        headers: HeadersInit = defaultHeaders,
+        data?: any
+    ) {
+        const res = await fetch(url, {
+            method: method,
+            mode: method !== 'GET' ? 'cors' : undefined,
+            headers: { ...defaultHeaders, ...headers },
+            body: data,
+        });
+        if (!res.ok) {
+            throw new Error(`Request failed with error: ${res.statusText}`);
+        }
+        return res.json();
+    }
+
     return {
         get: async (url) => {
-            const res = await fetch(url, {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            if (!res.ok) {
-                throw new Error(`Request failed with error: ${res.statusText}`);
-            }
-            return res.json();
+            return await request(url, 'GET');
         },
-        post: async (url, data, headers = { 'Content-Type': 'application/json' }) => {
-            const res = await fetch(url, {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
+        post: async (url, data, headers = defaultHeaders) => {
+            return await request(
+                url,
+                'POST',
+                {
                     ...headers,
-                    'X-CSRFToken': csrfToken
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
                 },
-                body: JSON.stringify(data)
-            });
-            if (!res.ok) {
-                throw new Error(`Request failed with error: ${res.statusText}`);
-            }
+                JSON.stringify(data)
+            );
+        },
+        put: async (url, data, headers = defaultHeaders) => {
+            return await request(
+                url,
+                'PUT',
+                {
+                    ...headers,
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                JSON.stringify(data)
+            );
         },
         delete: async (url) => {
-            const res = await fetch(url, {
-                method: 'DELETE',
-                mode: 'cors',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRFToken': csrfToken
-                }
-            });
-            if (!res.ok) {
-                throw new Error(`Request failed with error: ${res.statusText}`);
-            }
-            return res.json();
-        }
-    }
-};
+            return await request(url, 'DELETE', { 'X-CSRFToken': csrfToken });
+        },
+    };
+}
 
 export const key: object = {};
