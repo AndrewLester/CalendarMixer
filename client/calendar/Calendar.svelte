@@ -205,8 +205,9 @@
         /* 41px for the button bar */
         position: relative;
         height: calc(100% - 41px);
-        /* Shows scrollbar for calendar on macos chrome. Creates separate rendering context */
-        will-change: transform;
+        will-change: scroll-position;
+        /* Create new stacking context */
+        z-index: 1;
         overflow-y: auto;
         overflow-x: hidden;
     }
@@ -217,6 +218,7 @@
         top: 0;
         /* This index puts it above the day header */
         z-index: 6;
+        will-change: transform;
         background-color: white;
         text-align: center;
         grid-auto-flow: column;

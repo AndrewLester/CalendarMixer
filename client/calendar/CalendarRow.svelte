@@ -105,6 +105,7 @@
         grid-row-gap: 5px;
         border-color: gray;
         position: sticky;
+        will-change: transform;
         z-index: 5;
         background-color: white;
         top: 21px;
