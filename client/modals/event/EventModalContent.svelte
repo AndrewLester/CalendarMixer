@@ -73,7 +73,7 @@
     <div class="header">
         <span
             class="schoology-icon"
-            data-event-type={eventInfo.realm}
+            data-event-type={eventInfo.type || 'event'}
             style="--picture-offset: {start.date() - 1}" />
         <h1 class="event-name" title={eventInfo.title}>{eventInfo.title}</h1>
         <SVGButton

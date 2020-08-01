@@ -7,7 +7,8 @@ export interface EventInfo {
     all_day: number,
     realm: string,
     end?: string,
-    filtered?: boolean
+    filtered?: boolean,
+    type?: string
 }
 
 export interface CourseIdentifier {
