@@ -1,11 +1,11 @@
 <script lang="ts" context="module">
     declare const colors: string[];
-declare const csrf_token: string;
+    declare const csrf_token: string;
     declare const ical_link: string;
 </script>
 
 <script lang="ts">
-    import Modal from 'svelte-simple-modal';    
+    import Modal from 'svelte-simple-modal';
     import NotificationDisplay from './notifications/NotificationDisplay.svelte';
     import Calendar from './calendar/Calendar.svelte';
     import type { FlyAnimationDirection } from './calendar/Calendar.svelte';
@@ -14,7 +14,12 @@ declare const csrf_token: string;
     import SVGButton from './utility/components/SVGButton.svelte';
     import { onMount, setContext, tick } from 'svelte';
     import moment from 'moment';
-    import type { Filter, Alert, CourseIdentifier, EventInfo } from './api/types';
+    import type {
+        Filter,
+        Alert,
+        CourseIdentifier,
+        EventInfo,
+    } from './api/types';
     import type { Networking } from './api/network';
     import * as networking from './api/network';
     import { events, filters, identifiers, alerts } from './stores';
@@ -82,7 +87,6 @@ declare const csrf_token: string;
         showToday = true;
     }
 </script>
-
 
 <NotificationDisplay options={{ timeout: 2500, width: '200px' }} />
 <Modal styleContent={{ padding: 0 }}>

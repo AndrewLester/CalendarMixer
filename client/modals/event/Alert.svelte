@@ -35,10 +35,10 @@
             id,
             type,
             event_id,
-            timedelta,
+            timedelta: relativetime.toISOString(),
         };
 
-        await alerts.create(alertData);
+        await alerts.update(alertData, 'id');
     }
 
     async function deleteAlert() {

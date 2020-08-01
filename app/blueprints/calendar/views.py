@@ -17,7 +17,6 @@ from flask import (
     request,
 )
 from flask_login import current_user
-from wtforms.widgets.core import Option
 
 from app.blueprints.calendar.forms import AlertForm, CourseFilterForm
 from app.blueprints.calendar.models import CourseFilter, CourseIdentifier, EventAlert
@@ -81,7 +80,7 @@ def ical_file(user_id: int, secret: str):
         )
 
         # Turn calendar object into a string
-        response = make_response(''.join(calendar.ical))
+        response = make_response(''.join(calendar.ical))  # type: ignore
         response.headers['Content-Disposition'] = 'attachment; filename=calendar.ics'
         response.headers['Content-Type'] = 'text/calendar; charset=utf-8'
         return response
@@ -104,8 +103,21 @@ def events():
     form=AlertForm,
     methods={'GET', 'POST', 'PUT', 'DELETE'},
 )
-def alerts():
-    pass
+def alerts(form: AlertForm) -> EventAlert:
+    alert = current_user.alerts.filter_by(id=form.id.data).first()
+
+    if alert is None:
+        alert = EventAlert(
+            event_id=form.event_id.data,
+            timedelta=form.timedelta.data,
+            type=form.type.data,
+        )
+        current_user.alerts.append(alert)
+    else:
+        alert.timedelta = form.timedelta.data
+        alert.type = form.type.data
+
+    return alert
 
 
 @rest_endpoint(
@@ -115,8 +127,23 @@ def alerts():
     form=CourseFilterForm,
     methods={'GET', 'POST', 'PUT', 'DELETE'},
 )
-def filters():
-    pass
+def filters(form: CourseFilterForm) -> CourseFilter:
+    course_filter = current_user.filters.filter_by(id=form.id.data).first()
+    if course_filter is None:
+        course_filter = CourseFilter(positive=form.positive.data)
+        current_user.filters.append(course_filter)
+    else:
+        course_filter.positive = form.positive.data
+        course_filter.course_ids.delete()
+
+    for course_data in form.course_ids.data:
+        course_id = CourseIdentifier.query.get(course_data['id'])
+        if course_id is None:
+            course_id = CourseIdentifier(**course_data)
+            db.session.add(course_id)
+        course_filter.course_ids.append(course_id)
+
+    return course_filter
 
 
 @blueprint.route('/identifiers')
@@ -125,7 +152,11 @@ def filters():
 def courses():
     user = oauth.schoology.get('users/me', cache=True).json()
     sections = [
-        {'course_id': section['id'], 'name': section['course_title'], 'realm': 'section'}
+        {
+            'course_id': section['id'],
+            'name': section['course_title'],
+            'realm': 'section',
+        }
         for section in oauth.schoology.get(
             f'users/{user["uid"]}/sections', cache=True
         ).json()['section']

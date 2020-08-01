@@ -4,6 +4,7 @@
     import Alert from './Alert.svelte';
     import type { EventInfo } from '../../api/types';
     import { AlertType } from '../../api/types';
+    import type { Alert as AlertData } from '../../api/types';
     import moment from 'moment';
     import { getContext } from 'svelte';
     import { derived } from 'svelte/store';
@@ -12,7 +13,7 @@
     import { cubicInOut } from 'svelte/easing';
     import type { NetworkStores } from '../../stores';
     import { alertsByEvent } from '../../stores';
-    console.log(alertsByEvent);
+
     export let eventInfo: EventInfo;
     export let start: moment.Moment;
     export let end: moment.Moment;
@@ -37,6 +38,20 @@
     const { close } = getContext('simple-modal');
     const { alerts }: NetworkStores = getContext('stores');
     const alertsLoaded = alerts.loaded;
+
+    let alertList: AlertData[] = [];
+    $: if ($alertsLoaded) {
+        const alertsForEvent =
+            $alertsByEvent.get(eventInfo.id.toString()) ?? [];
+
+        alertList = alertsForEvent.sort((a, b) => {
+            // asDays() here can be replaced by any time unit, but duration must be => to integer
+            return moment
+                .duration(a.timedelta)
+                .subtract(moment.duration(b.timedelta))
+                .asDays();
+        });
+    }
 
     function addAlert() {
         if (filtered) {
@@ -103,7 +118,7 @@
                 on:click={addAlert} />
         </div>
         <fieldset>
-            {#each $alertsByEvent.get(eventInfo.id.toString()) || [] as alert (alert.id)}
+            {#each alertList as alert (alert.id)}
                 <div
                     animate:flip={{ duration: 100 }}
                     out:fade={{ duration: 100 }}

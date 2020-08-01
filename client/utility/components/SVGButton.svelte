@@ -98,7 +98,7 @@ button > svg {
     -webkit-tap-highlight-color: transparent;
 }
 
-.button-text.clickable {
+.button-text:not(.disabled) {
     cursor: pointer;
 }
 
