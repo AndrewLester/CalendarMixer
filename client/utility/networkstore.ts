@@ -114,8 +114,12 @@ export class ListNetworkStore<T extends Array<ElementType<T>>> extends ReadableN
     async create(element: ElementType<T>) {
         if (!this.api) throw new Error('Networking not loaded');
 
-        const created: ElementType<T> = await this.api.post(this.endpoint, element);
-        this.store.update((current) => [created, ...current] as any);
+        try {
+            const created: ElementType<T> = await this.api.post(this.endpoint, element);
+            this.store.update((current) => [created, ...current] as any);
+        } catch (e) {
+            this.fetchErrorHandler(e);
+        }
     }
 
     async update(element: ElementType<T>, discriminator: keyof ElementType<T>) {
@@ -132,7 +136,12 @@ export class ListNetworkStore<T extends Array<ElementType<T>>> extends ReadableN
 
             return updated as any;
         })
-        await this.api.put(this.endpoint + `/${element[discriminator]}`, element);
+
+        try {
+            await this.api.put(this.endpoint + `/${element[discriminator]}`, element);
+        } catch (e) {
+            this.fetchErrorHandler(e);
+        }
     }
 
     async delete(element: ElementType<T>, idKey: keyof ElementType<T>) {
@@ -141,7 +150,12 @@ export class ListNetworkStore<T extends Array<ElementType<T>>> extends ReadableN
         this.store.update((current) => {
             return current.filter((elem) => elem[idKey] !== element[idKey]) as any;
         });
-        await this.api.delete(this.endpoint + `/${element[idKey]}`);
+
+        try {
+            await this.api.delete(this.endpoint + `/${element[idKey]}`);
+        } catch (e) {
+            this.fetchErrorHandler(e);
+        }
     }
 
     async deleteByKey(key: keyof ElementType<T>, value: ElementType<T>[typeof key]) {
@@ -150,6 +164,11 @@ export class ListNetworkStore<T extends Array<ElementType<T>>> extends ReadableN
         this.store.update((current) => {
             return current.filter((elem) => elem[key] !== value) as any;
         });
-        await this.api.delete(this.endpoint + `/${value}`);
+        
+        try {
+            await this.api.delete(this.endpoint + `/${value}`);
+        } catch (e) {
+            this.fetchErrorHandler(e);
+        }
     }
 }

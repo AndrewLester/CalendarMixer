@@ -11,9 +11,9 @@ export interface EventInfo {
 }
 
 export interface CourseIdentifier {
-    course_id: number,
-    course_name: number,
-    course_realm: string,
+    id: number,
+    name: number,
+    realm: string,
 }
 
 export interface Filter {

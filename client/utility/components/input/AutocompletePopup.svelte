@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     export interface SearchablePart {
-        id: number | string,
+        id: number,
         searchablePart?: string
     }
 

@@ -4,7 +4,8 @@ import * as notifier from './notifications/notifier';
 import { derived } from 'svelte/store';
 
 const errorHandler = (error: Error, retryTime?: number) => {
-    notifier.danger('Network request failed, retrying...', retryTime ?? 2500);
+    const retryingInfo = retryTime !== undefined ? ', retrying...' : '';
+    notifier.danger('Network request failed' + retryingInfo, retryTime ?? 2500);
     console.error(error);
 };
 

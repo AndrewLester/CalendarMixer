@@ -205,7 +205,7 @@
         /* 41px for the button bar */
         position: relative;
         height: calc(100% - 41px);
-        overflow-y: scroll;
+        overflow-y: auto;
         overflow-x: hidden;
     }
     #header {

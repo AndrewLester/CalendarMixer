@@ -10,10 +10,12 @@
 <script lang="ts">
     import type { CourseIdentifier, Filter } from '../api/types';
     import InputChooser from '../utility/components/input/InputChooser.svelte';
+    import type { InputChoice } from '../utility/components/input/InputChooser.svelte';
     import { getContext } from 'svelte';
     import { flip } from 'svelte/animate';
     import { fade } from 'svelte/transition';
     import type { NetworkStores } from '../stores';
+    import { derived } from 'svelte/store';
 
     export let id: number;
     // Bound to checkbox
@@ -27,14 +29,28 @@
         identifiers: courseIdentifiers,
         filters,
     }: NetworkStores = getContext('stores');
-    const filtersLoaded = filters.loaded;
+    const [ filtersLoaded, courseIdentifiersLoaded ] = [ filters.loaded, courseIdentifiers.loaded ];
+
+    type InputChoicesStores = [Readable<CourseIdentifier[]>, Readable<boolean>];
+    const inputChoices = 
+        derived<InputChoicesStores, InputChoice[]>(
+            [courseIdentifiers, courseIdentifiersLoaded],
+            ([ _identifiers, _filtersLoaded ]) => {
+                if (_filtersLoaded) {
+                    return _identifiers.map((course) => {
+                        return { searchablePart: course.name, ...course } as unknown as InputChoice;
+                    });
+                }
+                return [] as InputChoice[];
+            }
+        );
 
     if (!skeleton) {
         saves.push(save);
     }
 
-    function removeCourse(courseId: number) {
-        course_ids = course_ids.filter((course) => course.course_id !== courseId);
+    function removeCourse(courseToRemove: CourseIdentifier) {
+        course_ids = course_ids.filter((course) => course.id !== courseToRemove.id);
     }
 
     async function save() {
@@ -60,21 +76,21 @@
     <div class="course-input">
         <label>Courses:</label>
 
-        {#each course_ids as courseId (courseId.id)}
+        {#each course_ids as course (course.id)}
             <div
                 class="recognized-course"
                 animate:flip={{ duration: 100 }}
                 transition:fade={{ duration: 100 }}>
-                <span class="course-name">{courseId.name}</span>
+                <span class="course-name">{course.name}</span>
                 <img
-                    on:click={() => removeCourse(courseId.course_id)}
+                    on:click={() => removeCourse(course)}
                     class="delete-icon"
                     src="/static/img/close.svg"
                     alt="Remove Course" />
             </div>
         {/each}
         <InputChooser
-            options={$courseIdentifiers}
+            options={$inputChoices}
             bind:selected={course_ids} />
     </div>
     <input

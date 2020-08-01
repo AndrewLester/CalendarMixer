@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     export type InputChoice = {
-        id: string | number,
+        id: number,
         [key: string]: any
     } & SearchablePart;
 </script>
@@ -54,11 +54,7 @@
                 {#if inputValue.length === 0 || item.match === undefined}
                     <p>{item.name}</p>
                 {:else}
-                    <p>
-                        {item.match.start}
-                        <strong>{item.match.match}</strong>
-                        {item.match.end}
-                    </p>
+                    <p>{item.match.start}<strong>{item.match.match}</strong>{item.match.end}</p>
                 {/if}
             </div>
             <div slot="no-matches">

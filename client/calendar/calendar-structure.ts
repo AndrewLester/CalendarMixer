@@ -190,7 +190,7 @@ export function applyFilters(eventInfo: EventInfo, filters: Filter[]): boolean {
             filter.course_ids
                 // @ts-ignore
                 .map((identifier) => identifier.id)
-                .some((id) => id == eventRealmId) !== filter.positive
+                .some((id) => id.toString() == eventRealmId) !== filter.positive
         ) {
             return true;
         }

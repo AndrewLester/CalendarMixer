@@ -153,7 +153,7 @@ def courses():
     user = oauth.schoology.get('users/me', cache=True).json()
     sections = [
         {
-            'course_id': section['id'],
+            'id': section['id'],
             'name': section['course_title'],
             'realm': 'section',
         }
@@ -162,22 +162,22 @@ def courses():
         ).json()['section']
     ]
     groups = [
-        {'course_id': group['id'], 'name': group['title'], 'realm': 'group'}
+        {'id': group['id'], 'name': group['title'], 'realm': 'group'}
         for group in oauth.schoology.get(
             f'users/{user["uid"]}/groups', cache=True
         ).json()['group']
     ]
     school = {
-        'course_id': str(user['building_id']),
+        'id': str(user['building_id']),
         'name': 'School Events',
         'realm': 'school',
     }
     district = {
-        'course_id': str(user['school_id']),
+        'id': str(user['school_id']),
         'name': 'District Events',
         'realm': 'district',
     }
-    user_identifier = {'course_id': user['uid'], 'name': 'My Events', 'realm': 'user'}
+    user_identifier = {'id': user['uid'], 'name': 'My Events', 'realm': 'user'}
     return jsonify([user_identifier] + sections + groups + [school] + [district])
 
 
