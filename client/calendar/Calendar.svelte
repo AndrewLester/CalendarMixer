@@ -205,6 +205,8 @@
         /* 41px for the button bar */
         position: relative;
         height: calc(100% - 41px);
+        /* Shows scrollbar for calendar on macos chrome. Creates separate rendering context */
+        will-change: transform;
         overflow-y: auto;
         overflow-x: hidden;
     }
