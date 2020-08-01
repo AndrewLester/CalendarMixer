@@ -1,0 +1,6 @@
+{
+    "svelteSortOrder": "scripts-markup-styles",
+    "svelteIndentScriptAndStyle": false,
+    "tabWidth": 4,
+    "singleQuote": true
+}

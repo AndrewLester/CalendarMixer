@@ -103,6 +103,6 @@ class EventAlert(db.Model):
         return {'id': self.id, 'event_id': self.event_id, 
                 'timedelta': isodate.duration_isoformat(self.timedelta),
                 'type': self.type}
-    
+
     def __repr__(self):
         return f'EventAlert<{self.id=}, {self.user_id=}, {self.event_id=}, {self.timedelta=}, {self.type=}>'

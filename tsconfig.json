@@ -1,0 +1,10 @@
+{
+    "extends": "@tsconfig/svelte/tsconfig.json",
+    "include": ["client/**/*"],
+    "exclude": ["node_modules/*", "migrations/**/*", "app/**/*", "logs/**/*"],
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "strictNullChecks": true,
+        "target": "ES2017"
+    }
+}
