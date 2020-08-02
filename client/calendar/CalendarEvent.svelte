@@ -10,10 +10,11 @@
     import EventModalContent from '../modals/event/EventModalContent.svelte';
     import { onMount, getContext } from 'svelte';
     import tippy from 'tippy.js';
+    import { cubicOut } from 'svelte/easing';
+    import { scale } from 'svelte/transition'
     import { alertsByEvent } from '../stores';
     import 'tippy.js/dist/tippy.css';
     import 'tippy.js/animations/shift-away-subtle.css';
-
 
     export let eventInfo: EventInfo;
     export let start: moment.Moment;
@@ -115,7 +116,12 @@
         open(
             EventModalContent,
             { ...data },
-            { closeButton: false, transitionBgProps: { duration: 200 } }
+            { 
+                closeButton: false, 
+                transitionBgProps: { duration: 150 },
+                transitionWindow: scale,
+                transitionWindowProps: { duration: 150, easing: cubicOut, start: 0.95, opacity: 0.7 }
+            }
         );
     }
 </script>
