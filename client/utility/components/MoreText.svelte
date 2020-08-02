@@ -30,5 +30,6 @@ function toggleShowMore() {
     color: blue;
     text-decoration: underline;
     cursor: pointer;
+    white-space: nowrap;
 }
 </style>
