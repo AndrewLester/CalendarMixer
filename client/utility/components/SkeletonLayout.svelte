@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { fade } from "svelte/transition";
+    import { fade } from 'svelte/transition';
 
     export let simple = false;
 </script>
@@ -7,9 +7,7 @@
 {#if simple}
     <slot name="simple" />
 {:else}
-    <div
-        class="wrapper"
-        transition:fade={{ duration: 200 }}>
+    <div class="wrapper" transition:fade={{ duration: 200 }}>
         <slot>
             <!-- Default skeleton layout is a single bar -->
             <div />
@@ -23,7 +21,7 @@
         height: auto;
     }
 
-    .wrapper :global(input[type="text"]),
+    .wrapper :global(input[type='text']),
     .wrapper :global(p),
     .wrapper :global(legend),
     .wrapper :global(div:empty),
@@ -38,11 +36,11 @@
         overflow: hidden;
         transform: none;
         background-repeat: no-repeat;
-        background-image: repeating-linear-gradient(
+        background-image: linear-gradient(
             to right,
-            rgb(175, 175, 175),
-            rgba(175, 175, 175, 0.333),
-            rgb(175, 175, 175)
+            rgba(190, 190, 190, 0.4),
+            rgba(206, 206, 206, 0.2),
+            rgba(190, 190, 190, 0.4)
         );
         background-size: 200% 100%;
         animation: loading 1s infinite ease;

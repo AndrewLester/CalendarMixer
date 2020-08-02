@@ -93,7 +93,7 @@
     }
 
     .event-row.skeleton {
-        grid-template-rows: repeat(3, 15px);
+        grid-template-rows: repeat(3, 20px);
     }
 
     .header > div {
