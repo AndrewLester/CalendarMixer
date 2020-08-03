@@ -180,6 +180,7 @@
         margin: 0px auto;
         height: 30px;
         line-height: 30px;
+        font-weight: normal;
     }
     .header .schoology-icon {
         margin-left: 15px;

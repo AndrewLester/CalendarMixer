@@ -89,7 +89,7 @@
 </script>
 
 <NotificationDisplay options={{ timeout: 2500, width: '200px' }} />
-<Modal styleContent={{ padding: 0 }}>
+<Modal styleContent={{ padding: 0 }} styleWindow={{ 'margin-top': 'calc(2rem + 50px)' }}>
     <main>
         <div id="calendar-viewer" bind:this={calendarViewer}>
             <div id="button-bar">
