@@ -4,7 +4,7 @@
     import type { CalendarDayData, CalendarData } from './calendar-structure';
 
     export let today: moment.Moment;
-    export let calRowNum;
+    export let calRowNum: number;
     export let dayNumbers: number[] = [];
     export let days: CalendarDayData[] = [];
     export let calendar: CalendarData | undefined = undefined;

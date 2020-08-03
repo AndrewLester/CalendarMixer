@@ -139,7 +139,6 @@
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 25 25"
-                tabindex="0"
                 style="display: inline; width: 15px; height: 15px;
                 vertical-align: middle;">
                 <use
