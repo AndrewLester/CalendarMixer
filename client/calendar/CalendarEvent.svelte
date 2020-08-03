@@ -10,7 +10,7 @@
     import EventModalContent from '../modals/event/EventModalContent.svelte';
     import { onMount, getContext } from 'svelte';
     import tippy from 'tippy.js';
-    import { cubicOut } from 'svelte/easing';
+    import { cubicInOut } from 'svelte/easing';
     import { scale } from 'svelte/transition'
     import { alertsByEvent } from '../stores';
     import 'tippy.js/dist/tippy.css';
@@ -120,7 +120,7 @@
                 closeButton: false, 
                 transitionBgProps: { duration: 150 },
                 transitionWindow: scale,
-                transitionWindowProps: { duration: 150, easing: cubicOut, start: 0.95, opacity: 0.7 }
+                transitionWindowProps: { duration: 150, easing: cubicInOut, start: 0.9, opacity: 0.6 }
             }
         );
     }
