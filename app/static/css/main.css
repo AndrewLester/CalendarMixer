@@ -93,8 +93,9 @@ main:first-of-type {
     height: 40px;
     transition: all 0.15s ease;
 }
-.small-button:hover {
+.small-button:hover, .small-button:focus {
     background-color: rgba(41, 182, 246, 0.1);
+    outline: none;
 }
 .small-button:active {
     box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1);
