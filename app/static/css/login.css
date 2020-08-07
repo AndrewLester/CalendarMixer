@@ -1,7 +1,7 @@
 main {
     font-size: 20px;
     box-sizing: border-box;
-    padding: 0px 5em 5em 5em;
+    padding: 0px 40px 40px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -18,11 +18,9 @@ section {
 
 section#domain-examples {
     display: flex;
-    width: 100%;
-}
-
-section > div {
-    width: 50%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px
 }
 
 p {
@@ -31,7 +29,7 @@ p {
 }
 
 div.example {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     align-items: center;
 }
@@ -40,6 +38,7 @@ div.example > img {
     margin: 5px;
     border: 1px solid darkgray;
     border-radius: 10px;
+    width: 100%;
 }
 
 label {
