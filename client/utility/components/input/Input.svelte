@@ -97,7 +97,7 @@
     span::after {
         content: attr(data-text);
         position: relative;
-        font-size: 16px;
+        font-size: 12px;
         display: inline-block;
         opacity: 0;
     }
