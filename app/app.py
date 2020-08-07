@@ -9,7 +9,7 @@ from flask import Flask, render_template, request, jsonify, g, send_from_directo
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
 from flask_sitemap import sitemap_page_needed
-from requests_cache.backends import RedisCache
+from requests_cache.backends.redis import RedisCache
 
 from app import login, db, migrate, bootstrap, cache, csrf, sitemap
 from app.blueprints import calendar, main, oauth
@@ -81,7 +81,7 @@ def register_extensions(app):
         api_base_url='https://api.schoology.com/v1/',
         request_token_url='https://api.schoology.com/v1/oauth/request_token',
         access_token_url='https://api.schoology.com/v1/oauth/access_token',
-        authorize_url='https://fccps.schoology.com/oauth/authorize',
+        authorize_url='https://www.schoology.com/oauth/authorize',
         client_id=app.config['SCHOOLOGY_CLIENT_ID'],
         client_key=app.config['SCHOOLOGY_CLIENT_SECRET']
     )
@@ -94,7 +94,7 @@ def register_blueprints(app):
 
 
 def register_errorhandlers(app):
-    app.register_error_handler(404, lambda error: (render_template('404.html'), 404))
+    app.register_error_handler(404, lambda _: (render_template('404.html'), 404))
     app.register_error_handler(CSRFError, lambda error: (jsonify({'reason': error.description}), 400))
 
     def internal_error(error):

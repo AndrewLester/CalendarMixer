@@ -1,0 +1,47 @@
+main {
+    font-size: 20px;
+    box-sizing: border-box;
+    padding: 0px 5em 5em 5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+}
+
+form {
+    display: contents;
+}
+
+section {
+    padding: 2.5em 0px;
+}
+
+section#domain-examples {
+    display: flex;
+    width: 100%;
+}
+
+section > div {
+    width: 50%;
+}
+
+p {
+    line-height: 1.2;
+    max-width: 10in;
+}
+
+div.example {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+div.example > img {
+    margin: 5px;
+    border: 1px solid darkgray;
+    border-radius: 10px;
+}
+
+label {
+    vertical-align: middle;
+}

@@ -1,23 +1,20 @@
-from datetime import timedelta
-from functools import partial
-
 from flask_wtf import FlaskForm
 from wtforms import (BooleanField, IntegerField,
                      StringField, FormField, FieldList)
 from wtforms.validators import (DataRequired, Length,
-                                NumberRange, ValidationError)
+                                NumberRange, ValidationError, Regexp)
 
 from app.blueprints.calendar.models import EventAlertType
-from app.forms.types import IntervalField, Regex
+from app.forms.types import IntervalField
 
 
 class CourseIDSubform(FlaskForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, meta={'csrf': False})
 
-    id = StringField(validators=[DataRequired(), Length(0, 36), Regex(r'\d+')])
+    id = StringField(validators=[DataRequired(), Length(0, 36), Regexp(r'\d+')])
     name = StringField(validators=[Length(0, 120)])
-    realm = StringField(validators=[DataRequired(), Length(0, 120), Regex(r'(user|group|section|school|district)')])
+    realm = StringField(validators=[DataRequired(), Length(0, 120), Regexp(r'(user|group|section|school|district)')])
 
 
 class AlertForm(FlaskForm):

@@ -14,6 +14,8 @@ from app.view_utils import login_required, web_crawler_cloak
 
 from .models import OAuth1Token
 
+from app.schoology.domain import authorization_domain
+
 blueprint = Blueprint('oauth', __name__, url_prefix='/oauth',
                       template_folder='../..templates', static_folder='../../static')
 
@@ -42,10 +44,12 @@ def login():
         return redirect(url_for('main.index'))
 
     requested_url = request.args.get('next') or ''
+    domain = authorization_domain(request.args.get('domain'))
 
-    next_query_arg = f'?next={requested_url}' if requested_url else ''
-    redirect_uri = url_for('.authorize', _external=True) + next_query_arg
-    return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri)
+    redirect_uri = url_for('.authorize', _external=True)
+    
+    oauth.schoology.authorize_url = domain
+    return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri, next=requested_url)
 
 
 @blueprint.route('/authorize')

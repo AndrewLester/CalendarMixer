@@ -3,8 +3,8 @@ Disallow: /calendar/events
 Disallow: /calendar/filter
 Disallow: /calendar/identifiers
 Disallow: /calendar/alerts
-Disallow: /oauth/authorize
 Disallow: /calendar/ical
 Disallow: /calendar/ical/
+Disallow: /oauth/
 
 Sitemap: https://www.calendarmixer.com/sitemap.xml

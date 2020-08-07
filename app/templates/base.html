@@ -20,7 +20,7 @@
                 <a href="{{ url_for('main.about') }}">About</a>
                 <a href="{{ url_for('main.privacy') }}">Privacy</a>
                 {% if current_user.is_anonymous %}
-                <a href="{{ url_for('oauth.login') }}">Login</a>
+                <a href="{{ url_for('main.login') }}">Login</a>
                 {% else %}
                 <a href="{{ url_for('calendar.calendar') }}">Calendar</a>
                 <a href="{{ url_for('main.profile') }}">Profile</a>

@@ -97,6 +97,7 @@
     span::after {
         content: attr(data-text);
         position: relative;
+        font-size: 16px;
         display: inline-block;
         opacity: 0;
     }
@@ -119,5 +120,14 @@
 
     input:placeholder-shown:not(:focus) + legend {
         padding: 0px;
+    }
+
+    input::placeholder {
+        transition: opacity 150ms;
+        opacity: 0;
+    }
+
+    input:focus::placeholder {
+        opacity: 1;
     }
 </style>

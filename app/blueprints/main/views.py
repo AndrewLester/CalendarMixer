@@ -22,6 +22,11 @@ def privacy():
     return render_template('privacy.html', title='Privacy Policy')
 
 
+@blueprint.route('/login')
+def login():
+    return render_template('login.html', title='Login')
+
+
 @blueprint.route('/profile')
 @login_required
 def profile():

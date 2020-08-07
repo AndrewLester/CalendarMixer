@@ -152,11 +152,7 @@ def filters(form: CourseFilterForm) -> CourseFilter:
 def courses():
     user = oauth.schoology.get('users/me', cache=True).json()
     sections = [
-        {
-            'id': section['id'],
-            'name': section['course_title'],
-            'realm': 'section',
-        }
+        {'id': section['id'], 'name': section['course_title'], 'realm': 'section',}
         for section in oauth.schoology.get(
             f'users/{user["uid"]}/sections', cache=True
         ).json()['section']
@@ -167,18 +163,19 @@ def courses():
             f'users/{user["uid"]}/groups', cache=True
         ).json()['group']
     ]
-    school = {
-        'id': str(user['building_id']),
-        'name': 'School Events',
-        'realm': 'school',
-    }
-    district = {
-        'id': str(user['school_id']),
-        'name': 'District Events',
-        'realm': 'district',
-    }
+    school = (
+        [{'id': str(user['building_id']), 'name': 'School Events', 'realm': 'school'}]
+        if user.get('building_id')
+        else []
+    )
+    district = (
+        [{'id': str(user['school_id']), 'name': 'District Events', 'realm': 'district'}]
+        if user.get('school_id')
+        else []
+    )
+
     user_identifier = {'id': user['uid'], 'name': 'My Events', 'realm': 'user'}
-    return jsonify([user_identifier] + sections + groups + [school] + [district])
+    return jsonify([user_identifier] + sections + groups + school + district)
 
 
 # TODO: Cache this with cache.memoize
