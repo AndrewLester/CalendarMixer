@@ -46,10 +46,11 @@ def login():
     requested_url = request.args.get('next') or ''
     domain = authorization_domain(request.args.get('domain'))
 
-    redirect_uri = url_for('.authorize', _external=True)
+    next_query_arg = f'?next={requested_url}' if requested_url else ''
+    redirect_uri = url_for('.authorize', _external=True) + next_query_arg
     
     oauth.schoology.authorize_url = domain
-    return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri, next=requested_url)
+    return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri)
 
 
 @blueprint.route('/authorize')

@@ -4,6 +4,7 @@
 <meta name="description" content="Use your School's Schoology login portal to login to Calendar Mixer">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+<script src="{{ url_for('static', filename='js/login.js') }}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -29,6 +30,7 @@
         </div>
     </section>
     <form action="/oauth/login" method="GET">
+        <input id="form-input-next" type="hidden" name="next">
         <div>
             <div style="line-height: 1;">
                 <label for="domain-prefix-input">Input your school's custom domain or subdomain&#42;:</label>
