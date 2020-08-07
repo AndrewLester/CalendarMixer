@@ -49,7 +49,7 @@ def inject_date():
 
 def register_extensions(app):
     login.init_app(app)
-    login.login_view = 'oauth.login'
+    login.login_view = 'main.login'
     bootstrap.init_app(app)
     db.init_app(app)
     with app.app_context():
