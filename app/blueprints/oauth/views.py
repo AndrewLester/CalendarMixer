@@ -33,12 +33,7 @@ def logout():
 
 
 @blueprint.route('/login')
-@web_crawler_cloak
 def login():
-    """
-    Login to Calendar Mixer using your Schoology Account. This provides Calendar Mixer with
-    access to your events and allows it to add alerts and filters.
-    """
     if current_user.is_authenticated:
         flash('You\'re already logged in.')
         return redirect(url_for('main.index'))
