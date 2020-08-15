@@ -38,11 +38,6 @@
 
     $: currentMonth = moment(today).startOf('month');
     $: if (!firstLoad) events.view(currentMonth);
-    $: {
-        console.log('Events Loaded: ' + $eventsLoaded);
-        console.log('Downloaded (main): ' + ($filtersLoaded && $eventsLoaded));
-        console.log($events.get(currentMonth.format(momentKeyFormat)));
-    };
 
     let calendarView: HTMLElement | undefined;
     let calendar: CalendarData;
@@ -105,8 +100,6 @@
     });
 
     function placeEvents(calendarData: CalendarData) {
-        console.log('While placing:');
-        console.log($events);
         const eventSet = new Set<EventInfo>();
         // Get events in months before and after the current one to account for other-month days
         for (let i = currentMonth.month() - 1; i < currentMonth.month() + 2; i++) {

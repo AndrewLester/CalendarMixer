@@ -38,7 +38,6 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
         const queries = [] as Promise<string>[];
 
         if (!storeValue.has(month.format(momentKeyFormat))) {
-            console.log('DOWNLOAD REQUIRED');
             this._loaded = false;
         }
 
@@ -82,14 +81,9 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
             }
         }
 
-        Promise.all(queries).then((queries) => {
-            console.log('setting loaded here');
-            console.log(get(this.store));
+        Promise.all(queries).then(() => {
             this._loaded = true;
-            this.store.update((map) => {
-                console.log(map);
-                return map;
-            });
+            this.store.update((map) => map);
         })
     }
 }
