@@ -1,4 +1,5 @@
 from datetime import datetime
+from json.decoder import JSONDecodeError
 
 import pytz
 
@@ -19,7 +20,12 @@ def get_paged_data(
     page = 0
     next_url = ''
     while next_url is not None and (page < max_pages or max_pages == -1):
-        json = request_function(next_url if next_url else endpoint, *request_args, **request_kwargs).json()
+        res = request_function(next_url if next_url else endpoint, *request_args, **request_kwargs)
+        try:
+            json = res.json()
+        except JSONDecodeError:
+            return data
+        
         next_url = json[next_key].get('next')
         data += json[data_key]
         page += 1

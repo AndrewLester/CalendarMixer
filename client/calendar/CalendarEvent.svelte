@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     import type { EventInfo } from '../api/types';
-    import type moment from 'moment';
+    import moment from 'moment';
     import type { NetworkStores } from '../stores';
     import type { ModalFunctions } from '../modals/types';
     import type { CalendarEventData } from './calendar-structure';
@@ -11,10 +11,11 @@
     import { onMount, getContext } from 'svelte';
     import tippy from 'tippy.js';
     import { cubicInOut } from 'svelte/easing';
-    import { scale } from 'svelte/transition'
+    import { scale } from 'svelte/transition';
     import { alertsByEvent } from '../stores';
     import 'tippy.js/dist/tippy.css';
     import 'tippy.js/animations/shift-away-subtle.css';
+    import { momentToTime } from '../api/schoology';
 
     export let eventInfo: EventInfo;
     export let start: moment.Moment;
@@ -31,7 +32,7 @@
     export let filtered: boolean = false;
 
     const { open }: ModalFunctions = getContext('simple-modal');
-    const { alerts }: NetworkStores = getContext('stores');
+    const { alerts, events }: NetworkStores = getContext('stores');
     const alertsLoaded = alerts.loaded;
 
     let big = false;
@@ -69,7 +70,7 @@
 
     let color = colors[~~(Math.random() * colors.length)];
     // Animation delay calculation factors in column and eventNum
-    let animationDelay = 20 + 15 * startCol + 5 * eventNum + 100 * calRowNum;
+    let animationDelay = 10 + (15 * startCol) + (5 * eventNum) + (100 * calRowNum);
 
     let eventElement;
 
@@ -116,11 +117,16 @@
         open(
             EventModalContent,
             { ...data },
-            { 
-                closeButton: false, 
+            {
+                closeButton: false,
                 transitionBgProps: { duration: 150 },
                 transitionWindow: scale,
-                transitionWindowProps: { duration: 150, easing: cubicInOut, start: 0.9, opacity: 0.6 }
+                transitionWindowProps: {
+                    duration: 150,
+                    easing: cubicInOut,
+                    start: 0.9,
+                    opacity: 0.6,
+                },
             }
         );
     }
@@ -170,7 +176,6 @@
         padding: 0px 10px;
         line-height: 20px; /* fallback */
         max-height: 45px; /* fallback */
-        will-change: transform, opacity;
         transition: color 200ms ease, background-color 200ms ease;
         animation: slide-in 200ms ease 1 both;
         animation-delay: var(--animation-delay);

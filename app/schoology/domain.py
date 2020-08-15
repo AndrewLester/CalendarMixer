@@ -19,7 +19,6 @@ def authorization_domain(prefix: Optional[str]) -> str:
     Takes a custom Schoology domain or subdomain and returns the authorization url
     to use for oauth authorization
     """
-    domain = ''
     if not prefix:
         # If they put in blank or invalid, use the schoology domain
         domain = 'www.schoology.com'

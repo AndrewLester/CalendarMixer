@@ -121,15 +121,15 @@
             {#each alertList as alert (alert.id)}
                 <div
                     animate:flip={{ duration: 100 }}
-                    out:fade={{ duration: 100 }}
-                    in:fly={{ y: 20, duration: 100, easing: cubicInOut }}
+                    out:fade|local={{ duration: 100 }}
+                    in:fly|local={{ y: 20, duration: 100, easing: cubicInOut }}
                     class="alert-wrapper">
                     <Alert {...alert} exported={!filtered} />
                 </div>
             {:else}
                 <p
                     style="text-align: center;"
-                    in:fade|self={{ duration: 100, delay: 100 }}>
+                    in:fade|local={{ duration: 100, delay: 100 }}>
                     <em>No Alerts</em>
                 </p>
             {/each}

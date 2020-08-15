@@ -1,8 +1,4 @@
 <script lang="ts" context="module">
-    import type { NetworkStores } from '../stores';
-    import type moment from 'moment';
-
-
     export type FlyAnimationDirection = -1 | 1 | 0;
 </script>
 
@@ -15,7 +11,7 @@
     import {
         buildCalendarStructure,
         placeEvent,
-        applyFilters
+        applyFilters,
     } from './calendar-structure.js';
     import type { CalendarData } from './calendar-structure';
     import { fade, fly } from 'svelte/transition';
@@ -23,28 +19,36 @@
     import 'tippy.js/dist/tippy.css';
     import 'tippy.js/animations/shift-away-subtle.css';
     import * as networking from '../api/network';
-    import { timeToMoment } from '../api/schoology';
+    import { timeToMoment, momentToTime } from '../api/schoology';
+    import type { NetworkStores } from '../stores';
+    import { momentKeyFormat } from '../stores';
+    import moment from 'moment';
     import type { Networking } from '../api/network';
-    import type { Filter } from '../api/types';
+    import type { Filter, EventInfo } from '../api/types';
 
     export let today: moment.Moment;
     export let flyDirection: FlyAnimationDirection;
     export let condensed: boolean;
     export let showToday: boolean = false;
 
-    const SCROLL_DELAY = 350; // Milliseconds
+    const SCROLL_DELAY = 350;  // Milliseconds
     const { filters, events }: NetworkStores = getContext('stores');
     const [ filtersLoaded, eventsLoaded ] = [ filters.loaded, events.loaded ];
+    let firstLoad = true;
 
+    $: currentMonth = moment(today).startOf('month');
+    $: if (!firstLoad) events.view(currentMonth);
+    $: {
+        console.log('Events Loaded: ' + $eventsLoaded);
+        console.log('Downloaded (main): ' + ($filtersLoaded && $eventsLoaded));
+        console.log($events.get(currentMonth.format(momentKeyFormat)));
+    };
 
     let calendarView: HTMLElement | undefined;
     let calendar: CalendarData;
-    let downloaded = false;
     let calendarReady = false;
     let donePlacing = false;
-    let readyToShow = false;
-    let firstLoad = true;
-    let readyToPlace = false;
+    let flyComplete = false;
     let scrollDelay = 0;
     $: flyParameters = {
         x: flyDirection * 300,
@@ -53,42 +57,30 @@
     };
 
     // Listen for changes to filter from FilterEditor
-    filters.subscribe(($value) => {
-        if (downloaded && calendarReady && $filtersLoaded) {
-            filterEvents($value);
-        }
-    });
-
-    derived(
-        [filtersLoaded, eventsLoaded],
-        ([_filtersLoaded, _eventsLoaded]) => _filtersLoaded && _eventsLoaded
-    ).subscribe((bothLoaded) => (downloaded = bothLoaded));
+    filters.subscribe((value) => filterEvents(value));
 
     $: if (today) {
         calendarReady = false;
-        readyToShow = false;
+        flyComplete = false;
         calendar = buildCalendarStructure(today);
-        readyToPlace = true;
     }
 
-    $: if (downloaded && readyToPlace) {
-        placeEvents();
+    $: if ($filtersLoaded && $eventsLoaded) {
+        placeEvents(calendar);
         donePlacing = true;
-        readyToPlace = false;
+        firstLoad = false;
     }
 
-    // Either it's the first time loading the page, or the fly animation is done
-    $: if ((readyToShow || firstLoad) && donePlacing) {
-        calendarReady = true;
-        firstLoad = false;
+    $: if (flyComplete && donePlacing) {
         donePlacing = false;
+        calendarReady = true;
         // Reset scroll position after animating to a new month
         if (calendarView) {
             calendarView.scrollTop = 0;
         }
     }
 
-    afterUpdate(async () => {
+    afterUpdate(() => {
         if (showToday) {
             if (
                 calendarReady &&
@@ -107,41 +99,43 @@
             calendarReady &&
             localStorage.getItem('firstEverLoad') !== 'false'
         ) {
-            tippy(document.getElementsByClassName('calendar-event')[0], {
-                content: 'Click to show info',
-                arrow: true,
-                allowHTML: true,
-                placement: 'bottom',
-                animation: 'shift-away-subtle',
-                delay: [250, 100],
-                theme: 'info',
-                trigger: 'manual',
-                showOnCreate: true,
-            });
+            showInfoTippy(document.getElementsByClassName('calendar-event')[0], 'Click to show info');
             localStorage.setItem('firstEverLoad', 'false');
         }
     });
 
-    function placeEvents() {
-        for (let event of $events) {
+    function placeEvents(calendarData: CalendarData) {
+        console.log('While placing:');
+        console.log($events);
+        const eventSet = new Set<EventInfo>();
+        // Get events in months before and after the current one to account for other-month days
+        for (let i = currentMonth.month() - 1; i < currentMonth.month() + 2; i++) {
+            const eventsListKey = moment(currentMonth).month(i).format(momentKeyFormat);
+            for (let event of ($events.get(eventsListKey) ?? new Map<string, EventInfo>()).values()) {
+                eventSet.add(event);
+            }
+        }
+
+        for (let eventInfo of eventSet) {
             placeEvent(
                 {
-                    eventInfo: event,
-                    start: timeToMoment(event.start),
-                    end: 
-                        event.has_end 
-                        ? timeToMoment(event.end as string)
-                        : timeToMoment(event.start),
+                    eventInfo: eventInfo,
+                    start: timeToMoment(eventInfo.start),
+                    end: eventInfo.has_end
+                        ? timeToMoment(eventInfo.end as string)
+                        : timeToMoment(eventInfo.start),
                     initialPlacement: true,
-                    filtered: event.filtered ?? false,
+                    filtered: eventInfo.filtered ?? false,
                 },
-                calendar,
+                calendarData,
                 $filters
             );
         }
     }
 
     function filterEvents(filters: Filter[]) {
+        if (calendar === undefined) return;
+
         for (let [i, row] of calendar.rows.entries()) {
             for (let [j, day] of row.days.entries()) {
                 for (let [k, event] of day.events.entries()) {
@@ -158,15 +152,31 @@
             .getElementsByClassName('today')[0]
             .scrollIntoView({ behavior: 'smooth' });
     }
+
+    function showInfoTippy(element: Element | undefined, message: string) {
+        if (element !== undefined) {
+            tippy(element, {
+                content: message,
+                arrow: true,
+                allowHTML: true,
+                placement: 'bottom',
+                animation: 'shift-away-subtle',
+                delay: [250, 100],
+                theme: 'info',
+                trigger: 'manual',
+                showOnCreate: true,
+            });
+        }
+    }
 </script>
 
 <div id="calendar-view" bind:this={calendarView}>
-    {#if calendarReady || firstLoad}
+    {#if calendarReady || !($filtersLoaded && $eventsLoaded)}
         <div
             id="calendar"
-            out:fly={flyParameters}
             in:fade={{ duration: 50 }}
-            on:outroend={() => readyToShow = true}>
+            out:fly={flyParameters}
+            on:outroend={() => (flyComplete = true)}>
             <div id="header" class="calendar-row">
                 <div>Sun</div>
                 <div>Mon</div>
@@ -176,7 +186,7 @@
                 <div>Fri</div>
                 <div>Sat</div>
             </div>
-            {#if downloaded}
+            {#if $filtersLoaded && $eventsLoaded}
                 {#each calendar.rows.filter((row) => !row.unused) as row, i (row)}
                     <CalendarRow
                         {...row}
@@ -186,14 +196,12 @@
                         calRowNum={i} />
                 {/each}
             {:else}
-                {#each calendar.rows as { unused, ...row }, i (row)}
-                    {#if !unused }
-                        <CalendarRow
-                            {...row}
-                            {today}
-                            calRowNum={i}
-                            skeleton={true} />
-                    {/if}
+                {#each calendar.rows.filter((row) => !row.unused) as row, i (row)}
+                    <CalendarRow
+                        {...row}
+                        {today}
+                        calRowNum={i}
+                        skeleton={true} />
                 {/each}
             {/if}
         </div>
@@ -218,11 +226,13 @@
         top: 0;
         /* This index puts it above the day header */
         z-index: 6;
-        will-change: transform;
         background-color: white;
         text-align: center;
         grid-auto-flow: column;
         grid-template-columns: repeat(7, 1fr);
+    }
+    #calendar {
+        will-change: transform;
     }
     :global(.calendar-row) {
         grid-column: 1 / 8;

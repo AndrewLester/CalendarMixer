@@ -177,6 +177,7 @@ input:focus::placeholder {
 }
 .small-button {
     color: #29b6f6;
+    -webkit-tap-highlight-color: transparent;
     background: none;
     border: none;
     border-radius: 5px; 

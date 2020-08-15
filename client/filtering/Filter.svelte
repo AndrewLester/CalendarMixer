@@ -74,7 +74,8 @@
             bind:checked={positive} />
     </div>
     <div class="course-input">
-        <label>Courses:</label>
+        <label for="hidden-input">Courses:</label>
+        <input id="hidden-input" style="display: none;">
 
         {#each course_ids as course (course.id)}
             <div

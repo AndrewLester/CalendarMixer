@@ -2,10 +2,11 @@
     type InputElementType = 'text' | 'submit' | 'number' | 'range';
 
     export let value: string | number;
-    export let placeholder: string;
+    export let label: string;
+    export let placeholder: string = ' ';
     export let type: InputElementType = 'text';
     export let width = 60;
-    export let placeholderFontSize = 0.75;
+    export let labelFontSize = 0.75;
 
     export let root: HTMLElement;
     let input: HTMLElement;
@@ -33,14 +34,13 @@
         {value}
         bind:this={input}
         on:input={handleInput}
-        placeholder="
-        "
+        placeholder={placeholder}
         on:blur
         on:focus />
     <legend>
         <span
-            data-text={placeholder}
-            style="font-size: {placeholderFontSize}rem;" />
+            data-text={label}
+            style="font-size: {labelFontSize}rem;" />
     </legend>
 </fieldset>
 

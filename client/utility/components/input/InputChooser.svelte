@@ -32,7 +32,7 @@
     <!-- <input class="input-chooser" tabindex="0" type="text" on:focus={() => focused = true}
       on:blur={() => focused = false} bind:this={input} bind:value={inputValue}> -->
     <Input
-        placeholder="Course name"
+        label="Course name"
         bind:value={inputValue}
         on:blur={() => (focused = false)}
         on:focus={() => (focused = true)}

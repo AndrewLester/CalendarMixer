@@ -1,6 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import List, Dict, Union, Generator
+from typing import List, Dict
 
 import ics
 from ics.alarm import DisplayAlarm, EmailAlarm, base

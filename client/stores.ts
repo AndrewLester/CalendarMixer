@@ -1,7 +1,10 @@
-import { ReadableNetworkStore, ListNetworkStore } from './utility/networkstore';
+import { ReadableNetworkStore, ListNetworkStore, QueryNetworkStore } from './utility/networkstore';
 import type { EventInfo, Filter, Alert, CourseIdentifier } from './api/types';
 import * as notifier from './notifications/notifier';
 import { derived } from 'svelte/store';
+import moment from 'moment';
+import { momentToTime, timeToMoment } from './api/schoology';
+import { EventHolderStore } from './utility/eventholder';
 
 const errorHandler = (error: Error, retryTime?: number) => {
     const retryingInfo = retryTime !== undefined ? ', retrying...' : '';
@@ -9,11 +12,6 @@ const errorHandler = (error: Error, retryTime?: number) => {
     console.error(error);
 };
 
-const events = new ReadableNetworkStore<EventInfo[]>(
-    '/calendar/events',
-    [],
-    errorHandler
-);
 const filters = new ListNetworkStore<Filter[]>(
     '/calendar/filter',
     [],
@@ -30,6 +28,13 @@ const identifiers = new ReadableNetworkStore<CourseIdentifier[]>(
     errorHandler
 );
 
+const momentKeyFormat = 'YYYY-MM';
+const events = new EventHolderStore(
+    5,
+    '/calendar/events',
+    errorHandler
+);
+
 const alertsByEvent = derived([alerts], ([ values ]) => {
     const alertsMap = new Map<string, Alert[]>();
 
@@ -43,10 +48,10 @@ const alertsByEvent = derived([alerts], ([ values ]) => {
 });
 
 export type NetworkStores = {
-    events: ReadableNetworkStore<EventInfo[]>;
-    filters: ListNetworkStore<Filter[]>;
-    identifiers: ReadableNetworkStore<CourseIdentifier[]>;
-    alerts: ListNetworkStore<Alert[]>;
+    events: typeof events;
+    filters: typeof filters;
+    identifiers: typeof identifiers;
+    alerts: typeof alerts;
 };
 
-export { events, filters, alerts, identifiers, alertsByEvent };
+export { events, filters, alerts, identifiers, alertsByEvent, momentKeyFormat };

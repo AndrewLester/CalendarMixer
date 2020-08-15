@@ -23,6 +23,10 @@ def create_app(config_name=Config):
     app.config.from_object(config_name)
     app.redis = redis.from_url(app.config['REDIS_URL'])
     app.config['SITEMAP_VIEW_DECORATORS'] = [load_page]
+
+    # Don't cache js bundles if in development
+    if app.config['ENV'] == 'development':
+        app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     # Register before requests mixins prior to those that are inside extensions
     register_extensions(app)
     register_url_rules(app)

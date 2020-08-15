@@ -65,9 +65,16 @@
 
         api = networking.mountNetworking(csrfToken);
         events.setAPI(api);
+        events.view(moment(today).startOf('month'));
+
         filters.setAPI(api);
+        filters.reset();
+
         identifiers.setAPI(api);
+        identifiers.reset()
+
         alerts.setAPI(api);
+        alerts.reset()
     });
 
     function navigateMonths(shift: number) {
@@ -89,7 +96,7 @@
 </script>
 
 <NotificationDisplay options={{ timeout: 2500, width: '200px' }} />
-<Modal styleContent={{ padding: 0 }} styleWindow={{ 'margin-top': 'calc(2rem + 50px)' }}>
+<Modal styleContent={{ padding: 0 }} styleWindow={{ 'margin-top': 'calc(2rem + 50px)', 'will-change': 'transform' }}>
     <main>
         <div id="calendar-viewer" bind:this={calendarViewer}>
             <div id="button-bar">
@@ -209,6 +216,7 @@
     }
     :global(button.large-button),
     :global(input[type='submit']) {
+        -webkit-tap-highlight-color: transparent;
         border-radius: 5px;
         font-size: 15px;
         color: white;
@@ -236,6 +244,7 @@
     }
     :global(.small-button) {
         color: #29b6f6;
+        -webkit-tap-highlight-color: transparent;
         background: none;
         border: none;
         border-radius: 5px;

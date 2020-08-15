@@ -1,11 +1,10 @@
-from collections import defaultdict
-from datetime import datetime
+from datetime import date, datetime
 from functools import partial
-from logging import Filter
+from time import strptime
 from typing import Optional
+from urllib.parse import urlparse, parse_qs
 
 import pytz
-from dateutil.relativedelta import relativedelta
 from flask import (
     Blueprint,
     current_app,
@@ -21,11 +20,11 @@ from flask_login import current_user
 from app.blueprints.calendar.forms import AlertForm, CourseFilterForm
 from app.blueprints.calendar.models import CourseFilter, CourseIdentifier, EventAlert
 from app.blueprints.main.models import User
-from app.exts import db, oauth
-from app.schoology.api import get_paged_data
+from app.exts import db, oauth, cache
 from app.view_utils import cache_header, login_required, rest_endpoint
 
-from .types import SchoologyCalendar
+from .calendar import SchoologyCalendar
+from .data import get_user_events
 from .models import EventAlert, CourseFilter
 
 blueprint = Blueprint(
@@ -35,14 +34,6 @@ blueprint = Blueprint(
     template_folder='../../templates',
     static_folder='../../bundle',
 )
-
-
-def get_current_user(extra=''):
-    try:
-        return str(current_user.id) + extra
-    except Exception:
-        current_app.logger.error('Caching error with user events.')
-        return 'view/%s'
 
 
 @blueprint.route('')
@@ -91,9 +82,18 @@ def ical_file(user_id: int, secret: str):
 
 @blueprint.route('/events')
 @login_required
-@cache_header(1800, key_prefix=partial(get_current_user, 'events'))
+@cache_header(1800, key_prefix=lambda: str(current_user.id) + 'events/' + urlparse(request.url).query)
 def events():
-    return jsonify(SchoologyCalendar.sort_events(get_user_events(current_user)))
+    dates = parse_qs(urlparse(request.url).query)
+    time_range = None
+    if dates.get('start', False) and dates.get('end', False):
+        time_range = (
+            date.fromisoformat(dates['start'][0]),
+            date.fromisoformat(dates['end'][0])
+        )
+
+    user_events = get_user_events(current_user, time_range=time_range)
+    return jsonify(SchoologyCalendar.sort_events(user_events))
 
 
 @rest_endpoint(
@@ -148,7 +148,7 @@ def filters(form: CourseFilterForm) -> CourseFilter:
 
 @blueprint.route('/identifiers')
 @login_required
-@cache_header(900, key_prefix=partial(get_current_user, 'identifiers'))
+@cache_header(900, key_prefix=lambda: str(current_user.id) + 'identifiers')
 def courses():
     user = oauth.schoology.get('users/me', cache=True).json()
     sections = [
@@ -176,40 +176,3 @@ def courses():
 
     user_identifier = {'id': user['uid'], 'name': 'My Events', 'realm': 'user'}
     return jsonify([user_identifier] + sections + groups + school + district)
-
-
-# TODO: Cache this with cache.memoize
-def get_user_events(user: User, filter: bool = False):
-    # This dictionary maps section ids, user ids, group ids to events so that only the ids have to be checked
-    # This is more efficient if realms have many events
-    events = defaultdict(list)
-
-    now = datetime.now()
-    # The + and - 7 accounts for days from the 3rd month in either direction appearing
-    # At the top or bottom of the 2nd month in the calendar viewer
-    period_start = now + relativedelta(months=-2, days=-7)
-    period_end = now + relativedelta(months=+2, days=+7)
-    time_queries = f'?start_date={period_start.strftime("%Y-%m-%d")}&end_date={period_end.strftime("%Y-%m-%d")}'
-
-    req_function = oauth.schoology.get
-    if current_user.is_authenticated:
-        req_function = partial(req_function, cache=True)
-
-    events_json = get_paged_data(
-        req_function, f'users/{user.id}/events' + time_queries + '&limit=200', 'event'
-    )
-
-    for event in events_json:
-        realm_id = event[event['realm'] + '_id']
-        events[str(realm_id)].append(event)
-
-    realm_ids = list(events.keys())
-
-    if filter:
-        user.apply_filters(realm_ids)
-
-    # Add all events that are in unfiltered realms to the combined events list
-    combined_events = []
-    for realm_id in realm_ids:
-        combined_events += events[realm_id]
-    return combined_events

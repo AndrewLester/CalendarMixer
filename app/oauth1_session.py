@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Any, Dict
 
 from authlib.client.errors import MissingTokenError
 from authlib.client.errors import OAuthError
@@ -76,20 +77,19 @@ def get_cached_session(self, cache_name, backend, expire_after):
     return session
 
 
-def request(self, method, url, token=None, **kwargs):
+def request(self, method, url, token=None, **kwargs: Any):
     if self.api_base_url and not url.startswith(('https://', 'http://')):
         url = urlparse.urljoin(self.api_base_url, url)
 
-    if 'cache' not in kwargs or not current_user.is_authenticated:
-        if 'cache' in kwargs:
+    if kwargs.pop('cache', False):
+        if not current_user.is_authenticated:
             current_app.logger.warn(f'Attempted to utilize user cache for url: {url}')
-        function = self._get_session
+        fetch_session = self._get_session
     else:
-        del kwargs['cache']
         cache_name = str(current_user.id)
-        function = partial(self.get_cached_session, self, cache_name)
+        fetch_session = partial(self.get_cached_session, self, cache_name)
 
-    with function() as session:
+    with fetch_session() as session:
         if kwargs.get('withhold_token'):
             return session.request(method, url, **kwargs)
 
