@@ -154,8 +154,6 @@ export class QueryNetworkStore<T, Args extends {[index: string]: string}> extend
             }
 
             this.storeValue = map;
-            console.log('MAP FROM STORE:');
-            console.log(map)
             return map;
         });
 
