@@ -2,12 +2,19 @@
     import CalendarEvent from './CalendarEvent.svelte';
     import moment from 'moment';
     import type { CalendarDayData, CalendarData } from './calendar-structure';
+    import { fade } from 'svelte/transition';
 
     export let today: moment.Moment;
     export let calRowNum: number;
     export let dayNumbers: number[] = [];
     export let days: CalendarDayData[] = [];
-    export let calendar: CalendarData | undefined = undefined;
+    export let calendar: CalendarData = {
+        rows: [],
+        firstCalDay: moment().startOf('month'),
+        firstMonthDay: moment().startOf('month'),
+        lastCalDay: moment().endOf('month'),
+        lastMonthDay: moment().endOf('month'),
+    };
     export let skeleton: boolean = false;
     export let condensed: boolean = false;
 
@@ -24,15 +31,16 @@
             </div>
         {/each}
     </div>
-    <div class="event-row" class:skeleton>
-        {#if skeleton}
+    {#if skeleton}
+        <div class="event-row skeleton" in:fade|local={{ duration: 150 }}>
             <div class="skeleton-bar" style="grid-column: 2 / 6" />
             <div class="skeleton-bar" style="grid-column: 1 / 3" />
             <div class="skeleton-bar" style="grid-column: 5 / 7" />
             <div class="skeleton-bar" style="grid-column: 2 / 5" />
             <div class="skeleton-bar" style="grid-column: 7 / 8" />
-        {:else}
-            <!-- CHANGE DAY each KEY to an integer -->
+        </div>
+    {:else}
+        <div class="event-row" in:fade|local={{ delay: 150 }}>
             {#each days as day, dayIndex (dayIndex)}
                 {#each day.events as event, i (event.eventInfo.id)}
                     {#if condensed}
@@ -61,8 +69,8 @@
                     {/if}
                 {/each}
             {/each}
-        {/if}
-    </div>
+        </div>
+    {/if}
 </div>
 
 <style>

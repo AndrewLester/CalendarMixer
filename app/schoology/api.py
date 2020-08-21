@@ -24,6 +24,8 @@ def get_paged_data(
         try:
             json = res.json()
         except JSONDecodeError:
+            app.logger.warning('Schoology API Paged data request failed', exc_info=True)
+            app.logger.warning(f'{res}')
             return data
         
         next_url = json[next_key].get('next')

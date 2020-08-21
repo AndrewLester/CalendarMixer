@@ -16,6 +16,7 @@
     import { fade } from 'svelte/transition';
     import type { NetworkStores } from '../stores';
     import { derived } from 'svelte/store';
+    import type { Readable } from 'svelte/store';
 
     export let id: number;
     // Bound to checkbox

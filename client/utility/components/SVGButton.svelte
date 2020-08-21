@@ -30,10 +30,10 @@ async function release() {
 
 </script>
 
-<svelte:window on:mouseup={release} on:touchend={release}/>
+<svelte:window on:mouseup={release} on:touchend|passive={release}/>
 
 <!-- Forward click events upwards -->
-<button class="icon-button" on:click bind:this={button} on:mousedown={press} on:touchstart={press} class:active
+<button class="icon-button" on:click bind:this={button} on:mousedown={press} on:touchstart|passive={press} class:active
     class:disabled style="--width: {width}px; --height: {height}px">
 
     <div></div>
@@ -42,7 +42,7 @@ async function release() {
     </svg>
 </button>
 {#if text.length > 0 }
-    <span class="button-text" class:disabled on:mousedown={press} on:touchstart={press} on:click>{text}</span>
+    <span class="button-text" class:disabled on:mousedown={press} on:touchstart|passive={press} on:click>{text}</span>
 {/if}
 
 <style>

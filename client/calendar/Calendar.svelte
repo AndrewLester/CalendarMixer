@@ -5,8 +5,8 @@
 <script lang="ts">
     import CalendarRow from './CalendarRow.svelte';
     import { derived } from 'svelte/store';
-    import { getContext, afterUpdate } from 'svelte';
-    import { cubicInOut } from 'svelte/easing';
+    import { getContext, afterUpdate, onMount } from 'svelte';
+    import { cubicIn, cubicOut } from 'svelte/easing';
     import { sleep } from '../utility/async.js';
     import {
         buildCalendarStructure,
@@ -33,47 +33,58 @@
 
     const SCROLL_DELAY = 350;  // Milliseconds
     const { filters, events }: NetworkStores = getContext('stores');
-    const [ filtersLoaded, eventsLoaded ] = [ filters.loaded, events.loaded ];
+    const [ filtersLoaded, eventsLoaded ] = [ filters.loaded, events.loaded ];    
     let firstLoad = true;
 
-    $: currentMonth = moment(today).startOf('month');
-    $: if (!firstLoad) events.view(currentMonth);
+    $: if (!firstLoad) events.view(moment(today).startOf('month'));
+    $: currentMonthLoaded = $events.has(moment(today).startOf('month').format(momentKeyFormat));
 
     let calendarView: HTMLElement | undefined;
-    let calendar: CalendarData;
+    let calendar: CalendarData | undefined;
     let calendarReady = false;
     let donePlacing = false;
-    let flyComplete = false;
+    let flyComplete = true;
     let scrollDelay = 0;
-    $: flyParameters = {
-        x: flyDirection * 300,
-        duration: 200,
-        easing: cubicInOut,
+    let calendarDivWidth = 0;
+    let calendarElement: HTMLElement | undefined;
+    $: flyOutParameters = {
+        x: flyDirection * (calendarDivWidth / 4),
+        duration: 100,
+        easing: cubicIn,
+        opacity: 0
     };
 
+    $: flyInParameters = {
+        x: -flyDirection * (calendarDivWidth / 4),
+        duration: 100,
+        easing: cubicOut,
+        opacity: 0.5
+    }
+
     // Listen for changes to filter from FilterEditor
-    filters.subscribe((value) => filterEvents(value));
+    filters.subscribe(filterEvents);
 
     $: if (today) {
         calendarReady = false;
-        flyComplete = false;
         calendar = buildCalendarStructure(today);
+        donePlacing = false;
     }
 
-    $: if ($filtersLoaded && $eventsLoaded) {
-        placeEvents(calendar);
+    $: if ($filtersLoaded && $eventsLoaded && currentMonthLoaded && calendar && !donePlacing) {
+        placeEvents(calendar, today);
         donePlacing = true;
         firstLoad = false;
     }
 
-    $: if (flyComplete && donePlacing) {
-        donePlacing = false;
+    $: if (flyComplete) {
         calendarReady = true;
         // Reset scroll position after animating to a new month
         if (calendarView) {
             calendarView.scrollTop = 0;
         }
     }
+
+    onMount(() => calendarDivWidth = calendarElement ? calendarElement.clientWidth : 0);
 
     afterUpdate(() => {
         if (showToday) {
@@ -99,17 +110,22 @@
         }
     });
 
-    function placeEvents(calendarData: CalendarData) {
-        const eventSet = new Set<EventInfo>();
+    function placeEvents(calendarData: CalendarData, now: moment.Moment) {
+        const eventList = [] as EventInfo[];
+        const usedEventIds = new Set<number>();
+        const currentMonth = moment(now).startOf('month');
         // Get events in months before and after the current one to account for other-month days
         for (let i = currentMonth.month() - 1; i < currentMonth.month() + 2; i++) {
             const eventsListKey = moment(currentMonth).month(i).format(momentKeyFormat);
             for (let event of ($events.get(eventsListKey) ?? new Map<string, EventInfo>()).values()) {
-                eventSet.add(event);
+                if (!usedEventIds.has(event.id)) {
+                    eventList.push(event);
+                    usedEventIds.add(event.id);
+                }
             }
         }
 
-        for (let eventInfo of eventSet) {
+        for (let eventInfo of eventList) {
             placeEvent(
                 {
                     eventInfo: eventInfo,
@@ -164,11 +180,13 @@
 </script>
 
 <div id="calendar-view" bind:this={calendarView}>
-    {#if calendarReady || !($filtersLoaded && $eventsLoaded)}
+    {#if calendarReady}
         <div
             id="calendar"
-            in:fade={{ duration: 50 }}
-            out:fly={flyParameters}
+            bind:this={calendarElement}
+            in:fly={flyInParameters}
+            out:fly={flyOutParameters}
+            on:outrostart={() => (flyComplete = false)}
             on:outroend={() => (flyComplete = true)}>
             <div id="header" class="calendar-row">
                 <div>Sun</div>
@@ -179,24 +197,15 @@
                 <div>Fri</div>
                 <div>Sat</div>
             </div>
-            {#if $filtersLoaded && $eventsLoaded}
-                {#each calendar.rows.filter((row) => !row.unused) as row, i (row)}
-                    <CalendarRow
-                        {...row}
-                        {today}
-                        {condensed}
-                        {calendar}
-                        calRowNum={i} />
-                {/each}
-            {:else}
-                {#each calendar.rows.filter((row) => !row.unused) as row, i (row)}
-                    <CalendarRow
-                        {...row}
-                        {today}
-                        calRowNum={i}
-                        skeleton={true} />
-                {/each}
-            {/if}
+            {#each calendar.rows.filter((row) => !row.unused) as row, i (row)}
+                <CalendarRow
+                    {...row}
+                    {today}
+                    {condensed}
+                    {calendar}
+                    calRowNum={i}
+                    skeleton={!$filtersLoaded || !$eventsLoaded || firstLoad} />
+            {/each}
         </div>
     {/if}
 </div>

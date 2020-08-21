@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     import type { EventInfo } from '../api/types';
-    import moment from 'moment';
+    import type moment from 'moment';
     import type { NetworkStores } from '../stores';
     import type { ModalFunctions } from '../modals/types';
     import type { CalendarEventData } from './calendar-structure';
@@ -163,9 +163,6 @@
         font-size: 13px;
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
             'Lucida Sans', Arial, sans-serif;
-    }
-
-    .calendar-event {
         opacity: 1;
         cursor: pointer;
         transform: none;
@@ -173,15 +170,14 @@
         text-overflow: ellipsis;
         user-select: none;
         white-space: nowrap;
+        background-color: var(--bg-color);
         padding: 0px 10px;
         line-height: 20px; /* fallback */
         max-height: 45px; /* fallback */
         transition: color 200ms ease, background-color 200ms ease;
-        animation: slide-in 200ms ease 1 both;
-        animation-delay: var(--animation-delay);
-    }
-    .calendar-event {
-        background-color: var(--bg-color);
+        animation: slide-in 0ms ease 1 both;
+        /* animation-delay: var(--animation-delay); */
+        -webkit-tap-highlight-color: transparent;
     }
     .calendar-event.filtered {
         color: gray;
@@ -194,6 +190,10 @@
         display: -webkit-box;
         -webkit-line-clamp: 2; /* number of lines to show */
         -webkit-box-orient: vertical;
+    }
+
+    .calendar-event:focus {
+        box-shadow: -1px 2px 3px 0px rgba(0, 0, 0, 0.4);
     }
 
     @keyframes slide-in {
