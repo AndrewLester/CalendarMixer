@@ -30,16 +30,14 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
         return dates;
     }
 
-    view(month: moment.Moment) {
+    view(month: moment.Moment): Promise<void[]> {
+        if (!this.api) return Promise.resolve([]);
+
         const halfCapacity = Math.floor(this.capacity / 2);
         const requiredKeys = new Set<string>();
 
         const storeValue = get(this.store);
-        const queries = [] as Promise<string>[];
-
-        if (!storeValue.has(month.format(momentKeyFormat))) {
-            this._loaded = false;
-        }
+        let viewedMonthQueries: Promise<void>[] = [];
 
         for (let i = 0; i < this.capacity; i++) {
             const monthMoment = moment(month).add(i - halfCapacity, 'months');
@@ -48,18 +46,8 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
 
             // Setup missing month keys and query data for them
             if (!storeValue.has(monthKey)) {
-                // Add any missing month keys not found in 
-                // the initial query to the "/events" endpoint
-                this.store.update((map) => {
-                    if (!map.has(monthKey)) {
-                        map.set(monthKey, new Map<string, EventInfo>() as KeyMap<EventInfo>);
-                        this.storeValue = map;
-                    }
-                    return map;
-                });
-    
                 // TODO: Query several months data together
-                queries.push(this.query({
+                const query = this.query({
                     start: moment(monthMoment)
                         .startOf('month')
                         .format('YYYY-MM-DD'),
@@ -67,7 +55,27 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
                         .startOf('month')
                         .add(1, 'month')
                         .format('YYYY-MM-DD'),
-                }));
+                }).then(() => {
+                    // Add any missing month keys not found in 
+                    // the initial query to the "/events" endpoint
+                    this.store.update((map) => {
+                        if (!map.has(monthKey)) {
+                            map.set(monthKey, new Map<string, EventInfo>() as KeyMap<EventInfo>);
+                            this.storeValue = map;
+                        }
+                        return map;
+                    });
+                });
+
+                // Add all month queries that are within 1 month of the viewed month to the promise
+                // These queries will be awaited when displaying months in the calendar
+                if (
+                    monthKey === month.format(momentKeyFormat) ||
+                    monthKey === moment(month).add(1, 'month').format(momentKeyFormat) ||
+                    monthKey === moment(month).subtract(1, 'month').format(momentKeyFormat)
+                ) {
+                    viewedMonthQueries.push(query);
+                };
             }
         }
 
@@ -81,9 +89,6 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
             }
         }
 
-        Promise.all(queries).then(() => {
-            this._loaded = true;
-            this.store.update((map) => map);
-        })
+        return Promise.all(viewedMonthQueries);
     }
 }

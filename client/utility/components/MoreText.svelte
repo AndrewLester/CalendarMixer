@@ -21,7 +21,7 @@ function toggleShowMore() {
 
 {shownText}
 {#if text.length > maxLen || showingMore}
-    {(showingMore ? '' : '...')}
+    {showingMore ? '' : '...'}
     <span on:click={toggleShowMore} class="show-more-button">Show {showingMore ? 'less' : 'more'}</span>
 {/if}
 

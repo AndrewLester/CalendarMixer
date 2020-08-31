@@ -27,22 +27,35 @@ async function release() {
         active = false;
     }
 }
-
 </script>
 
-<svelte:window on:mouseup={release} on:touchend|passive={release}/>
+<svelte:window on:mouseup={release} on:touchend|passive={release} />
 
 <!-- Forward click events upwards -->
-<button class="icon-button" on:click bind:this={button} on:mousedown={press} on:touchstart|passive={press} class:active
-    class:disabled style="--width: {width}px; --height: {height}px">
-
-    <div></div>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" class="{classes}">
-        <use xlink:href="{svgLink}#{symbolId}"/>
+<button
+    class="icon-button"
+    on:click
+    bind:this={button}
+    on:mousedown={press}
+    on:touchstart|passive={press}
+    class:active
+    class:disabled
+    style="--width: {width}px; --height: {height}px">
+    <div />
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 {width} {height}"
+        class={classes}>
+        <use xlink:href="{svgLink}#{symbolId}" />
     </svg>
 </button>
-{#if text.length > 0 }
-    <span class="button-text" class:disabled on:mousedown={press} on:touchstart|passive={press} on:click>{text}</span>
+{#if text.length > 0}
+    <span
+        class="button-text"
+        class:disabled
+        on:mousedown={press}
+        on:touchstart|passive={press}
+        on:click>{text}</span>
 {/if}
 
 <style>
@@ -124,5 +137,4 @@ button > svg {
         opacity: 0;
     }
 }
-
 </style>

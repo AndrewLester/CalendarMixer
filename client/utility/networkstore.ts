@@ -156,8 +156,6 @@ export class QueryNetworkStore<T, Args extends {[index: string]: string}> extend
             this.storeValue = map;
             return map;
         });
-
-        return 'test';
     }
 
     delete(key: T[keyof T]) {

@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     timezone = db.Column(db.String(120))
+    profile_picture_url = db.Column(db.String(250))
     ical_secret = db.Column(db.String(64), index=True, unique=True)
     oauth_token = db.relationship('OAuth1Token', uselist=False, back_populates='user')
     filters = db.relationship('CourseFilter', backref='user', lazy='dynamic')

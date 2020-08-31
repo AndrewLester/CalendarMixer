@@ -84,10 +84,10 @@ def request(self, method, url, token=None, **kwargs: Any):
     if kwargs.pop('cache', False):
         if not current_user.is_authenticated:
             current_app.logger.warn(f'Attempted to utilize user cache for url: {url}')
-        fetch_session = self._get_session
-    else:
         cache_name = str(current_user.id)
         fetch_session = partial(self.get_cached_session, self, cache_name)
+    else:
+        fetch_session = self._get_session
 
     with fetch_session() as session:
         if kwargs.get('withhold_token'):

@@ -2,8 +2,7 @@ from secrets import token_urlsafe
 
 from authlib.client.errors import MissingTokenError
 from authlib.common.errors import AuthlibBaseError
-from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for)
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_user, logout_user
 from werkzeug.routing import BuildError
 
@@ -16,8 +15,13 @@ from .models import OAuth1Token
 
 from app.schoology.domain import authorization_domain
 
-blueprint = Blueprint('oauth', __name__, url_prefix='/oauth',
-                      template_folder='../..templates', static_folder='../../static')
+blueprint = Blueprint(
+    'oauth',
+    __name__,
+    url_prefix='/oauth',
+    template_folder='../..templates',
+    static_folder='../../static',
+)
 
 
 @blueprint.route('/logout')
@@ -43,7 +47,7 @@ def login():
 
     next_query_arg = f'?next={requested_url}' if requested_url else ''
     redirect_uri = url_for('.authorize', _external=True) + next_query_arg
-    
+
     oauth.schoology.authorize_url = domain
     return oauth.schoology.authorize_redirect(redirect_uri, oauth_callback=redirect_uri)
 
@@ -63,14 +67,24 @@ def authorize():
 
     user = User.query.filter_by(username=user_data['username']).first()
     if user is None:
-        user = User(id=user_data['uid'], username=user_data['username'], email=user_data['primary_email'],
-                    ical_secret=token_urlsafe(32), timezone=user_data['tz_name'])
+        user = User(
+            id=user_data['uid'],
+            username=user_data['username'],
+            email=user_data['primary_email'],
+            ical_secret=token_urlsafe(32),
+            timezone=user_data['tz_name'],
+            profile_picture_url=user_data['picture_url']
+        )
+
+        # Create default course filter for user
         user.filters.append(CourseFilter(positive=False, user_id=user.id))
+    elif user.profile_picture_url is None:
+        user.profile_picture_url = user_data['picture_url']
 
     oauth_token = OAuth1Token(
         name='schoology',
         oauth_token=token['oauth_token'],
-        oauth_token_secret=token['oauth_token_secret']
+        oauth_token_secret=token['oauth_token_secret'],
     )
     user.oauth_token = oauth_token
 

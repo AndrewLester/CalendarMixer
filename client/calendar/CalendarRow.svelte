@@ -1,24 +1,24 @@
 <script lang="ts">
-    import CalendarEvent from './CalendarEvent.svelte';
-    import moment from 'moment';
-    import type { CalendarDayData, CalendarData } from './calendar-structure';
-    import { fade } from 'svelte/transition';
+import CalendarEvent from './CalendarEvent.svelte';
+import moment from 'moment';
+import type { CalendarDayData, CalendarData } from './calendar-structure';
+import { fade } from 'svelte/transition';
 
-    export let today: moment.Moment;
-    export let calRowNum: number;
-    export let dayNumbers: number[] = [];
-    export let days: CalendarDayData[] = [];
-    export let calendar: CalendarData = {
-        rows: [],
-        firstCalDay: moment().startOf('month'),
-        firstMonthDay: moment().startOf('month'),
-        lastCalDay: moment().endOf('month'),
-        lastMonthDay: moment().endOf('month'),
-    };
-    export let skeleton: boolean = false;
-    export let condensed: boolean = false;
+export let today: moment.Moment;
+export let calRowNum: number;
+export let dayNumbers: number[] = [];
+export let days: CalendarDayData[] = [];
+export let calendar: CalendarData = {
+    rows: [],
+    firstCalDay: moment().startOf('month'),
+    firstMonthDay: moment().startOf('month'),
+    lastCalDay: moment().endOf('month'),
+    lastMonthDay: moment().endOf('month'),
+};
+export let skeleton: boolean = false;
+export let condensed: boolean = false;
 
-    let now = moment();
+let now = moment();
 </script>
 
 <div class="calendar-row">
@@ -74,63 +74,63 @@
 </div>
 
 <style>
-    .calendar-row > * {
-        display: grid;
-        text-align: center;
-        grid-auto-flow: column;
-        grid-template-columns: repeat(7, 1fr);
-    }
+.calendar-row > * {
+    display: grid;
+    text-align: center;
+    grid-auto-flow: column;
+    grid-template-columns: repeat(7, 1fr);
+}
 
-    .calendar-row > .header > div:not(:last-child) {
-        border-right: 1px solid gray;
-    }
+.calendar-row > .header > div:not(:last-child) {
+    border-right: 1px solid gray;
+}
 
-    .calendar-row > .header > div {
-        border-bottom: 1px solid gray;
-        vertical-align: middle;
-    }
+.calendar-row > .header > div {
+    border-bottom: 1px solid gray;
+    vertical-align: middle;
+}
 
-    .event-row {
-        grid-auto-rows: 20px;
-        grid-auto-flow: row dense;
-        transition: transform 0.3s, opacity 0.3s;
-        grid-gap: 5px;
-        margin-bottom: 5px;
-        margin-top: 5px;
-        min-height: 60px;
-    }
+.event-row {
+    grid-auto-rows: 20px;
+    grid-auto-flow: row dense;
+    transition: transform 0.3s, opacity 0.3s;
+    grid-gap: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    min-height: 60px;
+}
 
-    .event-row.skeleton {
-        grid-template-rows: repeat(3, 20px);
-    }
+.event-row.skeleton {
+    grid-template-rows: repeat(3, 20px);
+}
 
-    .header > div {
-        cursor: pointer;
-        font-family: 'Times New Roman', Times, serif;
-    }
+.header > div {
+    cursor: pointer;
+    font-family: 'Times New Roman', Times, serif;
+}
 
-    .header {
-        grid-row-gap: 5px;
-        border-color: gray;
-        position: sticky;
-        z-index: 5;
-        background-color: white;
-        top: 21px;
-        grid-template-rows: 25px;
-        line-height: 24px;
-    }
+.header {
+    grid-row-gap: 5px;
+    border-color: gray;
+    position: sticky;
+    z-index: 5;
+    background-color: white;
+    top: 21px;
+    grid-template-rows: 25px;
+    line-height: 24px;
+}
 
-    .other-month {
-        color: gray;
-    }
+.other-month {
+    color: gray;
+}
 
-    :not(.other-month) > .today {
-        display: inline-block;
-        color: white;
-        border-radius: 50%;
-        background-color: #29b6f6;
-        scroll-margin-top: 24px;
-        height: 24px;
-        width: 25px;
-    }
+:not(.other-month) > .today {
+    display: inline-block;
+    color: white;
+    border-radius: 50%;
+    background-color: #29b6f6;
+    scroll-margin-top: 24px;
+    height: 24px;
+    width: 25px;
+}
 </style>

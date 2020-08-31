@@ -1,31 +1,31 @@
 <script lang="ts" context="module">
-    export type InputChoice = {
-        id: number,
-        [key: string]: any
-    } & SearchablePart;
+export type InputChoice = {
+    id: number;
+    [key: string]: any;
+} & SearchablePart;
 </script>
 
 <script lang="ts">
-    import type { SearchablePart }  from './AutocompletePopup.svelte';
-    import AutocompletePopup from './AutocompletePopup.svelte';
-    import Input from './Input.svelte';
+import type { SearchablePart } from './AutocompletePopup.svelte';
+import AutocompletePopup from './AutocompletePopup.svelte';
+import Input from './Input.svelte';
 
-    export let options: InputChoice[] = [];
-    export let selected: InputChoice[] = [];
+export let options: InputChoice[] = [];
+export let selected: InputChoice[] = [];
 
-    $: availableOptions = options.filter(
-        (option) => !selected.map((choice) => choice.id).includes(option.id)
-    );
-    let input;
-    let inputElement;
-    let inputValue = '';
-    let focused = false;
+$: availableOptions = options.filter(
+    (option) => !selected.map((choice) => choice.id).includes(option.id)
+);
+let input;
+let inputElement;
+let inputValue = '';
+let focused = false;
 
-    async function addSelected(option: InputChoice) {
-        selected = [...selected, option];
-        inputValue = '';
-        input.focus();
-    }
+async function addSelected(option: InputChoice) {
+    selected = [...selected, option];
+    inputValue = '';
+    input.focus();
+}
 </script>
 
 <div class="input-area">
@@ -54,7 +54,9 @@
                 {#if inputValue.length === 0 || item.match === undefined}
                     <p>{item.name}</p>
                 {:else}
-                    <p>{item.match.start}<strong>{item.match.match}</strong>{item.match.end}</p>
+                    <p>
+                        {item.match.start}<strong>{item.match.match}</strong>{item.match.end}
+                    </p>
                 {/if}
             </div>
             <div slot="no-matches">
@@ -65,15 +67,15 @@
 </div>
 
 <style>
-    .input-area {
-        flex: 1 1 auto;
-        position: relative;
-        min-width: 150px;
-    }
+.input-area {
+    flex: 1 1 auto;
+    position: relative;
+    min-width: 150px;
+}
 
-    .course-identifier-wrapper:hover,
-    .course-identifier-wrapper.selected {
-        cursor: pointer;
-        background-color: rgba(128, 128, 128, 0.2);
-    }
+.course-identifier-wrapper:hover,
+.course-identifier-wrapper.selected {
+    cursor: pointer;
+    background-color: rgba(128, 128, 128, 0.2);
+}
 </style>

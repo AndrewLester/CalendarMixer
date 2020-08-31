@@ -122,25 +122,24 @@ export function placeEvent(
     // Reset start to firstCalDay if the actual start is before the current month.
     start = start.isBefore(firstCalDay) ? firstCalDay : start;
 
-    // The Math.ceil call corrects for messed up daylight savings timespans
-    const span = Math.round(
-        moment.duration(moment(end).diff(moment(start))).asDays()
-    );
-    const daysSinceCalStart = Math.floor(
-        moment.duration(start.diff(firstCalDay)).asDays()
-    );
+    // The number of days the event spans over
+    const span =
+        moment(end).endOf('day').diff(moment(start).startOf('day'), 'days') + 1;
+    const daysSinceCalStart = start.diff(firstCalDay, 'days');
+
     const col = daysSinceCalStart % 7;
     const row = ~~(daysSinceCalStart / 7);
 
     const calDay = calendar.rows[row].days[col];
 
-    const startCol = col + 1;
-    const endCol = Math.max(Math.min(9, startCol + span), startCol + 1);
+    const gridStartCol = col + 1;
+    const gridEndCol = Math.min(8, Math.max(gridStartCol + span, gridStartCol + 1));
 
-    // If this event is long, and if it intersects with another event in a later column, move this entire
-    // event up one row to keep them from intersecting
-    if (endCol > startCol + 1) {
-        for (let checkCol = startCol; checkCol < endCol; checkCol++) {
+    // If the event is "long" (> 1 column)
+    if (gridEndCol > gridStartCol + 1) {
+        // If this event is long, and if it intersects with another event in a later column,
+        // move this entire event up one row to keep them from intersecting
+        for (let checkCol = gridStartCol; checkCol < gridEndCol; checkCol++) {
             if (calendar.rows[row].days[checkCol]) {
                 event.startRow =
                     calendar.rows[row].days[checkCol].events.length + 1;
@@ -148,9 +147,7 @@ export function placeEvent(
                 break;
             }
         }
-    }
 
-    if (endCol > startCol + 1) {
         for (let i = 1; i < Math.min(7 - col, span + 1); i++) {
             calendar.rows[row].days[col + i].events.push({
                 eventInfo,
@@ -161,24 +158,24 @@ export function placeEvent(
             });
         }
     }
-    if (endCol > 8) {
+
+    // Recalculate the end column here to find the actual event length
+    if (Math.max(gridStartCol + span, gridStartCol + 1) > 8) {
         placeEvent(
             {
                 eventInfo,
                 end,
                 initialPlacement: true,
                 filtered: event.filtered,
-                start: moment(start)
-                    .startOf('day')
-                    .add(7 - col, 'days'),
+                start: moment(start).add(7 - col, 'days').startOf('day'),
             },
             calendar,
             filters
         );
     }
 
-    event.startCol = startCol;
-    event.endCol = endCol;
+    event.startCol = gridStartCol;
+    event.endCol = gridEndCol;
     calDay.events.push(event);
 }
 
