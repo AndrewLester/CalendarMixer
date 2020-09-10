@@ -55,7 +55,7 @@ class OAuth1CachedSession(OAuth1Client, CachedSession):
         raise OAuthError(error_type, error_description)
 
 
-def get_cached_session(client: OAuthClient, cache_name, backend='redis', expire_after=300):
+def get_cached_session(client: OAuthClient, cache_name, backend, expire_after=300):
     if client.request_token_url:
         session = OAuth1CachedSession(
             client.client_id, client.client_secret,
@@ -82,11 +82,11 @@ def request(self: OAuthClient, method, url, token=None, **kwargs: Any):
     if self.api_base_url and not url.startswith(('https://', 'http://')):
         url = urlparse.urljoin(self.api_base_url, url)
 
-    if kwargs.pop('cache', False):
+    if kwargs.pop('cache', False) and self.cache_backend:
         if not current_user.is_authenticated:
             current_app.logger.warn(f'Attempted to utilize user cache for url: {url}')
         cache_name = str(current_user.id)
-        fetch_session = lambda: get_cached_session(self, cache_name)
+        fetch_session = lambda: get_cached_session(self, cache_name, self.cache_backend)
     else:
         fetch_session = self._get_session
 
