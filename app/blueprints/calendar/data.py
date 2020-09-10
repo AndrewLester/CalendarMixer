@@ -14,7 +14,7 @@ from app.schoology.api import get_paged_data
 
 
 # TODO: Create TypedDict for Event Data (Returned by this function)
-@cache.memoize(timeout=300)
+# @cache.memoize(timeout=300)
 def get_user_events(
     user: User, filter: bool = False, time_range: Tuple[date, date] = None
 ) -> List[Dict[str, Any]]:

@@ -241,7 +241,7 @@ function showInfoTippy(element: Element | undefined, message: string) {
     /* 41px for the button bar */
     position: relative;
     height: calc(100% - 41px);
-    will-change: scroll-position;
+    will-change: scroll-position, transform;
     /* Create new stacking context */
     z-index: 1;
     overflow-y: auto;

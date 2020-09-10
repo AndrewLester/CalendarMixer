@@ -158,7 +158,7 @@ main {
 #current-month {
     margin-left: 1px;
     display: inline-block;
-    width: 120px;
+    width: 140px;
 }
 #current-month.matching {
     font-weight: bold;

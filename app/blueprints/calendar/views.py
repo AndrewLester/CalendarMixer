@@ -1,6 +1,4 @@
-from datetime import date, datetime
-from functools import partial
-from time import strptime
+from datetime import date
 from typing import Optional
 from urllib.parse import urlparse, parse_qs
 

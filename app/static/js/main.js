@@ -1,4 +1,6 @@
 const header = document.getElementsByTagName('header')[0];
+const profileIconImg = document.getElementById('profile-icon-img');
+const profileIcon = profileIconImg.parentElement;
 
 let currentScrollOffset = window.scrollY;
 window.addEventListener('scroll', function() {
@@ -9,3 +11,13 @@ window.addEventListener('scroll', function() {
     }
     currentScrollOffset = window.scrollY;
 });
+
+profileIconImg.addEventListener('click', () => {
+    profileIcon.classList.toggle('open');
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target !== profileIconImg) {
+        profileIcon.classList.remove('open');
+    }
+})
