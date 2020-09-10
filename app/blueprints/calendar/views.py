@@ -146,7 +146,7 @@ def filters(form: CourseFilterForm) -> CourseFilter:
 
 @blueprint.route('/identifiers')
 @login_required
-@cache_header(900, key_prefix=lambda: str(current_user.id) + 'identifiers')
+# @cache_header(900, key_prefix=lambda: str(current_user.id) + 'identifiers')
 def courses():
     user = oauth.schoology.get('users/me', cache=True).json()
     sections = [
