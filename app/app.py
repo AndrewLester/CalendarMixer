@@ -72,13 +72,6 @@ def register_extensions(app):
         if item:
             return item.to_token()
 
-    # Define default args for the get_cached_session function. Uses app's redis connection
-    OAuthClient.get_cached_session = functools.partial(
-        get_cached_session, 
-        backend=RedisCache(connection=app.redis), 
-        expire_after=300
-    )
-
     oauth_client.init_app(app, fetch_token=fetch_token, cache=cache)
     oauth_client.register(
         name='schoology',

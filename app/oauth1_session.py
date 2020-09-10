@@ -1,5 +1,6 @@
 from functools import partial
 from typing import Any, Dict
+from authlib.client.client import OAuthClient
 
 from authlib.client.errors import MissingTokenError
 from authlib.client.errors import OAuthError
@@ -54,30 +55,30 @@ class OAuth1CachedSession(OAuth1Client, CachedSession):
         raise OAuthError(error_type, error_description)
 
 
-def get_cached_session(self, cache_name, backend, expire_after):
-    if self.request_token_url:
+def get_cached_session(client: OAuthClient, cache_name, backend='redis', expire_after=300):
+    if client.request_token_url:
         session = OAuth1CachedSession(
-            self.client_id, self.client_secret,
-            **self.client_kwargs, cache_name=cache_name,
+            client.client_id, client.client_secret,
+            **client.client_kwargs, cache_name=cache_name,
             backend=backend, expire_after=expire_after
         )
     else:
         session = OAuth2Session(
-            client_id=self.client_id,
-            client_secret=self.client_secret,
-            refresh_token_url=self.refresh_token_url,
-            refresh_token_params=self.refresh_token_params,
-            **self.client_kwargs
+            client_id=client.client_id,
+            client_secret=client.client_secret,
+            refresh_token_url=client.refresh_token_url,
+            refresh_token_params=client.refresh_token_params,
+            **client.client_kwargs
         )
         # only OAuth2 has compliance_fix currently
-        if self.compliance_fix:
-            self.compliance_fix(session)
+        if client.compliance_fix:
+            client.compliance_fix(session)
 
-    session.headers['User-Agent'] = self.DEFAULT_USER_AGENT
+    session.headers['User-Agent'] = client.DEFAULT_USER_AGENT
     return session
 
 
-def request(self, method, url, token=None, **kwargs: Any):
+def request(self: OAuthClient, method, url, token=None, **kwargs: Any):
     if self.api_base_url and not url.startswith(('https://', 'http://')):
         url = urlparse.urljoin(self.api_base_url, url)
 
@@ -85,7 +86,7 @@ def request(self, method, url, token=None, **kwargs: Any):
         if not current_user.is_authenticated:
             current_app.logger.warn(f'Attempted to utilize user cache for url: {url}')
         cache_name = str(current_user.id)
-        fetch_session = partial(self.get_cached_session, self, cache_name)
+        fetch_session = lambda: get_cached_session(self, cache_name)
     else:
         fetch_session = self._get_session
 
