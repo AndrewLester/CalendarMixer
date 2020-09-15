@@ -12,12 +12,10 @@ window.addEventListener('scroll', function() {
     currentScrollOffset = window.scrollY;
 });
 
-profileIconImg.addEventListener('click', () => {
-    profileIcon.classList.toggle('open');
-});
-
 window.addEventListener('click', (e) => {
     if (e.target !== profileIconImg) {
         profileIcon.classList.remove('open');
+    } else {
+        profileIcon.classList.toggle('open');
     }
 })

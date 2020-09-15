@@ -7,6 +7,7 @@ declare const ical_link: string;
 <script lang="ts">
 import Modal from 'svelte-simple-modal';
 import NotificationDisplay from './notifications/NotificationDisplay.svelte';
+import HTMLEntityDecoder from './utility/html_entity_decoder/HTMLEntityDecoder.svelte';
 import Calendar from './calendar/Calendar.svelte';
 import type { FlyAnimationDirection } from './calendar/Calendar.svelte';
 import FilterEditor from './filtering/FilterEditor.svelte';
@@ -90,6 +91,7 @@ async function goToToday() {
 }
 </script>
 
+<HTMLEntityDecoder />
 <NotificationDisplay options={{ timeout: 2500, width: '200px' }} />
 <Modal
     styleContent={{ padding: 0 }}

@@ -65,7 +65,7 @@ async function saveFilters() {
 
     {#if $filtersLoaded}
         <!-- Transition delay to wait for Skeleton Layout filter fade in -->
-        <div id="filters-list" transition:fade={{ delay: 200 }}>
+        <div id="filters-list" transition:fade={{ delay: 0 }}>
             {#each $filters as filter (filter.id)}
                 <Filter {...filter} />
             {/each}

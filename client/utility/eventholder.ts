@@ -54,6 +54,7 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
                     end: moment(monthMoment)
                         .startOf('month')
                         .add(1, 'month')
+                        .add(1, 'day')
                         .format('YYYY-MM-DD'),
                 }).then(() => {
                     // Add any missing month keys not found in 

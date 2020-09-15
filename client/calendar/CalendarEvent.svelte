@@ -16,6 +16,7 @@ import { alertsByEvent } from '../stores';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away-subtle.css';
 import { momentToTime } from '../api/schoology';
+import { decode } from '../utility/html_entity_decoder/HTMLEntityDecoder.svelte';
 
 export let eventInfo: EventInfo;
 export let start: moment.Moment;
@@ -71,6 +72,8 @@ const colors = [
 let color = colors[~~(Math.random() * colors.length)];
 // Animation delay calculation factors in column and eventNum
 let animationDelay = 10 + 15 * startCol + 5 * eventNum + 100 * calRowNum;
+let eventTitle = eventInfo['title'];
+decode(eventTitle).then((decoded) => eventTitle = decoded);
 
 let eventElement;
 
@@ -89,7 +92,7 @@ onMount(() => {
         }
 
         tippy(eventElement, {
-            content: eventInfo['title'],
+            content: eventTitle,
             arrow: true,
             duration: [100, 100],
             animation: 'shift-away-subtle',
@@ -108,7 +111,7 @@ function isOverflown(element) {
 
 function displayEventInfo() {
     const data: CalendarEventData = {
-        eventInfo,
+        eventInfo: {...eventInfo, title: eventTitle},
         filtered,
         start,
         end,
@@ -153,7 +156,7 @@ function displayEventInfo() {
                     height="25" />
             </svg>
         {/if}
-        {eventInfo['title']}
+        {eventTitle}
     </div>
 {/if}
 

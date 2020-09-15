@@ -7,7 +7,7 @@ export let simple = false;
 {#if simple}
     <slot name="simple" />
 {:else}
-    <div class="wrapper" transition:fade={{ duration: 200 }}>
+    <div class="wrapper" in:fade={{ duration: 200 }}>
         <slot>
             <!-- Default skeleton layout is a single bar -->
             <div />

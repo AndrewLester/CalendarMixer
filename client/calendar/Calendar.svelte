@@ -123,7 +123,7 @@ afterUpdate(() => {
         }
     }
 
-    if (calendarReady && localStorage.getItem('firstEverLoad') !== 'false') {
+    if (calendarReady && $filtersLoaded && eventsLoaded && currentMonthLoaded && localStorage.getItem('firstEverLoad') !== 'false') {
         showInfoTippy(
             document.getElementsByClassName('calendar-event')[0],
             'Click to show info'
