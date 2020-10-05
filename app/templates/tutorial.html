@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tutorial.css') }}">
+<meta name="description" content="About the development of Calendar Mixer. Calendar Mixer lets you filter, export feeds, and add alarms to your Schoology Calendar.">
+{% endblock %}
+
+{% block content %}
+<main>
+    <article>
+        <h1>Tutorial</h1>
+        <p>Calendar Mixer is a utility for linking your schoology calendar with almost any other calendar application. Google Calendar, Apple's Calendar, Outlook, and others are supported. Due to the limited access Calendar Mixer has to your schoology data, it's important that you make sure it can use what it needs. This tutorial outlines important steps in keeping your schoology calendar working with Calendar Mixer. Ideally, these sections and steps should be followed in order.</p>
+        <h2>Setting up your Schoology calendar</h2>
+        <p>Making sure your schoology calendar exports the right data for Calendar Mixer's use is important, otherwise you may find problems with missing events that are hard to pinpoint. So, the first part of linking your calendar to Calendar Mixer is on Schoology.</p>
+        <ol class="step-list">
+            <li>Navigate to your main Schoology calendar view</li>
+            <li>Open the dropdown to select the currently viewed calendars</li>
+            <li><u>Enable all of them</u> (make sure all boxes are checked)</li>
+            <span class="detail">While this step makes all of your course events appear in the main view, it is also the only way for Calendar Mixer to access them.</span>
+        </ol>
+        <h2>Login to Calendar Mixer</h2>
+        <p>With the Schoology setup out of the way, the next step is to login to Calendar Mixer using your Schoology account. This process grants access to your events and courses.</p>
+        <ol class="step-list">
+            <li>Go to <a href="{{ url_for('main.login', _external=True) }}">calendarmixer.com/login</a> and follow the steps from there.</li>
+            <li>View your calendar on Calendar Mixer at <a href="{{ url_for('calendar.calendar', _external=True) }}">calendarmixer.com/calendar</a>.</li>
+        </ol>
+        <h2>Filtering courses in your calendar</h2>
+        <p>Filtering out specific courses in your calendar allows you to customize the events that show up when exporting. You can choose to have only events from courses that you want to see show up on your phone or in iCalendar, for example.</p>
+        <ol class="step-list">
+            <li>On the right hand side of the calendar viewer, locate the filter section</li>
+            <li>In the "Course name" search box, choose some of your courses to hide from the exported calendar.</li>
+            <span class="detail">Filtered out courses show up in gray, meaning they won't appear in the exported calendar..</span>
+            <li>Clicking the "positive" checkbox flips the filter's mode, causing it to <u>only</u> export the courses in the filter.</li>
+            <li>Finally, clicking the "save filter" button (or the "save all" button) saves the filter.</li>
+        </ol>
+        <h2>Adding alerts to your events</h2>
+        <p>Adding alerts to events on your calendar is a feature reserved to Calendar Mixer. Using the Schoology export URL and placing that in Google Calendar does not allow for creating custom alerts. For now, alerts have to be applied on every event you wish to have them individually.</p>
+        <ol class="step-list">
+            <li>In your calendar viewer, click on an event that you'd like to add an alert to.</li>
+            <span class="detail"><u>Note</u>: You can only add alerts to events that are currently exported.</span>
+            <li>In the event info box that appears, click the "add alert" button.</li>
+            <li>The new alert will then appear in the list. Click the clock icon or the alert's time to change when it notifies you.</li>
+            <span class="detail">Choosing a time of 0 minutes, hours, or days will cause the alert to trigger at the time of the event.</span>
+        </ol>
+        <h2>Exporting your calendar</h2>
+        <p>Exporting your calendar to another application is the primary feature of Calendar Mixer. It's also the simplest functionality wise.</p>
+        <ol class="step-list">
+            <li>Click the "Export Calendar" button to copy the link to your calendar.</li>
+            <li>Paste this link into any other calendar service (Google Calendar, Apple Calendar, Outlook).</li>
+            <li>Another option is to simply paste the URL into the search bar and press enter. On a Mac, a prompt will appear, letting you automatically add the URL as a new calendar.</li>
+        </ol>
+        <h3>Google Calendar Integration</h3>
+        <p>While integrating your calendar mixer events into services like Outlook and Apple Calendar are easy and functional, Google Calendar automatically strips off custom alerts. In order to get around this pre-processing step, I've made available a modified <a href="https://developers.google.com/apps-script" class="external" target="_blank">Google Apps Script</a> that automatically syncs your Calendar Mixer calendar to Google Calendar, keeping the alerts.</p>
+        <ol class="step-list">
+            <li>Copy your Calendar Mixer export URL by clicking "export calendar"</li>
+            <li>Click <a href="https://script.google.com/macros/s/AKfycbyURKhzXN8wQ1nwFUDmaj_nIf-aNzgzolNL_SGp6bNlxzBSjLU/exec" class="external">here</a> and sign in with Google to access the Google Apps Script.</li>
+            <li>Follow the instructions on the webpage. The application only works with one calendar URL at a time.</li>
+        </ol>
+    </article>
+</main>
+{% endblock %}

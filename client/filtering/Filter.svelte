@@ -109,6 +109,7 @@ async function save() {
     width: 80%;
     display: flex;
     flex-direction: column;
+    border-radius: 5px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     align-items: start;
 }

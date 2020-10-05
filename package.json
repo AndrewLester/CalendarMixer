@@ -19,14 +19,13 @@
     "rollup-plugin-terser": "^5.1.2",
     "svelte": "^3.24.1",
     "svelte-check": "^0.1.59",
-    "svelte-preprocess": "^4.0.8",
+    "svelte-preprocess": "^4.3.0",
     "typescript": "^3.9.7"
   },
   "dependencies": {
     "moment": "^2.27.0",
     "sirv-cli": "^0.4.6",
     "svelte-popper": "^0.1.5",
-    "svelte-simple-modal": "^0.4.2",
     "tippy.js": "^6.2.6"
   }
 }

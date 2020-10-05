@@ -43,6 +43,8 @@ const { close } = getContext('simple-modal');
 const { alerts }: NetworkStores = getContext('stores');
 const alertsLoaded = alerts.loaded;
 
+let saving = false;
+
 let alertList: AlertData[] = [];
 $: if ($alertsLoaded) {
     const alertsForEvent = $alertsByEvent.get(eventInfo.id.toString()) ?? [];
@@ -56,7 +58,7 @@ $: if ($alertsLoaded) {
     });
 }
 
-function addAlert() {
+async function addAlert() {
     if (filtered) {
         return;
     }
@@ -68,7 +70,9 @@ function addAlert() {
         type: AlertType.Display,
     };
 
-    alerts.create(alert);
+    saving = true;
+    await alerts.create(alert);
+    saving = false;
 }
 </script>
 
@@ -112,13 +116,13 @@ function addAlert() {
         <p style="text-align: center;"><span class="key">Alerts</span></p>
         <div style="margin-top: 5px; margin-bottom: 1px;">
             <SVGButton
-                svgLink={alertSvgLink}
-                symbolId={'icon'}
+                svgLink={saving ? '/static/img/loading.svg' : alertSvgLink}
+                symbolId={saving ? '' : 'icon'}
                 disabled={filtered}
                 text={filtered ? "This event isn't exported" : 'Add an alert'}
                 on:click={addAlert} />
         </div>
-        <fieldset>
+        <div class="alert-list">
             {#each alertList as alert (alert.id)}
                 <div
                     animate:flip={{ duration: 100 }}
@@ -130,11 +134,11 @@ function addAlert() {
             {:else}
                 <p
                     style="text-align: center;"
-                    in:fade|local={{ duration: 100, delay: 100 }}>
+                    in:fade|local={{ duration: 100, delay: 200 }}>
                     <em>No Alerts</em>
                 </p>
             {/each}
-        </fieldset>
+        </div>
     </div>
 </div>
 
@@ -188,7 +192,7 @@ h1.event-name {
     margin-right: 10px;
 }
 .header {
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2);
     position: sticky;
     padding: 5px;
     z-index: 5;
@@ -216,8 +220,12 @@ h1.event-name {
     text-overflow: ellipsis;
     flex: 0 1 auto;
 }
-div.alerts > fieldset {
+.section.alerts {
+    padding-top: 10px;
+}
+div.alerts > .alert-list {
     width: 100%;
+    padding-top: 8px;
 }
 .alert-wrapper {
     display: flex;

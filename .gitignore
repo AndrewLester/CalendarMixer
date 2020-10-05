@@ -22,3 +22,4 @@ debug_app.sh
 *.crt
 *.csr
 *.key
+*.sqlite

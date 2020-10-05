@@ -2,7 +2,7 @@
 import { animationEnd } from '../async';
 
 export let svgLink: string;
-export let symbolId: string;
+export let symbolId = '';
 export let width = 24;
 export let height = 24;
 export let disabled: boolean = false;
@@ -10,9 +10,12 @@ export let classes = '';
 export let text = '';
 
 let active = false;
+let fading = false;
 let button: HTMLElement;
 
 function press(e: Event) {
+    fading = false;
+
     if (disabled) {
         e.preventDefault();
         return;
@@ -25,6 +28,7 @@ async function release() {
     if (active) {
         await animationEnd(button, 'background-expand', 100);
         active = false;
+        fading = true;
     }
 }
 </script>
@@ -39,6 +43,7 @@ async function release() {
     on:mousedown={press}
     on:touchstart|passive={press}
     class:active
+    class:fading
     class:disabled
     style="--width: {width}px; --height: {height}px">
     <div />
@@ -46,7 +51,7 @@ async function release() {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 {width} {height}"
         class={classes}>
-        <use xlink:href="{svgLink}#{symbolId}" />
+        <use xlink:href="{svgLink}{symbolId ? `#${symbolId}` : ''}" />
     </svg>
 </button>
 {#if text.length > 0}
@@ -97,6 +102,9 @@ button > svg {
     left: -25%;
     opacity: 0;
     transform: scale(0);
+}
+
+.icon-button.fading > div {
     animation: background-fade 0.15s ease-in-out backwards;
 }
 

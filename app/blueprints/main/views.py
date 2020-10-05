@@ -12,9 +12,9 @@ def index():
     return render_template('index.html')
 
 
-@blueprint.route('/about')
-def about():
-    return render_template('about.html', title='About')
+@blueprint.route('/tutorial')
+def tutorial():
+    return render_template('tutorial.html', title='Tutorial')
 
 
 @blueprint.route('/privacy')

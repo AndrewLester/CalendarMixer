@@ -1,0 +1,53 @@
+main {
+    margin-top: 0px !important;
+    height: 100%;
+    width: 100%;
+    background: rgb(210, 210, 210);
+    padding: 15px 0px;
+    top: 0px !important;
+}
+
+article {
+    margin-top: calc(var(--header-height) + 15px);
+    display: flex;
+    flex-flow: column nowrap;
+    margin-bottom: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 10in;
+    padding: 20px 40px;
+    font-size: 18px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.15);
+}
+
+article > h2, h3, h4, h5 {
+    margin-top: 30px;   
+}
+
+article > p, article li {
+    line-height: 1.15;
+    max-width: 90ch; 
+}
+
+ol.step-list {
+    counter-reset: listCounter;
+    list-style: none;
+    padding-left: 20px;
+}
+
+ol.step-list > li {
+    counter-increment: listCounter;
+}
+
+ol.step-list > li::before {
+    content: "Step " counter(listCounter) ": "
+}
+
+ol.step-list > span.detail {
+    color: gray;
+    font-size: 16px;
+    padding-left: 10px;
+    font-style: italic;
+}

@@ -31,13 +31,13 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
     }
 
     view(month: moment.Moment): Promise<void[]> {
-        if (!this.api) return Promise.resolve([]);
+        if (!this.api) throw new Error('API not yet loaded');
 
         const halfCapacity = Math.floor(this.capacity / 2);
         const requiredKeys = new Set<string>();
 
         const storeValue = get(this.store);
-        let viewedMonthQueries: Promise<void>[] = [];
+        let queries: Promise<void>[] = [];
 
         for (let i = 0; i < this.capacity; i++) {
             const monthMoment = moment(month).add(i - halfCapacity, 'months');
@@ -47,14 +47,13 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
             // Setup missing month keys and query data for them
             if (!storeValue.has(monthKey)) {
                 // TODO: Query several months data together
-                const query = this.query({
+                queries.push(this.query({
                     start: moment(monthMoment)
-                        .startOf('month')
+                        .subtract(2, 'month')
+                        .endOf('month')
                         .format('YYYY-MM-DD'),
                     end: moment(monthMoment)
                         .startOf('month')
-                        .add(1, 'month')
-                        .add(1, 'day')
                         .format('YYYY-MM-DD'),
                 }).then(() => {
                     // Add any missing month keys not found in 
@@ -66,17 +65,7 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
                         }
                         return map;
                     });
-                });
-
-                // Add all month queries that are within 1 month of the viewed month to the promise
-                // These queries will be awaited when displaying months in the calendar
-                if (
-                    monthKey === month.format(momentKeyFormat) ||
-                    monthKey === moment(month).add(1, 'month').format(momentKeyFormat) ||
-                    monthKey === moment(month).subtract(1, 'month').format(momentKeyFormat)
-                ) {
-                    viewedMonthQueries.push(query);
-                };
+                }));
             }
         }
 
@@ -90,6 +79,6 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
             }
         }
 
-        return Promise.all(viewedMonthQueries);
+        return Promise.all(queries);
     }
 }

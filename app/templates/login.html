@@ -9,43 +9,45 @@
 
 {% block content %}
 <main>
-    <h3>Input Your School's Schoology Domain or Subdomain</h3>
-    <section id="instructions">
-        <p>Determine the domain of your school's Schoology login portal. There are three options:</p>
-        <ol>
-            <li>Login using Schoology's website, URL: www.schoology.com or app.schoology.com</li>
-            <li>Login using a custom subdomain, URL: &lt;your_school&gt;.schoology.com</li>
-            <li>Login using a custom domain, URL: <em>unique to your school</em></li>
-        </ol>
-    </section>
-    <p>Examples of options 2. and 3. are shown below. The text in the <span style="display: inline-block; outline: 1px solid black;">black box/oval</span> is what you will use in the following step. The <span style="text-decoration: underline; text-decoration-color: red;">red underline</span> can help you identify which type of domain your school uses. If your school doesn't have a login portal or uses login with Google, simply check the URL on the recent activity page. If you are redirected to a page flagged as "insecure," you should double check the domain you used.</p>
-    <section id="domain-examples">
-        <div class="example">
-            <p>2. Custom Subdomain</p>
-            <img src="/static/img/subdomain-example.jpg" alt="Magnification of a custom subdomain for a Schoology login portal">
-        </div>
-        <div class="example">
-            <p>3. Custom Domain</p>
-            <img src="/static/img/domain-example.jpg" alt="Magnification of a custom domain for a Schoology login portal">
-        </div>
-    </section>
-    <form action="/oauth/login" method="GET">
-        <input id="form-input-next" type="hidden" name="next">
-        <div>
-            <div style="line-height: 1;">
-                <label for="domain-prefix-input">Input your school's custom domain or subdomain&#42;:</label>
-                <fieldset class="input" style="--input-width: 180px;">
-                    <input id="domain-prefix-input" placeholder="www.schoology.com" name="domain" type="text">
-                    <legend>
-                        <span
-                            data-text="Domain"
-                            style="font-size: 12px;" />
-                    </legend>
-                </fieldset>
+    <article>
+        <h3>Input Your School's Schoology Domain or Subdomain</h3>
+        <section id="instructions">
+            <p>Determine the domain of your school's Schoology login portal. There are three options:</p>
+            <ol>
+                <li>Login using Schoology's website, URL: www.schoology.com or app.schoology.com</li>
+                <li>Login using a custom subdomain, URL: &lt;your_school&gt;.schoology.com</li>
+                <li>Login using a custom domain, URL: <em>unique to your school</em></li>
+            </ol>
+        </section>
+        <p>Examples of options 2. and 3. are shown below. The text in the <span style="display: inline-block; outline: 1px solid black;">black box/oval</span> is what you will use in the following step. The <span style="text-decoration: underline; text-decoration-color: red;">red underline</span> can help you identify which type of domain your school uses. If your school doesn't have a login portal or uses login with Google, simply check the URL on the recent activity page. If you are redirected to a page flagged as "insecure," you should double check the domain you used.</p>
+        <section id="domain-examples">
+            <div class="example">
+                <p>2. Custom Subdomain</p>
+                <img src="/static/img/subdomain-example.jpg" alt="Magnification of a custom subdomain for a Schoology login portal">
             </div>
-            <p class="caption">&#42;If you use Schoology's website to login, leave the input blank.</p>
-        </div>
-        <input type="submit" value="CONTINUE" class="small-button">
-    </form>
+            <div class="example">
+                <p>3. Custom Domain</p>
+                <img src="/static/img/domain-example.jpg" alt="Magnification of a custom domain for a Schoology login portal">
+            </div>
+        </section>
+        <form action="/oauth/login" method="GET">
+            <input id="form-input-next" type="hidden" name="next">
+            <div>
+                <div style="line-height: 1;">
+                    <label for="domain-prefix-input">Input your school's custom domain or subdomain&#42;:</label>
+                    <fieldset class="input" style="--input-width: 180px;">
+                        <input id="domain-prefix-input" placeholder="www.schoology.com" name="domain" type="text" autocomplete="off">
+                        <legend>
+                            <span
+                                data-text="Domain"
+                                style="font-size: 12px;" />
+                        </legend>
+                    </fieldset>
+                </div>
+                <p class="caption">&#42;If you use Schoology's website to login, leave the input blank.</p>
+            </div>
+            <input type="submit" value="CONTINUE" class="small-button">
+        </form>
+    </article>
 </main>
 {% endblock %}

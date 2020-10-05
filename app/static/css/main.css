@@ -1,6 +1,12 @@
 * {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+h1 {
+    font-size: 30px;
+}
+h1, h2, h3, h4 {
+    font-weight: normal;
+}
 body {
     margin: 0px;
     padding: 0px;
@@ -15,6 +21,13 @@ input[type="text"] {
 }
 p {
     margin: 0px;
+}
+a {
+    color: #29b6f6;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
 }
 fieldset {
     padding: 0px;

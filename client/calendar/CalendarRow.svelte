@@ -74,6 +74,10 @@ let now = moment();
 </div>
 
 <style>
+.calendar-row {
+    grid-column: 1 / 8;
+}
+
 .calendar-row > * {
     display: grid;
     text-align: center;
@@ -86,7 +90,6 @@ let now = moment();
 }
 
 .calendar-row > .header > div {
-    border-bottom: 1px solid gray;
     vertical-align: middle;
 }
 
@@ -95,8 +98,7 @@ let now = moment();
     grid-auto-flow: row dense;
     transition: transform 0.3s, opacity 0.3s;
     grid-gap: 5px;
-    margin-bottom: 5px;
-    margin-top: 5px;
+    padding: 5px 0px;
     min-height: 60px;
 }
 
@@ -111,13 +113,20 @@ let now = moment();
 
 .header {
     grid-row-gap: 5px;
-    border-color: gray;
     position: sticky;
     z-index: 5;
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
     background-color: white;
-    top: 21px;
+    top: 20px;
     grid-template-rows: 25px;
     line-height: 24px;
+}
+
+/* Remove top border from first header below the weekday header */
+.calendar-row:nth-child(2) > .header {
+    top: 21px;
+    border-top: 0px;
 }
 
 .other-month {
@@ -129,7 +138,7 @@ let now = moment();
     color: white;
     border-radius: 50%;
     background-color: #29b6f6;
-    scroll-margin-top: 24px;
+    scroll-margin-top: 21px;
     height: 24px;
     width: 25px;
 }

@@ -32,17 +32,18 @@ export let condensed: boolean;
 export let showToday: boolean = false;
 
 const SCROLL_DELAY = 350; // Milliseconds
+const getAPI: () => Promise<Networking> = getContext(networking.key);
 const { filters, events }: NetworkStores = getContext('stores');
 const filtersLoaded = filters.loaded;
 let eventsLoaded = false;
 let currentMonthLoaded = false;
 
-$: {
+$: (async (e, t) => {
     eventsLoaded = false;
-    events
-        .view(moment(today).startOf('month'))
-        .then(() => (eventsLoaded = true));
-}
+    await getAPI().then(() => e.view(moment(t).startOf('month')));
+    eventsLoaded = true;
+})(events, today)
+
 $: {
     const previousMonth = moment(today)
         .subtract(1, 'month')
@@ -65,8 +66,8 @@ let scrollDelay = 0;
 let calendarDivWidth = 0;
 let calendarElement: HTMLElement | undefined;
 $: flyOutParameters = {
-    x: flyDirection * (calendarDivWidth / 4),
-    duration: 100,
+    x: flyDirection * (calendarDivWidth / 2),
+    duration: 200,
     easing: cubicIn,
     opacity: 0,
 };
@@ -106,7 +107,7 @@ $: if (flyComplete) {
     }
 }
 
-onMount(() => calendarDivWidth = calendarElement!.clientWidth);
+onMount(() => (calendarDivWidth = calendarElement!.clientWidth));
 
 afterUpdate(() => {
     if (showToday && $filtersLoaded && eventsLoaded && currentMonthLoaded) {
@@ -123,7 +124,13 @@ afterUpdate(() => {
         }
     }
 
-    if (calendarReady && $filtersLoaded && eventsLoaded && currentMonthLoaded && localStorage.getItem('firstEverLoad') !== 'false') {
+    if (
+        calendarReady &&
+        $filtersLoaded &&
+        eventsLoaded &&
+        currentMonthLoaded &&
+        localStorage.getItem('firstEverLoad') !== 'false'
+    ) {
         showInfoTippy(
             document.getElementsByClassName('calendar-event')[0],
             'Click to show info'
@@ -210,7 +217,7 @@ function showInfoTippy(element: Element | undefined, message: string) {
         <div
             id="calendar"
             bind:this={calendarElement}
-            in:fly={flyInParameters}
+            in:fade={{ duration: 150, easing: cubicIn }}
             out:fly={flyOutParameters}
             on:outrostart={() => (flyComplete = false)}
             on:outroend={() => (flyComplete = true)}>
@@ -246,6 +253,9 @@ function showInfoTippy(element: Element | undefined, message: string) {
     z-index: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    border: 1px solid gray;
+    box-sizing: border-box;
+    border-radius: 5px;
 }
 #header {
     display: grid;
@@ -256,15 +266,19 @@ function showInfoTippy(element: Element | undefined, message: string) {
     z-index: 6;
     background-color: white;
     text-align: center;
+    height: 20px;
+    border-bottom: 1px solid gray;
     grid-auto-flow: column;
     grid-template-columns: repeat(7, 1fr);
+}
+#header > div {
+    line-height: 20px;
 }
 #calendar {
     will-change: transform;
 }
-:global(.calendar-row) {
+.calendar-row {
     grid-column: 1 / 8;
-    border: 1px solid gray;
 }
 :global(.tippy-box[data-theme~='info']) {
     background-color: #29b6f6;

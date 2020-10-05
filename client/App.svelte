@@ -5,7 +5,7 @@ declare const ical_link: string;
 </script>
 
 <script lang="ts">
-import Modal from 'svelte-simple-modal';
+import Modal from './utility/components/Modal.svelte';
 import NotificationDisplay from './notifications/NotificationDisplay.svelte';
 import HTMLEntityDecoder from './utility/html_entity_decoder/HTMLEntityDecoder.svelte';
 import Calendar from './calendar/Calendar.svelte';
@@ -15,16 +15,20 @@ import CopyButton from './utility/components/CopyButton.svelte';
 import SVGButton from './utility/components/SVGButton.svelte';
 import { onMount, setContext, tick } from 'svelte';
 import moment from 'moment';
-import type { Filter, Alert, CourseIdentifier, EventInfo } from './api/types';
 import type { Networking } from './api/network';
 import * as networking from './api/network';
 import { events, filters, identifiers, alerts } from './stores';
 
-let api: Networking;
+let api: Networking | undefined;
 // The tick call here waits for this component to mount, allowing the api variable to be set before
 // Sub-Components can use it from the context. Another option is wrapping the Calendar and FilterEditor
 // with an if (api) statement
-const getAPI = () => tick().then(() => api);
+const getAPI = async () => {
+    if (api) return api;
+    
+    await tick();
+    return api;
+}
 
 setContext(networking.key, getAPI);
 setContext('stores', {
@@ -146,15 +150,14 @@ async function goToToday() {
     --header-height: 50px;
 }
 :global(body) {
-    margin-bottom: 0px;
-    margin-top: 0px;
+    margin: 0px;
 }
 main {
     display: flex;
     flex-wrap: wrap;
-    height: calc(100vh - calc(var(--header-height) + 8px));
+    height: calc(100vh - var(--header-height));
     width: 100%;
-    margin-top: calc(var(--header-height) + 8px) !important;
+    margin: 0px 8px;
     overflow: hidden;
 }
 #current-month {
@@ -183,7 +186,9 @@ main {
 #calendar-viewer {
     flex: 0 0 auto;
     width: 75%;
-    height: 100%;
+    /* Account for padding */
+    height: calc(100% - 8px);
+    padding-top: 8px;
     overflow: hidden;
 }
 #button-bar :global(.small-button) {
@@ -200,18 +205,6 @@ main {
 }
 :global(p) {
     margin: 0px;
-}
-:global(.spinner) {
-    animation: rotate 2s linear infinite;
-    z-index: 2;
-    position: relative;
-    width: 24px;
-    height: 24px;
-}
-:global(.path) {
-    stroke: rgba(0, 183, 255, 0.979);
-    /*stroke-linecap: round;*/
-    animation: dash 1.5s ease-in-out infinite;
 }
 :global(button.large-button),
 :global(input[type='submit']) {
@@ -265,25 +258,6 @@ main {
 :global(.toasts) {
     top: unset !important;
     bottom: 0;
-}
-@keyframes -global-rotate {
-    100% {
-        transform: rotate(360deg);
-    }
-}
-@keyframes -global-dash {
-    0% {
-        stroke-dasharray: 1, 75;
-        stroke-dashoffset: 0;
-    }
-    50% {
-        stroke-dasharray: 45, 75;
-        stroke-dashoffset: -18;
-    }
-    100% {
-        stroke-dasharray: 45, 75;
-        stroke-dashoffset: -62;
-    }
 }
 @media only screen and (max-width: 850px) {
     :global(.calendar-option) {

@@ -10,7 +10,7 @@ import type { CalendarEventData } from './calendar-structure';
 import EventModalContent from '../modals/event/EventModalContent.svelte';
 import { onMount, getContext } from 'svelte';
 import tippy from 'tippy.js';
-import { cubicInOut } from 'svelte/easing';
+import { cubicIn, cubicInOut, cubicOut } from 'svelte/easing';
 import { scale } from 'svelte/transition';
 import { alertsByEvent } from '../stores';
 import 'tippy.js/dist/tippy.css';
@@ -124,10 +124,16 @@ function displayEventInfo() {
             closeButton: false,
             transitionBgProps: { duration: 150 },
             transitionWindow: scale,
-            transitionWindowProps: {
+            transitionWindowInProps: {
                 duration: 150,
-                easing: cubicInOut,
-                start: 0.9,
+                easing: cubicOut,
+                start: 0.8,
+                opacity: 0.6,
+            },
+            transitionWindowOutProps: {
+                duration: 150,
+                easing: cubicIn,
+                start: 0.8,
                 opacity: 0.6,
             },
         }

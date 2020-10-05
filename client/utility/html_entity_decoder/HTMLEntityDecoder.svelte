@@ -16,7 +16,6 @@ export async function decode(text: string): Promise<string> {
 </script>
 
 <script lang="ts">
-console.log('Component start');
 import { onDestroy, onMount } from "svelte";
 
 let textarea: HTMLTextAreaElement;
@@ -31,7 +30,6 @@ async function decode(text: string): Promise<string> {
     await ready;
 
     textarea.innerHTML = text;
-    console.log(textarea.innerHTML, textarea.value);
     return textarea.value;
 }
 

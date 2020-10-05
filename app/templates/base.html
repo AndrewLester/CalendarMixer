@@ -17,8 +17,7 @@
         <header class="shown">
             <nav>
                 <a href="{{ url_for('main.index') }}">Calendar Mixer</a>
-                <a href="{{ url_for('main.about') }}">About</a>
-                <a href="{{ url_for('main.privacy') }}">Privacy</a>
+                <a href="{{ url_for('main.tutorial') }}">Tutorial</a>
                 {% if current_user.is_anonymous %}
                 <a href="{{ url_for('main.login') }}">Login</a>
                 {% else %}

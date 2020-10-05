@@ -152,8 +152,6 @@ export class QueryNetworkStore<T, Args extends {[index: string]: string}> extend
                 v.forEach((mappedV, mappedK) => objectMap.set(mappedK, mappedV));
                 map.set(k, objectMap);    
             }
-
-            this.storeValue = map;
             return map;
         });
     }
