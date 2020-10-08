@@ -9,7 +9,6 @@ import Modal from './utility/components/Modal.svelte';
 import NotificationDisplay from './notifications/NotificationDisplay.svelte';
 import HTMLEntityDecoder from './utility/html_entity_decoder/HTMLEntityDecoder.svelte';
 import Calendar from './calendar/Calendar.svelte';
-import type { FlyAnimationDirection } from './calendar/Calendar.svelte';
 import FilterEditor from './filtering/FilterEditor.svelte';
 import CopyButton from './utility/components/CopyButton.svelte';
 import SVGButton from './utility/components/SVGButton.svelte';
@@ -18,6 +17,7 @@ import moment from 'moment';
 import type { Networking } from './api/network';
 import * as networking from './api/network';
 import { events, filters, identifiers, alerts } from './stores';
+import BetterCalendar from './calendar/BetterCalendar.svelte';
 
 let api: Networking | undefined;
 // The tick call here waits for this component to mount, allowing the api variable to be set before
@@ -42,17 +42,15 @@ let definedColors: string[];
 let csrfToken: string;
 let icalLink: string;
 
-let now = moment();
-let today = moment(now).startOf('day');
-let matching: boolean = false;
-$: matching = now.month() === today.month() && now.year() === today.year();
+let month;
+$: console.log(month);
+// $: matching = moment().month() === month.month() && moment().year() === month.year();
 
+let calendar: Calendar;
 let calendarViewer: HTMLElement | undefined;
-let flyDirection: FlyAnimationDirection = 0;
 let condensed = true;
-let showToday = false;
 
-let monthButtonWidth;
+let monthButtonWidth: number | undefined;
 $: monthButtonTextFormat =
     monthButtonWidth && monthButtonWidth < 100 ? 'MMM' : 'MMMM';
 $: currentMonthFormat =
@@ -65,7 +63,6 @@ onMount(() => {
 
     api = networking.mountNetworking(csrfToken);
     events.setAPI(api);
-    events.view(moment(today).startOf('month'));
 
     filters.setAPI(api);
     filters.reset();
@@ -76,23 +73,6 @@ onMount(() => {
     alerts.setAPI(api);
     alerts.reset();
 });
-
-function navigateMonths(shift: number) {
-    // shift cannot be 0
-    if (!shift) return;
-
-    flyDirection = -Math.sign(shift) as FlyAnimationDirection;
-    today.add(shift, 'months');
-    today = today;
-}
-
-async function goToToday() {
-    if (!matching) {
-        flyDirection = moment(now).startOf('day').isBefore(today) ? 1 : -1;
-        today = moment(now).startOf('day');
-    }
-    showToday = true;
-}
 </script>
 
 <HTMLEntityDecoder />
@@ -107,22 +87,22 @@ async function goToToday() {
                     <SVGButton
                         svgLink={'/static/img/today-black-18dp.svg'}
                         symbolId={'icon'}
-                        on:click={goToToday} />
+                        on:click={() => calendar.goToToday()} />
                 </span>
-                <p id="current-month" class:matching>
-                    {today.format(currentMonthFormat)}
+                <p id="current-month">
+                    <!-- {month.format(currentMonthFormat)} -->
                 </p>
-                <button
-                    on:click={() => navigateMonths(-1)}
-                    class="large-button"
-                    bind:clientWidth={monthButtonWidth}>
-                    ← {moment(today).subtract(1, 'months').format(monthButtonTextFormat)}
-                </button>
-                <button on:click={() => navigateMonths(1)} class="large-button">
-                    {moment(today)
+                <!-- <button -->
+                    <!-- on:click={() => calendar.navigateMonths(-1)} -->
+                    <!-- class="large-button" -->
+                    <!-- bind:clientWidth={monthButtonWidth}> -->
+                    <!-- ← {moment(month).subtract(1, 'months').format(monthButtonTextFormat)} -->
+                <!-- </button> -->
+                <!-- <button on:click={() => calendar.navigateMonths(1)} class="large-button">
+                    {moment(month)
                         .add(1, 'months')
                         .format(monthButtonTextFormat)} →
-                </button>
+                </button> -->
                 <label class="calendar-option" for="condensed-checkbox">
                     Condensed:
                 </label>
@@ -139,7 +119,9 @@ async function goToToday() {
                 {/if}
             </div>
             <!-- Non-condensed functionality is not complete yet -->
-            <Calendar {today} condensed={true} {flyDirection} bind:showToday />
+            <!-- <Calendar bind:month condensed={true} bind:this={calendar} /> -->
+            <!-- TODO: BINDING TO OBJECTS DOESN'T WORK -->
+            <BetterCalendar {month} on:monthChange={(newMonth) => month = newMonth}/>
         </div>
         <FilterEditor />
     </main>

@@ -1,6 +1,6 @@
 import type { EventInfo } from '../api/types';
 import moment from 'moment';
-import { QueryNetworkStore, ErrorHandler, KeyMap } from './networkstore';
+import { QueryNetworkStore, ErrorHandler, KeyMap, StoreType } from './networkstore';
 import { timeToMoment } from '../api/schoology';
 import { get } from 'svelte/store';
 
@@ -33,10 +33,12 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
     view(month: moment.Moment): Promise<void[]> {
         if (!this.api) throw new Error('API not yet loaded');
 
+        const store = this.store;
+
         const halfCapacity = Math.floor(this.capacity / 2);
         const requiredKeys = new Set<string>();
 
-        const storeValue = get(this.store);
+        const storeValue = get(this.store) as StoreType<typeof store>;
         let queries: Promise<void>[] = [];
 
         for (let i = 0; i < this.capacity; i++) {
@@ -58,7 +60,7 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
                 }).then(() => {
                     // Add any missing month keys not found in 
                     // the initial query to the "/events" endpoint
-                    this.store.update((map) => {
+                    store.update((map) => {
                         if (!map.has(monthKey)) {
                             map.set(monthKey, new Map<string, EventInfo>() as KeyMap<EventInfo>);
                             this.storeValue = map;
@@ -72,7 +74,7 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
         // Remove unused keys that are still in the store
         for (let key of storeValue.keys()) {
             if (!requiredKeys.has(key as string)) {
-                this.store.update((map) => {
+                store.update((map) => {
                     map.delete(key);
                     return map;
                 })

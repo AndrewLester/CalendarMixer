@@ -4,16 +4,15 @@ export type FlyAnimationDirection = -1 | 1 | 0;
 
 <script lang="ts">
 import CalendarRow from './CalendarRow.svelte';
-import { derived } from 'svelte/store';
-import { getContext, afterUpdate, onMount } from 'svelte';
+import { getContext, afterUpdate, onMount, tick } from 'svelte';
 import { cubicIn, cubicOut } from 'svelte/easing';
 import { sleep } from '../utility/async.js';
 import {
     buildCalendarStructure,
     placeEvent,
-    applyFilters,
+    applyFilters
 } from './calendar-structure.js';
-import type { CalendarData } from './calendar-structure';
+import type { CalendarData, CalendarRowData } from './calendar-structure';
 import { fade, fly } from 'svelte/transition';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
@@ -26,109 +25,61 @@ import moment from 'moment';
 import type { Networking } from '../api/network';
 import type { Filter, EventInfo } from '../api/types';
 
-export let today: moment.Moment;
-export let flyDirection: FlyAnimationDirection;
-export let condensed: boolean;
-export let showToday: boolean = false;
+export let month: moment.Moment;
+// export let condensed: boolean;
 
-const SCROLL_DELAY = 350; // Milliseconds
+// const getTodayMonthKey = (offset?: number) => moment(month).add(offset ?? 0).format(momentKeyFormat);
 const getAPI: () => Promise<Networking> = getContext(networking.key);
 const { filters, events }: NetworkStores = getContext('stores');
 const filtersLoaded = filters.loaded;
-let eventsLoaded = false;
-let currentMonthLoaded = false;
+let dataDownloaded = false;
 
-$: (async (e, t) => {
-    eventsLoaded = false;
-    await getAPI().then(() => e.view(moment(t).startOf('month')));
-    eventsLoaded = true;
-})(events, today)
-
-$: {
-    const previousMonth = moment(today)
-        .subtract(1, 'month')
-        .format(momentKeyFormat);
-    const currentMonth = moment(today).format(momentKeyFormat);
-    const nextMonth = moment(today).add(1, 'month').format(momentKeyFormat);
-
-    currentMonthLoaded =
-        $events.has(previousMonth) &&
-        $events.has(currentMonth) &&
-        $events.has(nextMonth);
-}
-
+let flyDirection: FlyAnimationDirection = 0;
 let calendarView: HTMLElement | undefined;
-let calendar: CalendarData | undefined;
-let calendarReady = false;
-let donePlacing = false;
-let flyComplete = true;
-let scrollDelay = 0;
+let rows: CalendarRowData[] | undefined;
 let calendarDivWidth = 0;
 let calendarElement: HTMLElement | undefined;
 $: flyOutParameters = {
     x: flyDirection * (calendarDivWidth / 2),
-    duration: 200,
+    duration: 150,
     easing: cubicIn,
     opacity: 0,
 };
 
-$: flyInParameters = {
-    x: -flyDirection * (calendarDivWidth / 4),
-    duration: 100,
-    easing: cubicOut,
-    opacity: 0.5,
-};
+$: flyInParameters = {...flyOutParameters, x: -flyOutParameters.x, easing: cubicOut};
+// $: matching = moment().month() === month.month() && moment().year() === month.year();
 
 // Listen for changes to filter from FilterEditor
-filters.subscribe(filterEvents);
+// filters.subscribe(filterEvents);
 
-$: if (today) {
-    calendarReady = false;
-    calendar = buildCalendarStructure(today);
-    donePlacing = false;
+let calendar;
+// $: calendar = buildCalendarStructure(moment(month));
+// $: rows = calendar?.rows;
+
+$: getAPI().then(() => {
+    // dataDownloaded = false;
+    // return events.view(month);
+}).then(() => dataDownloaded = true);
+
+let eventsCreated = false;
+$: {
+    // eventsCreated = false;
+    // const prevMonth = getTodayMonthKey(-1);
+    // const currentMonth = getTodayMonthKey();
+    // const nextMonth = getTodayMonthKey(1);
+
+    // eventsCreated = $events.has(prevMonth) && $events.has(currentMonth) && $events.has(nextMonth);
 }
 
-$: if (
-    $filtersLoaded &&
-    eventsLoaded &&
-    currentMonthLoaded &&
-    calendar &&
-    !donePlacing
-) {
-    placeEvents(calendar, today);
-    donePlacing = true;
-}
+$: loaded = (eventsCreated || dataDownloaded) && $filtersLoaded;
+$: if (loaded) placeEvents();
 
-$: if (flyComplete) {
-    calendarReady = true;
-    // Reset scroll position after animating to a new month
-    if (calendarView) {
-        calendarView.scrollTop = 0;
-    }
-}
 
-onMount(() => (calendarDivWidth = calendarElement!.clientWidth));
+// onMount(() => (calendarDivWidth = calendarElement!.clientWidth));
 
 afterUpdate(() => {
-    if (showToday && $filtersLoaded && eventsLoaded && currentMonthLoaded) {
-        if (
-            calendarReady &&
-            document.getElementsByClassName('today').length === 1
-        ) {
-            scrollToToday(scrollDelay).then(() => {
-                showToday = false;
-                scrollDelay = 0;
-            });
-        } else {
-            scrollDelay = SCROLL_DELAY;
-        }
-    }
-
     if (
-        calendarReady &&
-        $filtersLoaded &&
-        eventsLoaded &&
-        currentMonthLoaded &&
+        loaded &&
         localStorage.getItem('firstEverLoad') !== 'false'
     ) {
         showInfoTippy(
@@ -139,56 +90,77 @@ afterUpdate(() => {
     }
 });
 
-function placeEvents(calendarData: CalendarData, now: moment.Moment) {
-    const eventList = [] as EventInfo[];
-    const usedEventIds = new Set<number>();
-    const currentMonth = moment(now).startOf('month');
-    // Get events in months before and after the current one to account for other-month days
-    for (let i = currentMonth.month() - 1; i < currentMonth.month() + 2; i++) {
-        const eventsListKey = moment(currentMonth)
-            .month(i)
-            .format(momentKeyFormat);
-        for (let event of (
-            $events.get(eventsListKey) ?? new Map<string, EventInfo>()
-        ).values()) {
-            if (!usedEventIds.has(event.id)) {
-                eventList.push(event);
-                usedEventIds.add(event.id);
-            }
-        }
-    }
+async function placeEvents() {
+    // const eventList = [] as EventInfo[];
+    // const usedEventIds = new Set<number>();
+    // const currentMonth = month;
+    // // Get events in months before and after the current one to account for other-month days
+    // for (let i = currentMonth.month() - 1; i < currentMonth.month() + 2; i++) {
+    //     const eventsListKey = moment(currentMonth).month(i).format(momentKeyFormat);
+    //     for (let event of (
+    //         $events.get(eventsListKey) ?? new Map<string, EventInfo>()
+    //     ).values()) {
+    //         if (!usedEventIds.has(event.id)) {
+    //             eventList.push(event);
+    //             usedEventIds.add(event.id);
+    //         }
+    //     }
+    // }
 
-    for (let eventInfo of eventList) {
-        placeEvent(
-            {
-                eventInfo: eventInfo,
-                start: timeToMoment(eventInfo.start),
-                end: eventInfo.has_end
-                    ? timeToMoment(eventInfo.end as string)
-                    : timeToMoment(eventInfo.start),
-                initialPlacement: true,
-                filtered: eventInfo.filtered ?? false,
-            },
-            calendarData,
-            $filters
-        );
-    }
+    // for (let eventInfo of eventList) {
+    //     placeEvent(
+    //         {
+    //             eventInfo: eventInfo,
+    //             start: timeToMoment(eventInfo.start),
+    //             end: eventInfo.has_end
+    //                 ? timeToMoment(eventInfo.end as string)
+    //                 : timeToMoment(eventInfo.start),
+    //             initialPlacement: true,
+    //             filtered: eventInfo.filtered ?? false,
+    //         },
+    //         calendar,
+    //         $filters
+    //     );
+    // }
 }
 
 function filterEvents(filters: Filter[]) {
-    if (calendar === undefined) return;
+    // if (rows === undefined) return;
 
-    for (let [i, row] of calendar.rows.entries()) {
-        for (let [j, day] of row.days.entries()) {
-            for (let [k, event] of day.events.entries()) {
-                event.filtered = applyFilters(event.eventInfo, filters);
-                calendar.rows[i].days[j].events[k] = event;
-            }
-        }
-    }
+    // for (let [i, row] of rows.entries()) {
+    //     for (let [j, day] of row.days.entries()) {
+    //         for (let [k, event] of day.events.entries()) {
+    //             event.filtered = applyFilters(event.eventInfo, filters);
+    //             rows[i].days[j].events[k] = event;
+    //         }
+    //     }
+    // }
+}
+
+export function navigateMonths(shift: number) {
+    // if (shift === 0) return;
+
+    // flyDirection = -Math.sign(shift) as FlyAnimationDirection;
+    // month.add(shift, 'months');
+    // console.log('Navigating')
+    // month = month;
+}
+
+export async function goToToday() {
+    let scrollDelay = 0;
+
+    // if (!matching) {
+    //     scrollDelay = 350;
+    //     navigateMonths(moment().month() - month.month());
+    //     await tick();
+    // }
+    
+    await scrollToToday(scrollDelay);
 }
 
 async function scrollToToday(delay: number) {
+    if (document.getElementsByClassName('today').length !== 1) return;
+
     await sleep(delay);
     document
         .getElementsByClassName('today')[0]
@@ -213,14 +185,13 @@ function showInfoTippy(element: Element | undefined, message: string) {
 </script>
 
 <div id="calendar-view" bind:this={calendarView}>
-    {#if calendarReady}
+{#if calendar}
+    {#key calendar}
         <div
             id="calendar"
             bind:this={calendarElement}
-            in:fade={{ duration: 150, easing: cubicIn }}
-            out:fly={flyOutParameters}
-            on:outrostart={() => (flyComplete = false)}
-            on:outroend={() => (flyComplete = true)}>
+            in:fly={flyInParameters}
+            out:fly={flyOutParameters}>
             <div id="header" class="calendar-row">
                 <div>Sun</div>
                 <div>Mon</div>
@@ -230,17 +201,20 @@ function showInfoTippy(element: Element | undefined, message: string) {
                 <div>Fri</div>
                 <div>Sat</div>
             </div>
-            {#each calendar.rows.filter((row) => !row.unused) as row, i (row)}
-                <CalendarRow
-                    {...row}
-                    {today}
-                    {condensed}
-                    {calendar}
-                    calRowNum={i}
-                    skeleton={!$filtersLoaded || !eventsLoaded || !currentMonthLoaded} />
-            {/each}
+            {#if rows}
+                <!-- {#each rows.filter((row) => !row.unused) as row, i (row)}
+                    <CalendarRow
+                        {...row}
+                        {month}
+                        {condensed}
+                        {rows}
+                        calRowNum={i}
+                        skeleton={!dataDownloaded} />
+                {/each} -->
+            {/if}
         </div>
-    {/if}
+    {/key}
+{/if}
 </div>
 
 <style>

@@ -1,20 +1,14 @@
 <script lang="ts">
 import CalendarEvent from './CalendarEvent.svelte';
 import moment from 'moment';
-import type { CalendarDayData, CalendarData } from './calendar-structure';
+import type { CalendarDayData, CalendarData, CalendarRowData } from './calendar-structure';
 import { fade } from 'svelte/transition';
 
-export let today: moment.Moment;
+export let month: moment.Moment;
 export let calRowNum: number;
 export let dayNumbers: number[] = [];
 export let days: CalendarDayData[] = [];
-export let calendar: CalendarData = {
-    rows: [],
-    firstCalDay: moment().startOf('month'),
-    firstMonthDay: moment().startOf('month'),
-    lastCalDay: moment().endOf('month'),
-    lastMonthDay: moment().endOf('month'),
-};
+export let rows: CalendarRowData[] = [];
 export let skeleton: boolean = false;
 export let condensed: boolean = false;
 
@@ -25,7 +19,7 @@ let now = moment();
     <div class="header">
         {#each dayNumbers as num, i}
             <div class:other-month={days[i].otherMonth}>
-                {#if !days[i].otherMonth && now.year() === today.year() && now.month() == today.month() && num == now.date()}
+                {#if !days[i].otherMonth && now.year() === month.year() && now.month() == month.month() && num == now.date()}
                     <span class="today">{num}</span>
                 {:else}{num}{/if}
             </div>
@@ -42,6 +36,9 @@ let now = moment();
     {:else}
         <div class="event-row" in:fade|local={{ delay: 0 }}>
             {#each days as day, dayIndex (dayIndex)}
+            {#await Promise.resolve(day.events.map((e) => e.eventInfo.id)) then data}
+                <!-- {@debug data, day} -->
+            {/await}
                 {#each day.events as event, i (event.eventInfo.id)}
                     {#if condensed}
                         {#if event.initialPlacement}
@@ -51,21 +48,25 @@ let now = moment();
                                 {calRowNum} />
                         {/if}
                     {:else if i === 0}
-                        <CalendarEvent
-                            {...event}
-                            eventNum={i}
-                            {calRowNum}
-                            startRow={event.startRow || 1}
-                            bind:endRow={calendar.rows[calRowNum].days[dayIndex].events[i].endRow}
-                            condensed={false} />
+                        {#key condensed}
+                            <CalendarEvent
+                                {...event}
+                                eventNum={i}
+                                {calRowNum}
+                                startRow={event.startRow || 1}
+                                bind:endRow={rows[calRowNum].days[dayIndex].events[i].endRow}
+                                condensed={false} />
+                        {/key}
                     {:else}
-                        <CalendarEvent
-                            {...event}
-                            eventNum={i}
-                            {calRowNum}
-                            bind:startRow={calendar.rows[calRowNum].days[dayIndex].events[i - 1].endRow}
-                            bind:endRow={calendar.rows[calRowNum].days[dayIndex].events[i].endRow}
-                            condensed={false} />
+                        {#key condensed}
+                            <CalendarEvent
+                                {...event}
+                                eventNum={i}
+                                {calRowNum}
+                                bind:startRow={rows[calRowNum].days[dayIndex].events[i - 1].endRow}
+                                bind:endRow={rows[calRowNum].days[dayIndex].events[i].endRow}
+                                condensed={false} />
+                        {/key}
                     {/if}
                 {/each}
             {/each}
