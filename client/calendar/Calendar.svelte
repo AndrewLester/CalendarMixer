@@ -1,10 +1,6 @@
-<script lang="ts" context="module">
-export type FlyAnimationDirection = -1 | 1 | 0;
-</script>
-
 <script lang="ts">
 import CalendarRow from './CalendarRow.svelte';
-import { getContext, afterUpdate, onMount, tick } from 'svelte';
+import { getContext, afterUpdate, onMount, tick, createEventDispatcher } from 'svelte';
 import { cubicIn, cubicOut } from 'svelte/easing';
 import { sleep } from '../utility/async.js';
 import {
@@ -12,175 +8,177 @@ import {
     placeEvent,
     applyFilters
 } from './calendar-structure.js';
-import type { CalendarData, CalendarRowData } from './calendar-structure';
-import { fade, fly } from 'svelte/transition';
+import type { CalendarData } from './calendar-structure';
+import { fly } from 'svelte/transition';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away-subtle.css';
 import * as networking from '../api/network';
-import { timeToMoment, momentToTime } from '../api/schoology';
+import { timeToMoment } from '../api/schoology';
 import type { NetworkStores } from '../stores';
 import { momentKeyFormat } from '../stores';
 import moment from 'moment';
 import type { Networking } from '../api/network';
-import type { Filter, EventInfo } from '../api/types';
+import type { EventInfo } from '../api/types';
 
-export let month: moment.Moment;
-// export let condensed: boolean;
+export let condensed: boolean;
 
-// const getTodayMonthKey = (offset?: number) => moment(month).add(offset ?? 0).format(momentKeyFormat);
 const getAPI: () => Promise<Networking> = getContext(networking.key);
 const { filters, events }: NetworkStores = getContext('stores');
-const filtersLoaded = filters.loaded;
-let dataDownloaded = false;
 
+let month: moment.Moment = moment().startOf('month');
+
+const dispatch = createEventDispatcher();
+
+type FlyAnimationDirection = -1 | 0 | 1;
 let flyDirection: FlyAnimationDirection = 0;
-let calendarView: HTMLElement | undefined;
-let rows: CalendarRowData[] | undefined;
+let calendarView: HTMLElement;
 let calendarDivWidth = 0;
 let calendarElement: HTMLElement | undefined;
 $: flyOutParameters = {
-    x: flyDirection * (calendarDivWidth / 2),
+    x: flyDirection * (calendarDivWidth / 4),
     duration: 150,
     easing: cubicIn,
     opacity: 0,
 };
 
-$: flyInParameters = {...flyOutParameters, x: -flyOutParameters.x, easing: cubicOut};
-// $: matching = moment().month() === month.month() && moment().year() === month.year();
+$: flyInParameters = {
+    ...flyOutParameters,
+    x: -flyOutParameters.x,
+    easing: cubicOut,
+    delay: 150
+};
 
-// Listen for changes to filter from FilterEditor
-// filters.subscribe(filterEvents);
+$: getAPI().then(() => events.view(month));
+$: calendar = buildCalendarStructure(month);
+$: rows = calendar.rows;
 
-let calendar;
-// $: calendar = buildCalendarStructure(moment(month));
-// $: rows = calendar?.rows;
+$: dataDownloaded = $events.has(month.format(momentKeyFormat))
+                    && $events.has(moment(month).add(1, 'months').format(momentKeyFormat))
+                    && $events.has(moment(month).subtract(1, 'months').format(momentKeyFormat));
 
-$: getAPI().then(() => {
-    // dataDownloaded = false;
-    // return events.view(month);
-}).then(() => dataDownloaded = true);
+const getCalendarView = () => calendarView;
+$: (async () => {
+    if (dataDownloaded) {
+        // By sleeping before placing the events, this function runs in a separate microtask and therefore
+        // The transition does not rely on its finishing before executings
+        await sleep(1);
+        // TODO: Find out why putting calendarView here invalidates "month"
+        getCalendarView().scrollTop = 0;
+        placeEvents(calendar);
+    }
+})();
 
-let eventsCreated = false;
-$: {
-    // eventsCreated = false;
-    // const prevMonth = getTodayMonthKey(-1);
-    // const currentMonth = getTodayMonthKey();
-    // const nextMonth = getTodayMonthKey(1);
-
-    // eventsCreated = $events.has(prevMonth) && $events.has(currentMonth) && $events.has(nextMonth);
-}
-
-$: loaded = (eventsCreated || dataDownloaded) && $filtersLoaded;
-$: if (loaded) placeEvents();
-
-
-// onMount(() => (calendarDivWidth = calendarElement!.clientWidth));
+onMount(() => (calendarDivWidth = calendarElement!.clientWidth));
 
 afterUpdate(() => {
     if (
-        loaded &&
+        dataDownloaded &&
         localStorage.getItem('firstEverLoad') !== 'false'
     ) {
-        showInfoTippy(
-            document.getElementsByClassName('calendar-event')[0],
-            'Click to show info'
-        );
-        localStorage.setItem('firstEverLoad', 'false');
+        const elem = document.getElementsByClassName('calendar-event')[0];
+        if (elem) {
+            showInfoTippy(elem, 'Click to show info');
+            localStorage.setItem('firstEverLoad', 'false');
+        }
     }
 });
 
-async function placeEvents() {
-    // const eventList = [] as EventInfo[];
-    // const usedEventIds = new Set<number>();
-    // const currentMonth = month;
-    // // Get events in months before and after the current one to account for other-month days
-    // for (let i = currentMonth.month() - 1; i < currentMonth.month() + 2; i++) {
-    //     const eventsListKey = moment(currentMonth).month(i).format(momentKeyFormat);
-    //     for (let event of (
-    //         $events.get(eventsListKey) ?? new Map<string, EventInfo>()
-    //     ).values()) {
-    //         if (!usedEventIds.has(event.id)) {
-    //             eventList.push(event);
-    //             usedEventIds.add(event.id);
-    //         }
-    //     }
-    // }
-
-    // for (let eventInfo of eventList) {
-    //     placeEvent(
-    //         {
-    //             eventInfo: eventInfo,
-    //             start: timeToMoment(eventInfo.start),
-    //             end: eventInfo.has_end
-    //                 ? timeToMoment(eventInfo.end as string)
-    //                 : timeToMoment(eventInfo.start),
-    //             initialPlacement: true,
-    //             filtered: eventInfo.filtered ?? false,
-    //         },
-    //         calendar,
-    //         $filters
-    //     );
-    // }
+// Listen for changes to filter store or rows and update the filtered events
+$: if (rows) {
+    for (let [i, row] of rows.entries()) {
+        for (let [j, day] of row.days.entries()) {
+            for (let [k, event] of day.events.entries()) {
+                event.filtered = applyFilters(event.eventInfo, $filters);
+                rows[i].days[j].events[k] = event;
+            }
+        }
+    }
 }
 
-function filterEvents(filters: Filter[]) {
-    // if (rows === undefined) return;
+function placeEvents(cal: CalendarData) {
+    const eventList = [] as EventInfo[];
+    const usedEventIds = new Set<number>();
+    const currentMonth = month;
+    // Get events in months before and after the current one to account for other-month days
+    for (let i = currentMonth.month() - 1; i < currentMonth.month() + 2; i++) {
+        const eventsListKey = moment(currentMonth).month(i).format(momentKeyFormat);
+        for (let event of (
+            $events.get(eventsListKey) ?? new Map<string, EventInfo>()
+        ).values()) {
+            if (!usedEventIds.has(event.id)) {
+                eventList.push(event);
+                usedEventIds.add(event.id);
+            }
+        }
+    }
 
-    // for (let [i, row] of rows.entries()) {
-    //     for (let [j, day] of row.days.entries()) {
-    //         for (let [k, event] of day.events.entries()) {
-    //             event.filtered = applyFilters(event.eventInfo, filters);
-    //             rows[i].days[j].events[k] = event;
-    //         }
-    //     }
-    // }
+    for (let eventInfo of eventList) {
+        placeEvent(
+            {
+                eventInfo: eventInfo,
+                start: timeToMoment(eventInfo.start),
+                end: eventInfo.has_end
+                    ? timeToMoment(eventInfo.end as string)
+                    : timeToMoment(eventInfo.start),
+                initialPlacement: true,
+                filtered: eventInfo.filtered ?? false,
+            },
+            cal,
+            $filters
+        );
+    }
+
+    rows = cal.rows;
 }
 
-export function navigateMonths(shift: number) {
-    // if (shift === 0) return;
+export async function navigateMonths(shift: number | moment.Moment) {
+    if (shift === 0) return;
 
-    // flyDirection = -Math.sign(shift) as FlyAnimationDirection;
-    // month.add(shift, 'months');
-    // console.log('Navigating')
-    // month = month;
+    if (typeof shift === 'object') {
+        flyDirection = -Math.sign(shift.diff(month, 'days')) as FlyAnimationDirection;
+        month = shift.startOf('month');
+    } else {
+        flyDirection = -Math.sign(shift) as FlyAnimationDirection;
+        month.add(shift, 'months');
+        month = month.startOf('month');
+    }
+
+    dispatch('monthChange', month);
+
+    await tick();
 }
 
 export async function goToToday() {
-    let scrollDelay = 0;
-
-    // if (!matching) {
-    //     scrollDelay = 350;
-    //     navigateMonths(moment().month() - month.month());
-    //     await tick();
-    // }
+    // If the calendar is not currently viewing the current month
+    if (moment().format(momentKeyFormat) !== month.format(momentKeyFormat)) {
+        await navigateMonths(moment().startOf('month'));
+        await sleep(flyInParameters.duration + flyInParameters.delay + 100);
+    }
     
-    await scrollToToday(scrollDelay);
+    scrollToToday();
 }
 
-async function scrollToToday(delay: number) {
+function scrollToToday() {
     if (document.getElementsByClassName('today').length !== 1) return;
 
-    await sleep(delay);
     document
         .getElementsByClassName('today')[0]
         .scrollIntoView({ behavior: 'smooth' });
 }
 
-function showInfoTippy(element: Element | undefined, message: string) {
-    if (element !== undefined) {
-        tippy(element, {
-            content: message,
-            arrow: true,
-            allowHTML: true,
-            placement: 'bottom',
-            animation: 'shift-away-subtle',
-            delay: [250, 100],
-            theme: 'info',
-            trigger: 'manual',
-            showOnCreate: true,
-        });
-    }
+function showInfoTippy(element: Element, message: string) {
+    tippy(element, {
+        content: message,
+        arrow: true,
+        allowHTML: true,
+        placement: 'bottom',
+        animation: 'shift-away-subtle',
+        delay: [250, 100],
+        theme: 'info',
+        trigger: 'manual',
+        showOnCreate: true,
+    });
 }
 </script>
 
@@ -188,7 +186,7 @@ function showInfoTippy(element: Element | undefined, message: string) {
 {#if calendar}
     {#key calendar}
         <div
-            id="calendar"
+            class="calendar"
             bind:this={calendarElement}
             in:fly={flyInParameters}
             out:fly={flyOutParameters}>
@@ -202,15 +200,15 @@ function showInfoTippy(element: Element | undefined, message: string) {
                 <div>Sat</div>
             </div>
             {#if rows}
-                <!-- {#each rows.filter((row) => !row.unused) as row, i (row)}
+                {#each rows.filter((row) => !row.unused) as row, i (row)}
                     <CalendarRow
                         {...row}
                         {month}
                         {condensed}
                         {rows}
                         calRowNum={i}
-                        skeleton={!dataDownloaded} />
-                {/each} -->
+                        skeleton={!dataDownloaded}/>
+                {/each}
             {/if}
         </div>
     {/key}
@@ -231,6 +229,13 @@ function showInfoTippy(element: Element | undefined, message: string) {
     box-sizing: border-box;
     border-radius: 5px;
 }
+/* Hide second calendar while transitioning */
+.calendar:nth-child(2) {
+    box-sizing: border-box;
+    height: 0px !important;
+    width: 0px !important;
+    overflow: hidden;
+}
 #header {
     display: grid;
     font-weight: bold;
@@ -248,7 +253,7 @@ function showInfoTippy(element: Element | undefined, message: string) {
 #header > div {
     line-height: 20px;
 }
-#calendar {
+.calendar {
     will-change: transform;
 }
 .calendar-row {

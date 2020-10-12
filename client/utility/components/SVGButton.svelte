@@ -2,7 +2,7 @@
 import { animationEnd } from '../async';
 
 export let svgLink: string;
-export let symbolId = '';
+export let symbolId: string;
 export let width = 24;
 export let height = 24;
 export let disabled: boolean = false;
@@ -51,7 +51,7 @@ async function release() {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 {width} {height}"
         class={classes}>
-        <use xlink:href="{svgLink}{symbolId ? `#${symbolId}` : ''}" />
+        <use xlink:href="{svgLink}#{symbolId}" />
     </svg>
 </button>
 {#if text.length > 0}

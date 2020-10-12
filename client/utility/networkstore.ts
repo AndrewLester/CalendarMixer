@@ -156,6 +156,8 @@ export class QueryNetworkStore<T, Args extends {[index: string]: string}> extend
             }
             return map;
         });
+
+        return mappedObjects;
     }
 
     delete(key: T[keyof T]) {

@@ -17,7 +17,6 @@ import moment from 'moment';
 import type { Networking } from './api/network';
 import * as networking from './api/network';
 import { events, filters, identifiers, alerts } from './stores';
-import BetterCalendar from './calendar/BetterCalendar.svelte';
 
 let api: Networking | undefined;
 // The tick call here waits for this component to mount, allowing the api variable to be set before
@@ -25,10 +24,10 @@ let api: Networking | undefined;
 // with an if (api) statement
 const getAPI = async () => {
     if (api) return api;
-    
+
     await tick();
     return api;
-}
+};
 
 setContext(networking.key, getAPI);
 setContext('stores', {
@@ -42,9 +41,8 @@ let definedColors: string[];
 let csrfToken: string;
 let icalLink: string;
 
-let month;
-$: console.log(month);
-// $: matching = moment().month() === month.month() && moment().year() === month.year();
+// Updated by the monthChange event on the Calendar component
+let month = moment().startOf('month');
 
 let calendar: Calendar;
 let calendarViewer: HTMLElement | undefined;
@@ -89,20 +87,20 @@ onMount(() => {
                         symbolId={'icon'}
                         on:click={() => calendar.goToToday()} />
                 </span>
-                <p id="current-month">
-                    <!-- {month.format(currentMonthFormat)} -->
-                </p>
-                <!-- <button -->
-                    <!-- on:click={() => calendar.navigateMonths(-1)} -->
-                    <!-- class="large-button" -->
-                    <!-- bind:clientWidth={monthButtonWidth}> -->
-                    <!-- ← {moment(month).subtract(1, 'months').format(monthButtonTextFormat)} -->
-                <!-- </button> -->
-                <!-- <button on:click={() => calendar.navigateMonths(1)} class="large-button">
+                <p id="current-month">{month.format(currentMonthFormat)}</p>
+                <button
+                    on:click={() => calendar.navigateMonths(-1)}
+                    class="large-button"
+                    bind:clientWidth={monthButtonWidth}>
+                    ← {moment(month).subtract(1, 'months').format(monthButtonTextFormat)}
+                </button>
+                <button
+                    on:click={() => calendar.navigateMonths(1)}
+                    class="large-button">
                     {moment(month)
                         .add(1, 'months')
                         .format(monthButtonTextFormat)} →
-                </button> -->
+                </button>
                 <label class="calendar-option" for="condensed-checkbox">
                     Condensed:
                 </label>
@@ -118,10 +116,10 @@ onMount(() => {
                     </CopyButton>
                 {/if}
             </div>
-            <!-- Non-condensed functionality is not complete yet -->
-            <!-- <Calendar bind:month condensed={true} bind:this={calendar} /> -->
-            <!-- TODO: BINDING TO OBJECTS DOESN'T WORK -->
-            <BetterCalendar {month} on:monthChange={(newMonth) => month = newMonth}/>
+            <Calendar
+                condensed={true}
+                bind:this={calendar}
+                on:monthChange={(event) => (month = event.detail)} />
         </div>
         <FilterEditor />
     </main>

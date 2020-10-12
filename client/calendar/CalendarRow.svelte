@@ -34,7 +34,7 @@ let now = moment();
             <div class="skeleton-bar" style="grid-column: 7 / 8" />
         </div>
     {:else}
-        <div class="event-row" in:fade|local={{ delay: 0 }}>
+        <div class="event-row" in:fade={{ delay: 0 }}>
             {#each days as day, dayIndex (dayIndex)}
             {#await Promise.resolve(day.events.map((e) => e.eventInfo.id)) then data}
                 <!-- {@debug data, day} -->

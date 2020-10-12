@@ -18,28 +18,26 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
     private static objectDiscriminator(eventInfo: EventInfo): string[] {
         const dates = [] as string[];
         const startMoment = timeToMoment(eventInfo.start);
-        const startMonth = startMoment.month();
-        const endMoment = eventInfo.has_end ? timeToMoment(eventInfo.end as string) : undefined;
-        const endMonth = endMoment ? Math.max(startMonth + 1, endMoment.month() + 1) : startMonth + 1;
-        const yearDiff = endMoment ? endMoment.year() - startMoment.year() : 0;
+        const endMoment = eventInfo.has_end ? timeToMoment(eventInfo.end as string) : startMoment;
 
-        for (let i = startMonth; i < endMonth + (12 * yearDiff); i++) {
-            const formatted = moment(startMoment).month(i).format(momentKeyFormat);
-            dates.push(formatted);
+        const duration = Math.max(Math.ceil(endMoment.diff(startMoment, 'months', true)), 1);
+
+        for (let i = 0; i < duration; i++) {
+            dates.push(moment(startMoment).add(i, 'months').format(momentKeyFormat));
         }
         return dates;
     }
 
-    view(month: moment.Moment): Promise<void[]> {
+    async view(month: moment.Moment) {
         if (!this.api) throw new Error('API not yet loaded');
-
         const store = this.store;
 
         const halfCapacity = Math.floor(this.capacity / 2);
         const requiredKeys = new Set<string>();
 
         const storeValue = get(this.store) as StoreType<typeof store>;
-        let queries: Promise<void>[] = [];
+
+        const queries = [] as Promise<string>[];
 
         for (let i = 0; i < this.capacity; i++) {
             const monthMoment = moment(month).add(i - halfCapacity, 'months');
@@ -49,38 +47,47 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
             // Setup missing month keys and query data for them
             if (!storeValue.has(monthKey)) {
                 // TODO: Query several months data together
-                queries.push(this.query({
+                const query = this.query({
                     start: moment(monthMoment)
-                        .subtract(2, 'month')
+                        .subtract(1, 'month')
                         .endOf('month')
                         .format('YYYY-MM-DD'),
                     end: moment(monthMoment)
+                        .add(1, 'month')
                         .startOf('month')
                         .format('YYYY-MM-DD'),
-                }).then(() => {
-                    // Add any missing month keys not found in 
-                    // the initial query to the "/events" endpoint
-                    store.update((map) => {
-                        if (!map.has(monthKey)) {
-                            map.set(monthKey, new Map<string, EventInfo>() as KeyMap<EventInfo>);
-                            this.storeValue = map;
-                        }
-                        return map;
-                    });
-                }));
+                });
+
+                queries.push(query.then(() => monthKey));
             }
         }
 
         // Remove unused keys that are still in the store
-        for (let key of storeValue.keys()) {
-            if (!requiredKeys.has(key as string)) {
-                store.update((map) => {
+        store.update((map) => {
+            for (let key of storeValue.keys()) {
+                if (!requiredKeys.has(key as string)) {
                     map.delete(key);
-                    return map;
-                })
+                }
             }
-        }
+            return map;
+        })
+        
+        
+        // Add any missing month keys not found in the initial query to the "/events" endpoint
+        // Only add them after waiting for all other requests, as adding them early could
+        // make it appear as they have loaded with empty data when they haven't
+        const keys = await Promise.all(queries);
+        store.update((map) => {
+            const missingKeys = [] as string[];
 
-        return Promise.all(queries);
+            for (let key of keys) {
+                if (!map.has(key)) {
+                    missingKeys.push(key);
+                    map.set(key, new Map<string, EventInfo>() as KeyMap<EventInfo>);
+                    this.storeValue = map;
+                }
+            }
+            return map;
+        });
     }
 }
