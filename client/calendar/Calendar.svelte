@@ -1,153 +1,108 @@
-<script lang="ts" context="module">
-export type FlyAnimationDirection = -1 | 1 | 0;
-</script>
-
 <script lang="ts">
 import CalendarRow from './CalendarRow.svelte';
-import { derived } from 'svelte/store';
-import { getContext, afterUpdate, onMount } from 'svelte';
+import { getContext, afterUpdate, onMount, tick, createEventDispatcher } from 'svelte';
 import { cubicIn, cubicOut } from 'svelte/easing';
 import { sleep } from '../utility/async.js';
 import {
     buildCalendarStructure,
     placeEvent,
-    applyFilters,
+    applyFilters
 } from './calendar-structure.js';
 import type { CalendarData } from './calendar-structure';
-import { fade, fly } from 'svelte/transition';
+import { fly } from 'svelte/transition';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away-subtle.css';
 import * as networking from '../api/network';
-import { timeToMoment, momentToTime } from '../api/schoology';
+import { timeToMoment } from '../api/schoology';
 import type { NetworkStores } from '../stores';
 import { momentKeyFormat } from '../stores';
 import moment from 'moment';
 import type { Networking } from '../api/network';
-import type { Filter, EventInfo } from '../api/types';
+import type { EventInfo } from '../api/types';
 
-export let today: moment.Moment;
-export let flyDirection: FlyAnimationDirection;
 export let condensed: boolean;
-export let showToday: boolean = false;
 
-const SCROLL_DELAY = 350; // Milliseconds
 const getAPI: () => Promise<Networking> = getContext(networking.key);
 const { filters, events }: NetworkStores = getContext('stores');
-const filtersLoaded = filters.loaded;
-let eventsLoaded = false;
-let currentMonthLoaded = false;
 
-$: (async (e, t) => {
-    eventsLoaded = false;
-    await getAPI().then(() => e.view(moment(t).startOf('month')));
-    eventsLoaded = true;
-})(events, today)
+let month: moment.Moment = moment().startOf('month');
 
-$: {
-    const previousMonth = moment(today)
-        .subtract(1, 'month')
-        .format(momentKeyFormat);
-    const currentMonth = moment(today).format(momentKeyFormat);
-    const nextMonth = moment(today).add(1, 'month').format(momentKeyFormat);
+const dispatch = createEventDispatcher();
 
-    currentMonthLoaded =
-        $events.has(previousMonth) &&
-        $events.has(currentMonth) &&
-        $events.has(nextMonth);
-}
-
-let calendarView: HTMLElement | undefined;
-let calendar: CalendarData | undefined;
-let calendarReady = false;
-let donePlacing = false;
-let flyComplete = true;
-let scrollDelay = 0;
+type FlyAnimationDirection = -1 | 0 | 1;
+let flyDirection: FlyAnimationDirection = 0;
+let calendarView: HTMLElement;
 let calendarDivWidth = 0;
 let calendarElement: HTMLElement | undefined;
 $: flyOutParameters = {
-    x: flyDirection * (calendarDivWidth / 2),
-    duration: 200,
+    x: flyDirection * (calendarDivWidth / 4),
+    duration: 150,
     easing: cubicIn,
     opacity: 0,
 };
 
 $: flyInParameters = {
-    x: -flyDirection * (calendarDivWidth / 4),
-    duration: 100,
+    ...flyOutParameters,
+    x: -flyOutParameters.x,
     easing: cubicOut,
-    opacity: 0.5,
+    delay: 150
 };
 
-// Listen for changes to filter from FilterEditor
-filters.subscribe(filterEvents);
+$: getAPI().then(() => events.view(month));
+$: calendar = buildCalendarStructure(month);
+$: rows = calendar.rows;
 
-$: if (today) {
-    calendarReady = false;
-    calendar = buildCalendarStructure(today);
-    donePlacing = false;
-}
+$: dataDownloaded = $events.has(month.format(momentKeyFormat))
+                    && $events.has(moment(month).add(1, 'months').format(momentKeyFormat))
+                    && $events.has(moment(month).subtract(1, 'months').format(momentKeyFormat));
 
-$: if (
-    $filtersLoaded &&
-    eventsLoaded &&
-    currentMonthLoaded &&
-    calendar &&
-    !donePlacing
-) {
-    placeEvents(calendar, today);
-    donePlacing = true;
-}
-
-$: if (flyComplete) {
-    calendarReady = true;
-    // Reset scroll position after animating to a new month
-    if (calendarView) {
-        calendarView.scrollTop = 0;
+const getCalendarView = () => calendarView;
+$: (async () => {
+    if (dataDownloaded) {
+        // By sleeping before placing the events, this function runs in a separate microtask and therefore
+        // The transition does not rely on its finishing before executings
+        await sleep(1);
+        // TODO: Find out why putting calendarView here invalidates "month"
+        getCalendarView().scrollTop = 0;
+        placeEvents(calendar);
     }
-}
+})();
 
 onMount(() => (calendarDivWidth = calendarElement!.clientWidth));
 
 afterUpdate(() => {
-    if (showToday && $filtersLoaded && eventsLoaded && currentMonthLoaded) {
-        if (
-            calendarReady &&
-            document.getElementsByClassName('today').length === 1
-        ) {
-            scrollToToday(scrollDelay).then(() => {
-                showToday = false;
-                scrollDelay = 0;
-            });
-        } else {
-            scrollDelay = SCROLL_DELAY;
-        }
-    }
-
     if (
-        calendarReady &&
-        $filtersLoaded &&
-        eventsLoaded &&
-        currentMonthLoaded &&
+        dataDownloaded &&
         localStorage.getItem('firstEverLoad') !== 'false'
     ) {
-        showInfoTippy(
-            document.getElementsByClassName('calendar-event')[0],
-            'Click to show info'
-        );
-        localStorage.setItem('firstEverLoad', 'false');
+        const elem = document.getElementsByClassName('calendar-event')[0];
+        if (elem) {
+            showInfoTippy(elem, 'Click to show info');
+            localStorage.setItem('firstEverLoad', 'false');
+        }
     }
 });
 
-function placeEvents(calendarData: CalendarData, now: moment.Moment) {
+// Listen for changes to filter store or rows and update the filtered events
+$: if (rows) {
+    for (let [i, row] of rows.entries()) {
+        for (let [j, day] of row.days.entries()) {
+            for (let [k, event] of day.events.entries()) {
+                event.filtered = applyFilters(event.eventInfo, $filters);
+                rows[i].days[j].events[k] = event;
+            }
+        }
+    }
+}
+
+function placeEvents(cal: CalendarData) {
     const eventList = [] as EventInfo[];
     const usedEventIds = new Set<number>();
-    const currentMonth = moment(now).startOf('month');
+    const currentMonth = month;
     // Get events in months before and after the current one to account for other-month days
     for (let i = currentMonth.month() - 1; i < currentMonth.month() + 2; i++) {
-        const eventsListKey = moment(currentMonth)
-            .month(i)
-            .format(momentKeyFormat);
+        const eventsListKey = moment(currentMonth).month(i).format(momentKeyFormat);
         for (let event of (
             $events.get(eventsListKey) ?? new Map<string, EventInfo>()
         ).values()) {
@@ -169,58 +124,72 @@ function placeEvents(calendarData: CalendarData, now: moment.Moment) {
                 initialPlacement: true,
                 filtered: eventInfo.filtered ?? false,
             },
-            calendarData,
+            cal,
             $filters
         );
     }
+
+    rows = cal.rows;
 }
 
-function filterEvents(filters: Filter[]) {
-    if (calendar === undefined) return;
+export async function navigateMonths(shift: number | moment.Moment) {
+    if (shift === 0) return;
 
-    for (let [i, row] of calendar.rows.entries()) {
-        for (let [j, day] of row.days.entries()) {
-            for (let [k, event] of day.events.entries()) {
-                event.filtered = applyFilters(event.eventInfo, filters);
-                calendar.rows[i].days[j].events[k] = event;
-            }
-        }
+    if (typeof shift === 'object') {
+        flyDirection = -Math.sign(shift.diff(month, 'days')) as FlyAnimationDirection;
+        month = shift.startOf('month');
+    } else {
+        flyDirection = -Math.sign(shift) as FlyAnimationDirection;
+        month.add(shift, 'months');
+        month = month.startOf('month');
     }
+
+    dispatch('monthChange', month);
+
+    await tick();
 }
 
-async function scrollToToday(delay: number) {
-    await sleep(delay);
+export async function goToToday() {
+    // If the calendar is not currently viewing the current month
+    if (moment().format(momentKeyFormat) !== month.format(momentKeyFormat)) {
+        await navigateMonths(moment().startOf('month'));
+        await sleep(flyInParameters.duration + flyInParameters.delay + 100);
+    }
+    
+    scrollToToday();
+}
+
+function scrollToToday() {
+    if (document.getElementsByClassName('today').length !== 1) return;
+
     document
         .getElementsByClassName('today')[0]
         .scrollIntoView({ behavior: 'smooth' });
 }
 
-function showInfoTippy(element: Element | undefined, message: string) {
-    if (element !== undefined) {
-        tippy(element, {
-            content: message,
-            arrow: true,
-            allowHTML: true,
-            placement: 'bottom',
-            animation: 'shift-away-subtle',
-            delay: [250, 100],
-            theme: 'info',
-            trigger: 'manual',
-            showOnCreate: true,
-        });
-    }
+function showInfoTippy(element: Element, message: string) {
+    tippy(element, {
+        content: message,
+        arrow: true,
+        allowHTML: true,
+        placement: 'bottom',
+        animation: 'shift-away-subtle',
+        delay: [250, 100],
+        theme: 'info',
+        trigger: 'manual',
+        showOnCreate: true,
+    });
 }
 </script>
 
 <div id="calendar-view" bind:this={calendarView}>
-    {#if calendarReady}
+{#if calendar}
+    {#key calendar}
         <div
-            id="calendar"
+            class="calendar"
             bind:this={calendarElement}
-            in:fade={{ duration: 150, easing: cubicIn }}
-            out:fly={flyOutParameters}
-            on:outrostart={() => (flyComplete = false)}
-            on:outroend={() => (flyComplete = true)}>
+            in:fly={flyInParameters}
+            out:fly={flyOutParameters}>
             <div id="header" class="calendar-row">
                 <div>Sun</div>
                 <div>Mon</div>
@@ -230,17 +199,20 @@ function showInfoTippy(element: Element | undefined, message: string) {
                 <div>Fri</div>
                 <div>Sat</div>
             </div>
-            {#each calendar.rows.filter((row) => !row.unused) as row, i (row)}
-                <CalendarRow
-                    {...row}
-                    {today}
-                    {condensed}
-                    {calendar}
-                    calRowNum={i}
-                    skeleton={!$filtersLoaded || !eventsLoaded || !currentMonthLoaded} />
-            {/each}
+            {#if rows}
+                {#each rows.filter((row) => !row.unused) as row, i (row)}
+                    <CalendarRow
+                        {...row}
+                        {month}
+                        {condensed}
+                        {rows}
+                        calRowNum={i}
+                        skeleton={!dataDownloaded}/>
+                {/each}
+            {/if}
         </div>
-    {/if}
+    {/key}
+{/if}
 </div>
 
 <style>
@@ -256,6 +228,13 @@ function showInfoTippy(element: Element | undefined, message: string) {
     border: 1px solid gray;
     box-sizing: border-box;
     border-radius: 5px;
+}
+/* Hide second calendar while transitioning */
+.calendar:nth-child(2) {
+    box-sizing: border-box;
+    height: 0px !important;
+    width: 0px !important;
+    overflow: hidden;
 }
 #header {
     display: grid;
@@ -274,7 +253,7 @@ function showInfoTippy(element: Element | undefined, message: string) {
 #header > div {
     line-height: 20px;
 }
-#calendar {
+.calendar {
     will-change: transform;
 }
 .calendar-row {

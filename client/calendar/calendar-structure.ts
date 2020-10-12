@@ -34,11 +34,11 @@ export interface CalendarRowData {
     unused: boolean;
 }
 
-export function buildCalendarStructure(today: moment.Moment): CalendarData {
+export function buildCalendarStructure(month: moment.Moment): CalendarData {
     const calendar: CalendarRowData[] = [];
 
     // Duplicate moment because it's mutable value
-    const td = moment(today);
+    const td = moment(month);
 
     const firstDayWeekPos = moment(td)
         .subtract(td.date() - 1, 'days')

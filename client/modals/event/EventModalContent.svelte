@@ -24,8 +24,8 @@ export let filtered: boolean;
 $: actualStart = timeToMoment(eventInfo.start);
 
 $: eventSpanDays = moment(end)
-    .startOf('day')
-    .diff(moment(actualStart).startOf('day'), 'days');
+    .endOf('day')
+    .diff(moment(actualStart).startOf('day'), 'days') + 1;
 
 let endTimeFormat;
 $: if (eventInfo.has_end) {
@@ -91,7 +91,9 @@ async function addAlert() {
     <p class="date">
         <span class="key">Time:</span>
         {#if eventInfo.all_day && eventSpanDays <= 1}
-            <span class="emphasized value">All Day</span>
+            <span class="emphasized value">{actualStart.format('MMMM Do YYYY')}, All Day</span>
+        {:else if eventSpanDays <= 1}
+            <span class="value">{actualStart.format('MMMM Do YYYY, h:mm a')} - {end.format('h:mm a')}</span>
         {:else if !eventInfo.has_end}
             <span class="value">{actualStart.format('MMMM Do YYYY, h:mm a')}</span>
         {:else}
@@ -117,7 +119,7 @@ async function addAlert() {
         <div style="margin-top: 5px; margin-bottom: 1px;">
             <SVGButton
                 svgLink={saving ? '/static/img/loading.svg' : alertSvgLink}
-                symbolId={saving ? '' : 'icon'}
+                symbolId={'icon'}
                 disabled={filtered}
                 text={filtered ? "This event isn't exported" : 'Add an alert'}
                 on:click={addAlert} />

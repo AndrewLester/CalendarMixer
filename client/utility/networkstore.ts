@@ -16,7 +16,9 @@ declare type Updater<T> = (value: T) => T;
 declare type Invalidator<T> = (value?: T) => void;
 
 type ElementType<T> = T extends Array<infer U> ? U : never;
+export type StoreType<T> = T extends Readable<infer U> ? U : never;
 export type ErrorHandler = (error: Error, retryTime?: number) => void;
+
 
 export class ReadableNetworkStore<T> implements Readable<T> {
     subscribe: (
@@ -154,6 +156,8 @@ export class QueryNetworkStore<T, Args extends {[index: string]: string}> extend
             }
             return map;
         });
+
+        return mappedObjects;
     }
 
     delete(key: T[keyof T]) {
