@@ -44,8 +44,9 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
             const monthKey = monthMoment.format(momentKeyFormat);
             requiredKeys.add(monthKey);
 
-            // Setup missing month keys and query data for them
-            if (!storeValue.has(monthKey)) {
+            // Setup missing month keys and query data for them, ALWAYS request if the month
+            // is at either end of the range
+            if (!storeValue.has(monthKey) || i === 0 || i === this.capacity - 1) {
                 // TODO: Query several months data together
                 const query = this.query({
                     start: moment(monthMoment)
@@ -57,7 +58,7 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
                         .startOf('month')
                         .format('YYYY-MM-DD'),
                 });
-
+                console.log('Requesting month:', monthMoment.format('MMMM'));
                 queries.push(query.then(() => monthKey));
             }
         }
