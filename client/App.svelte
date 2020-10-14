@@ -43,6 +43,7 @@ let icalLink: string;
 
 // Updated by the monthChange event on the Calendar component
 let month = moment().startOf('month');
+$: matching = moment().month() === month.month() && moment().year() === month.year();
 
 let calendar: Calendar;
 let calendarViewer: HTMLElement | undefined;
@@ -87,7 +88,7 @@ onMount(() => {
                         symbolId={'icon'}
                         on:click={() => calendar.goToToday()} />
                 </span>
-                <p id="current-month">{month.format(currentMonthFormat)}</p>
+                <p id="current-month" class:matching>{month.format(currentMonthFormat)}</p>
                 <button
                     on:click={() => calendar.navigateMonths(-1)}
                     class="large-button"

@@ -97,6 +97,8 @@ $: if (rows) {
 }
 
 function placeEvents(cal: CalendarData) {
+    if (cal.filled) return;
+
     const eventList = [] as EventInfo[];
     const usedEventIds = new Set<number>();
     const currentMonth = month;
@@ -129,6 +131,7 @@ function placeEvents(cal: CalendarData) {
         );
     }
 
+    cal.filled = true;
     rows = cal.rows;
 }
 

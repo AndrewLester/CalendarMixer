@@ -7,6 +7,7 @@ export interface CalendarData {
     firstMonthDay: moment.Moment;
     lastCalDay: moment.Moment;
     lastMonthDay: moment.Moment;
+    filled?: boolean;
 }
 
 export interface CalendarDayData {
