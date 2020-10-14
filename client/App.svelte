@@ -174,6 +174,38 @@ main {
 #button-bar :global(.small-button) {
     float: right;
 }
+:global(.spinner) {
+    animation: rotate 2s linear infinite;
+    transform-origin: center;
+    z-index: 2;
+    position: relative;
+    width: 24px;
+    height: 24px;
+}
+:global(.path) {
+    stroke: rgba(0, 183, 255, 0.979);
+    /*stroke-linecap: round;*/
+    animation: dash 1.5s ease-in-out infinite;
+}
+@keyframes -global-rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+}
+@keyframes -global-dash {
+    0% {
+      stroke-dasharray: 1, 75;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 45, 75;
+      stroke-dashoffset: -18;
+    }
+    100% {
+      stroke-dasharray: 45, 75;
+      stroke-dashoffset: -62;
+    }
+}
 :global(body) {
     overflow: hidden;
 }

@@ -2,6 +2,7 @@
 import SVGButton from '../../utility/components/SVGButton.svelte';
 import MoreText from '../../utility/components/MoreText.svelte';
 import Alert from './Alert.svelte';
+import Spinner from '../../utility/components/Spinner.svelte';
 import type { EventInfo } from '../../api/types';
 import { AlertType } from '../../api/types';
 import type { Alert as AlertData } from '../../api/types';
@@ -117,12 +118,17 @@ async function addAlert() {
     <div class="section alerts" class:filtered>
         <p style="text-align: center;"><span class="key">Alerts</span></p>
         <div style="margin-top: 5px; margin-bottom: 1px;">
-            <SVGButton
-                svgLink={saving ? '/static/img/loading.svg' : alertSvgLink}
-                symbolId={'icon'}
-                disabled={filtered}
-                text={filtered ? "This event isn't exported" : 'Add an alert'}
-                on:click={addAlert} />
+            {#if saving}
+                <Spinner />
+                <span style="margin-left: 1px;">{filtered ? "This event isn't exported" : 'Add an alert'}</span>
+            {:else}
+                <SVGButton
+                    svgLink={alertSvgLink}
+                    symbolId={'icon'}
+                    disabled={filtered}
+                    text={filtered ? "This event isn't exported" : 'Add an alert'}
+                    on:click={addAlert} />
+            {/if}
         </div>
         <div class="alert-list">
             {#each alertList as alert (alert.id)}

@@ -1,12 +1,11 @@
 <script lang="ts">
 import SkeletonLayout from '../utility/components/SkeletonLayout.svelte';
 import SVGButton from '../utility/components/SVGButton.svelte';
-import InputChooser from '../utility/components/input/InputChooser.svelte';
+import Spinner from '../utility/components/Spinner.svelte';
 import Filter, { saveAll as saveAllFilters } from './Filter.svelte';
 import { fade } from 'svelte/transition';
 import { getContext } from 'svelte';
 import { sleep } from '../utility/async.js';
-import type { CourseIdentifier } from '../api/types';
 import type { NetworkStores } from '../stores';
 
 const SAVE_SVG_URL = '/static/img/save-button.svg';
@@ -51,15 +50,7 @@ async function saveFilters() {
         {#if !saving}
             <SVGButton {svgLink} symbolId={'icon'} on:click={saveFilters} />
         {:else}
-            <svg class="spinner" viewBox="0 0 24 24" style="display: inline;">
-                <circle
-                    class="path"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    fill="none"
-                    stroke-width="3" />
-            </svg>
+            <Spinner />
         {/if}
     </div>
 
@@ -109,9 +100,6 @@ h1 {
 /* For the skeleton layout */
 #filters-list :global(.wrapper) {
     display: contents;
-}
-.spinner {
-    vertical-align: middle;
 }
 @media only screen and (max-width: 1015px) {
     #filter-editor {
