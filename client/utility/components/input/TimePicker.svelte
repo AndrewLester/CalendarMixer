@@ -23,7 +23,7 @@ if (duration.asDays() % 1 === 0) {
 
 let selectedValue = duration.as(selectedUnit);
 
-$: if (selectedValue !== undefined && selectedUnit) {
+$: if (selectedValue !== undefined && selectedValue !== null && selectedUnit) {
     if (parseInt(selectedValue.toString()) !== NaN) {
         duration = moment.duration(
             Math.max(0, Math.min(500, parseInt(selectedValue.toString()))),

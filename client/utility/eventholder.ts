@@ -58,7 +58,6 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
                         .startOf('month')
                         .format('YYYY-MM-DD'),
                 });
-                console.log('Requesting month:', monthMoment.format('MMMM'));
                 queries.push(query.then(() => monthKey));
             }
         }
