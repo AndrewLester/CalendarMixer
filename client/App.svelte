@@ -281,6 +281,7 @@ main {
     main {
         height: auto;
         overflow-y: scroll;
+        margin: 0px;
     }
     #calendar-viewer {
         height: auto;
