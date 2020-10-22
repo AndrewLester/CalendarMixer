@@ -57,6 +57,9 @@ class SchoologyCalendar:
         for alert in self.alerts:
             # Invert timedelta to make it represent time before the event
             inverted_timedelta = -alert.timedelta
+            # Alarms at the event's time break, so use the event's time - 1 microsecond
+            if not inverted_timedelta:
+                inverted_timedelta = timedelta(microseconds=-1)
 
             if alert.type == EventAlertType.EMAIL:
                 alarm = EmailAlarm(inverted_timedelta)
