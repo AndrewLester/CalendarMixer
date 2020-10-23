@@ -63,9 +63,9 @@ $: (async () => {
         // By sleeping before placing the events, this function runs in a separate microtask and therefore
         // The transition does not rely on its finishing before executings
         await sleep(1);
-        // TODO: Find out why putting calendarView here invalidates "month"
-        getCalendarView().scrollTop = 0;
+
         placeEvents(calendar);
+        tick().then(() => getCalendarView().scrollTop = 0);
     }
 })();
 
