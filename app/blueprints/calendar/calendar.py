@@ -11,6 +11,12 @@ from app.view_utils import LocalizedTz
 
 from .models import EventAlert, EventAlertType
 
+
+TruthyTimedelta = type('TruthyTimedelta', (timedelta,), {'__bool__': lambda self: True})
+def truthy_timedelta(delta: timedelta) -> TruthyTimedelta:
+    return TruthyTimedelta(seconds=delta.total_seconds())
+
+
 class SchoologyCalendar:
     def __init__(self, creator: str, timezone: LocalizedTz,
                  events: List[Dict], alerts: List[EventAlert]):
@@ -59,7 +65,7 @@ class SchoologyCalendar:
             inverted_timedelta = -alert.timedelta
             # Alarms at the event's time break, so use the event's time - 1 second
             if not inverted_timedelta:
-                inverted_timedelta = timedelta(seconds=-1)
+                inverted_timedelta = truthy_timedelta(seconds=inverted_timedelta.total_seconds())
 
             if alert.type == EventAlertType.EMAIL:
                 alarm = EmailAlarm(inverted_timedelta)
