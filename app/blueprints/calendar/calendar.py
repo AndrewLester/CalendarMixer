@@ -65,7 +65,7 @@ class SchoologyCalendar:
             inverted_timedelta = -alert.timedelta
             # Alarms at the event's time break, so use the event's time - 1 second
             if not inverted_timedelta:
-                inverted_timedelta = truthy_timedelta(inverted_timedelta)
+                inverted_timedelta = timedelta(minutes=-1)
 
             if alert.type == EventAlertType.EMAIL:
                 alarm = EmailAlarm(inverted_timedelta)
