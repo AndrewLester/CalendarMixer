@@ -8,8 +8,8 @@
     <script>const csrf_token = "{{ csrf_token() }}";</script>
     <script>const ical_link = "webcal://{{ base_url }}calendar/ical/{{ id }}/{{ ical_secret }}/calendar.ics";</script>
     <!-- <link href="/calendar/bundle/css/external.css" rel="stylesheet"> -->
-    <link href="/calendar/bundle/snowpack/App.css" rel="stylesheet">
-    <script type="module" src="/calendar/bundle/snowpack/main.js" defer></script>
+    <link href="/calendar/bundle/build/App.css" rel="stylesheet">
+    <script type="module" src="/calendar/bundle/build/main.js" defer></script>
     <style>
     @media only screen and (max-width: 1015px) {
         body {
@@ -17,9 +17,6 @@
         }
     }
     </style>
-    <script>
-        window.HMR_WEBSOCKET_URL = 'ws://localhost:5000';
-    </script>
 {% endblock %}
 
 {% block content %}
