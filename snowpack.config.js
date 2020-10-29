@@ -1,4 +1,4 @@
-const production = !process.env.ROLLUP_WATCH;
+const production = process.env.FLASK_ENV !== 'development';
 
 module.exports = {
     mount: {
@@ -8,5 +8,5 @@ module.exports = {
         sourceMaps: !production,
         out: 'app/bundle/build'
     },
-    plugins: ['@snowpack/plugin-svelte', '@snowpack/plugin-typescript']
+    plugins: ['@snowpack/plugin-svelte', '@snowpack/plugin-typescript', '@snowpack/plugin-dotenv']
 }

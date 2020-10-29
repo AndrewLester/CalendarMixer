@@ -8,10 +8,9 @@ __pycache__/
 *.db
 .idea/
 .DS_store
-.flaskenv
+.env
 .vscode/
 logs/
-.flaskenv
 logs/
 .mypy_cache/
 app/bundle/

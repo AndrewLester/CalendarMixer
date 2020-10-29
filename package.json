@@ -1,11 +1,12 @@
 {
-  "name": "svelte-app",
+  "name": "calendar-mixer",
   "version": "1.0.0",
   "scripts": {
     "build": "snowpack build",
     "dev": "snowpack build --watch"
   },
   "devDependencies": {
+    "@snowpack/plugin-dotenv": "^2.0.4",
     "@snowpack/plugin-svelte": "^3.1.0",
     "@snowpack/plugin-typescript": "^1.0.2",
     "@tsconfig/svelte": "^1.0.4",
@@ -18,7 +19,7 @@
   },
   "dependencies": {
     "moment": "^2.29.1",
-    "svelte-popper": "^0.1.5",
+    "svelte-popperjs": "^1.0.13",
     "tippy.js": "^6.2.6"
   }
 }
