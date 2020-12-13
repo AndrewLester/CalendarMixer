@@ -20,7 +20,7 @@ class User(UserMixin, db.Model):
     ical_secret = db.Column(db.String(64), index=True, unique=True)
     oauth_token = db.relationship('OAuth1Token', uselist=False, back_populates='user')
     filters = db.relationship('CourseFilter', backref='user', lazy='dynamic')
-    colors = db.relationship('CourseIdentifier', backref='colorUser', lazy='dynamic')
+    colors = db.relationship('CourseColor', backref='user', lazy='dynamic')
     alerts = db.relationship('EventAlert', backref='user', lazy='dynamic')
 
     def apply_filters(self, realm_ids):

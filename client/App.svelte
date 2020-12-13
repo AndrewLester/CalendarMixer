@@ -1,5 +1,4 @@
 <script lang="ts" context="module">
-declare const colors: string[];
 declare const csrf_token: string;
 declare const ical_link: string;
 </script>
@@ -10,13 +9,15 @@ import NotificationDisplay from './notifications/NotificationDisplay.svelte';
 import HTMLEntityDecoder from './utility/html_entity_decoder/HTMLEntityDecoder.svelte';
 import Calendar from './calendar/Calendar.svelte';
 import FilterEditor from './filtering/FilterEditor.svelte';
+import ColorSelectButton from './colors/ColorSelectButton.svelte';
+import ColorSelectPanel from './colors/ColorSelectPanel.svelte';
 import CopyButton from './utility/components/CopyButton.svelte';
 import SVGButton from './utility/components/SVGButton.svelte';
 import { onMount, setContext, tick } from 'svelte';
 import moment from 'moment';
 import type { Networking } from './api/network';
 import * as networking from './api/network';
-import { events, filters, identifiers, alerts } from './stores';
+import { events, filters, identifiers, alerts, colors } from './stores';
 
 let api: Networking | undefined;
 // The tick call here waits for this component to mount, allowing the api variable to be set before
@@ -35,9 +36,9 @@ setContext('stores', {
     filters,
     identifiers,
     alerts,
+    colors
 });
 
-let definedColors: string[];
 let csrfToken: string;
 let icalLink: string;
 
@@ -56,7 +57,6 @@ $: currentMonthFormat =
     monthButtonWidth && monthButtonWidth < 100 ? 'MMM YYYY' : 'MMMM YYYY';
 
 onMount(() => {
-    definedColors = colors;
     csrfToken = csrf_token;
     icalLink = ical_link;
 
@@ -71,6 +71,9 @@ onMount(() => {
 
     alerts.setAPI(api);
     alerts.reset();
+
+    colors.setAPI(api);
+    colors.reset();
 });
 </script>
 
@@ -109,10 +112,13 @@ onMount(() => {
                     class="calendar-option"
                     type="checkbox"
                     bind:checked={condensed} />
+                <ColorSelectButton>
+                    <ColorSelectPanel />
+                </ColorSelectButton>
                 {#if icalLink}
                     <CopyButton
                         copy={icalLink}
-                        className="calendar-option small-button">
+                        className="calendar-option small-button export">
                         EXPORT CALENDAR
                     </CopyButton>
                 {/if}
@@ -172,7 +178,7 @@ main {
     padding-top: 8px;
     overflow: hidden;
 }
-#button-bar :global(.small-button) {
+#button-bar :global(.small-button.export) {
     float: right;
 }
 :global(.spinner) {

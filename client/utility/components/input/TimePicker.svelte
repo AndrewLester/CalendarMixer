@@ -1,11 +1,14 @@
 <script lang="ts">
-import { Popper } from 'svelte-popper';
 import moment from 'moment';
-import { createEventDispatcher } from 'svelte';
+import { createEventDispatcher, onMount } from 'svelte';
+import { createPopperActions } from 'svelte-popperjs';
+import { bottom } from '@popperjs/core';
 
-export let parentElement: HTMLElement;
 export let duration: moment.Duration;
 
+let element: HTMLElement;
+
+const [ popperRef, popperContent ] = createPopperActions();
 const dispatch = createEventDispatcher();
 
 $: UNITS = ['minute', 'hour', 'day'].map(
@@ -35,18 +38,47 @@ $: if (selectedValue !== undefined && selectedValue !== null && selectedUnit) {
 function close() {
     dispatch('close', {});
 }
+
+onMount(() => {
+    if (element.parentElement) {
+        popperRef(element.parentElement);
+    }
+});
+
+function popperSizeModifier(data: any): any {
+    data.styles.width = data.offsets.reference.width;
+    data.offsets.popper.left = data.offsets.reference.left;
+    return data;
+}
+
+const popperOptions = {
+    placement: bottom,
+    modifiers: [
+        {
+            name: 'flip',
+            options: {
+                fallbackPlacements: ['top'],
+            }
+        },
+        {
+            name: 'autoSizing',
+            enabled: true,
+            fn: popperSizeModifier
+        },
+        { name: 'preventOverflow' }
+    ]
+};
 </script>
 
 <svelte:window on:mousedown={close} />
 
-<Popper targetRef={parentElement} className={'duration-popup'}>
+<div class="duration-popup" bind:this={element} use:popperContent={popperOptions}>
     <div class="wrapper" on:mousedown|stopPropagation>
         <fieldset>
             <input
                 type="number"
                 bind:value={selectedValue}
-                placeholder="
-                "
+                placeholder=" "
                 min="0"
                 max="500" />
             <legend><span data-text="Time" /></legend>
@@ -62,10 +94,11 @@ function close() {
             {/each}
         </select>
     </div>
-</Popper>
+</div>
 
 <style>
-:global(.duration-popup) {
+.duration-popup {
+    position: absolute;
     background-color: white;
     box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.302),
         0 2px 6px 2px rgba(60, 64, 67, 0.149);

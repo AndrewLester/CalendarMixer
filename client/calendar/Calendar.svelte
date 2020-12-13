@@ -53,19 +53,17 @@ $: getAPI().then(() => events.view(month));
 $: calendar = buildCalendarStructure(month);
 $: rows = calendar.rows;
 
+let loaded = false;
 $: dataDownloaded = $events.has(month.format(momentKeyFormat))
                     && $events.has(moment(month).add(1, 'months').format(momentKeyFormat))
                     && $events.has(moment(month).subtract(1, 'months').format(momentKeyFormat));
 
-const getCalendarView = () => calendarView;
 $: (async () => {
     if (dataDownloaded) {
         // By sleeping before placing the events, this function runs in a separate microtask and therefore
         // The transition does not rely on its finishing before executings
         await sleep(1);
-
         placeEvents(calendar);
-        tick().then(() => getCalendarView().scrollTop = 0);
     }
 })();
 
@@ -133,6 +131,7 @@ function placeEvents(cal: CalendarData) {
 
     cal.filled = true;
     rows = cal.rows;
+    loaded = true;
 }
 
 export async function navigateMonths(shift: number | moment.Moment) {
@@ -192,7 +191,8 @@ function showInfoTippy(element: Element, message: string) {
             class="calendar"
             bind:this={calendarElement}
             in:fly={flyInParameters}
-            out:fly={flyOutParameters}>
+            out:fly={flyOutParameters}
+            on:outroend={() => calendarView.scrollTop = 0}>
             <div id="header" class="calendar-row">
                 <div>Sun</div>
                 <div>Mon</div>
@@ -204,13 +204,14 @@ function showInfoTippy(element: Element, message: string) {
             </div>
             {#if rows}
                 {#each rows.filter((row) => !row.unused) as row, i (row)}
+                    {@debug calendar}
                     <CalendarRow
                         {...row}
                         {month}
                         {condensed}
                         {rows}
                         calRowNum={i}
-                        skeleton={!dataDownloaded}/>
+                        skeleton={!loaded || !dataDownloaded}/>
                 {/each}
             {/if}
         </div>
@@ -270,5 +271,9 @@ function showInfoTippy(element: Element, message: string) {
         > .tippy-arrow::before, .tippy-box[data-theme~='info'][data-placement^='bottom']
         > .tippy-arrow::before) {
     color: #29b6f6;
+}
+:global(.tippy-box[data-popper-escaped]) {
+    visibility: hidden;
+    pointer-events: none;
 }
 </style>

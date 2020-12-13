@@ -192,7 +192,7 @@ input:focus::placeholder {
     color: #29b6f6;
     -webkit-tap-highlight-color: transparent;
     background: none;
-    border: none;
+    border: 1px solid rgb(232, 234, 237);
     border-radius: 5px; 
     cursor: pointer;
     font-size: 15px;

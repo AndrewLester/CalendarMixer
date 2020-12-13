@@ -98,7 +98,6 @@ function durationToString(duration) {
     </span>
     {#if pickerParent && popperVisible}
         <TimePicker
-            parentElement={pickerParent}
             bind:duration={relativetime}
             on:close={closePopper} />
     {/if}

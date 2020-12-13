@@ -1,3 +1,4 @@
+from app.blueprints.calendar import models
 import functools
 from collections import defaultdict
 from datetime import datetime
@@ -6,6 +7,7 @@ import pytz
 import redis
 from authlib.client.client import OAuthClient
 from flask import Flask, render_template, request, jsonify, g, send_from_directory, flash, current_app
+from flask.cli import load_dotenv
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
 from flask_sitemap import sitemap_page_needed
@@ -19,6 +21,7 @@ from config import Config
 
 
 def create_app(config_name=Config):
+    load_dotenv()
     app = Flask(__name__.split('.')[0])
     app.config.from_object(config_name)
     app.redis = redis.from_url(app.config['REDIS_URL'])
@@ -34,6 +37,7 @@ def create_app(config_name=Config):
     register_errorhandlers(app)
     app.shell_context_processor(lambda: {
         'db': db, 'User': main.models.User,
+        'CourseColor': calendar.models.CourseColor,
         'CourseFilter': calendar.models.CourseFilter,
         'CourseIdentifier': calendar.models.CourseIdentifier
     })
@@ -53,7 +57,7 @@ def inject_date():
 
 def register_extensions(app):
     login.init_app(app)
-    login.login_view = 'main.login'
+    login.login_view = 'main.login'  #type: ignore
     bootstrap.init_app(app)
     db.init_app(app)
     with app.app_context():

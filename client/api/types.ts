@@ -24,6 +24,12 @@ export interface Filter {
     user_id?: string
 }
 
+export interface CourseColor {
+    id: number,
+    course: CourseIdentifier,
+    color: string
+}
+
 export const enum AlertType {
     Display = 0,
     Email = 1
