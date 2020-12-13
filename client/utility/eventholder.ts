@@ -81,7 +81,6 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
              for (let key of storeValue.keys()) {
                 if (!requiredKeys.has(key as string)) {
                     map.delete(key);
-                    console.log('Removed month:', moment(key as string, momentKeyFormat).format('MMMM'), 'To view:', month.format('MMMM'));
                 }
             }
             return map;
