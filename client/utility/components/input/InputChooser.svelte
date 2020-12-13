@@ -41,7 +41,6 @@ async function addSelected(option: InputChoice) {
         width={200} />
     {#if focused}
         <AutocompletePopup
-            element={inputElement}
             options={availableOptions}
             search={inputValue}
             let:item>

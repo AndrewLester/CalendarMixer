@@ -2,13 +2,9 @@
 
 {% block head %}
     <meta name="description" content="View your Schoology Calendar events in an alternative fashion. Add filters and alarms to your courses.">
-    {% if colors is defined %}
-    <script>const colors = {{ colors }};</script>
-    {% endif %}
     <script>const csrf_token = "{{ csrf_token() }}";</script>
     <script>const ical_link = "webcal://{{ base_url }}calendar/ical/{{ id }}/{{ ical_secret }}/calendar.ics";</script>
     <!-- <link href="/calendar/bundle/css/external.css" rel="stylesheet"> -->
-    <link href="/calendar/bundle/build/App.css" rel="stylesheet">
     <script type="module" src="/calendar/bundle/build/main.js" defer></script>
     <style>
     @media only screen and (max-width: 1015px) {

@@ -61,16 +61,6 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
                 queries.push(query.then(() => monthKey));
             }
         }
-
-        // Remove unused keys that are still in the store
-        store.update((map) => {
-            for (let key of storeValue.keys()) {
-                if (!requiredKeys.has(key as string)) {
-                    map.delete(key);
-                }
-            }
-            return map;
-        })
         
         
         // Add any missing month keys not found in the initial query to the "/events" endpoint
@@ -85,6 +75,13 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
                     missingKeys.push(key);
                     map.set(key, new Map<string, EventInfo>() as KeyMap<EventInfo>);
                     this.storeValue = map;
+                }
+            }
+            
+             for (let key of storeValue.keys()) {
+                if (!requiredKeys.has(key as string)) {
+                    map.delete(key);
+                    console.log('Removed month:', moment(key as string, momentKeyFormat).format('MMMM'), 'To view:', month.format('MMMM'));
                 }
             }
             return map;

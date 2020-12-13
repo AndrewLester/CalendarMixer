@@ -1,10 +1,11 @@
 from flask_wtf import FlaskForm
 from wtforms import (BooleanField, IntegerField,
                      StringField, FormField, FieldList)
+from wtforms.form import FormMeta
 from wtforms.validators import (DataRequired, Length,
                                 NumberRange, ValidationError, Regexp)
 
-from app.blueprints.calendar.models import EventAlertType
+from app.blueprints.calendar.models import CourseIdentifier, EventAlertType
 from app.forms.types import IntervalField
 
 
@@ -34,3 +35,10 @@ class CourseFilterForm(FlaskForm):
     id = IntegerField(validators=[DataRequired()])
     positive = BooleanField()
     course_ids = FieldList(FormField(CourseIDSubform))
+
+
+class CourseColorForm(FlaskForm):
+    id = IntegerField(validators=[DataRequired()])
+    course = FormField(CourseIDSubform)
+    # rgba\(\d{1,3}, \d{1,3}, \d{1,3}\, \d{1}(\.\d+)?\)
+    color = StringField(validators=[Regexp(r'#[a-zA-Z0-9]{1,6}')])

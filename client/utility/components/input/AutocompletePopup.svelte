@@ -16,13 +16,19 @@ export type MatchingSearchablePart = SearchablePart & Partial<Match>;
 </script>
 
 <script lang="ts">
-import { Popper } from 'svelte-popper';
+import { onMount } from 'svelte';
+import { createPopperActions } from 'svelte-popperjs';
+import { bottom } from '@popperjs/core';
+import { fly, scale } from 'svelte/transition';
+import { cubicInOut } from 'svelte/easing';
 
-export let element: HTMLElement;
 export let search = '';
 export let options: SearchablePart[] = [];
 
 let matchingOptions: MatchingSearchablePart[] = [];
+const [popperRef, popperContent] = createPopperActions();
+
+let element: HTMLElement;
 
 // Creating Matching Option Text
 $: {
@@ -63,27 +69,41 @@ function updateMatches() {
     }
 }
 
-function popperSizeModifier(data) {
+onMount(() => {
+    if (element.parentElement) {
+        popperRef(element.parentElement);
+    }
+});
+
+function popperSizeModifier(data: any): any {
     data.styles.width = data.offsets.reference.width;
     data.offsets.popper.left = data.offsets.reference.left;
     return data;
 }
 
-declare const popperTemplate: HTMLElement;
-const modifiers = {
-    onCreate: () => (popperTemplate.style.display = 'flex'),
-    modifiers: {
-        flip: { enabled: false },
-        autoSizing: {
+const popperOptions = {
+    placement: bottom,
+    modifiers: [
+        {
+            name: 'flip',
+            options: {
+                fallbackPlacements: ['top'],
+            },
+        },
+        {
+            name: 'autoSizing',
             enabled: true,
             fn: popperSizeModifier,
-            order: 840,
         },
-    },
+        { name: 'preventOverflow' },
+    ],
 };
 </script>
 
-<Popper targetRef={element} className={'identifier-complete'} {modifiers}>
+<div
+    class="identifier-complete"
+    bind:this={element}
+    use:popperContent={popperOptions}>
     {#if matchingOptions.length > 0}
         {#each matchingOptions as option (option.id)}
             <slot name="item" item={option} />
@@ -91,10 +111,11 @@ const modifiers = {
     {:else}
         <slot name="no-matches" />
     {/if}
-</Popper>
+</div>
 
 <style>
-:global(.identifier-complete) {
+.identifier-complete {
+    position: absolute;
     background-color: white;
     box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.302),
         0 2px 6px 2px rgba(60, 64, 67, 0.149);

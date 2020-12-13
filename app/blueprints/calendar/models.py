@@ -62,8 +62,11 @@ class CourseFilter(db.Model):
                 realm_ids.remove(realm_id)
 
     def to_json(self):
-        return {'id': self.id, 'positive': self.positive,
-                'course_ids': [id.to_json() for id in self.course_ids]}
+        return {
+            'id': self.id,
+            'positive': self.positive,
+            'course_ids': [id.to_json() for id in self.course_ids],
+        }
 
     def __repr__(self):
         return f'CourseFilter<{", ".join(str(course_id) for course_id in self.course_ids)}>'
@@ -78,13 +81,33 @@ class CourseIdentifier(db.Model):
     realm = db.Column(db.String(120))
     course_filter_id = db.Column(db.Integer, db.ForeignKey('course_filter.id'))
     colors_user_id = db.Column(db.String(36), db.ForeignKey('user.id'))
-    course_color = db.Column(db.Integer)
+    course_colors = db.relationship('CourseColor', backref='course', lazy='dynamic')
 
     def to_json(self):
         return {'id': self.id, 'name': self.name, 'realm': self.realm}
 
     def __repr__(self):
         return f'CourseIdentifier<{self.id}, {self.name}, {self.realm}>'
+
+
+class CourseColor(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
+    course_id = db.Column(
+        db.String(36), db.ForeignKey('course_identifier.id'), nullable=False
+    )
+    color = db.Column(db.String(30))
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'course': self.course.to_json(),
+            'color': self.color,
+        }
+
+    def __repr__(self):
+        return f'CourseColor<{self.user_id=}, {self.course_id=}, {self.color=}>'
 
 
 class EventAlertType(IntEnum):
@@ -98,11 +121,14 @@ class EventAlert(db.Model):
     event_id = db.Column(db.String(36))
     timedelta = db.Column(db.Interval)
     type = db.Column(db.Integer)
-    
+
     def to_json(self):
-        return {'id': self.id, 'event_id': self.event_id, 
-                'timedelta': isodate.duration_isoformat(self.timedelta),
-                'type': self.type}
+        return {
+            'id': self.id,
+            'event_id': self.event_id,
+            'timedelta': isodate.duration_isoformat(self.timedelta),
+            'type': self.type,
+        }
 
     def __repr__(self):
         return f'EventAlert<{self.id=}, {self.user_id=}, {self.event_id=}, {self.timedelta=}, {self.type=}>'

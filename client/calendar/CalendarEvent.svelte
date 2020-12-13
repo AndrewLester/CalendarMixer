@@ -13,6 +13,7 @@ import tippy from 'tippy.js';
 import { cubicIn, cubicInOut, cubicOut } from 'svelte/easing';
 import { scale } from 'svelte/transition';
 import { alertsByEvent } from '../stores';
+import { colorsByCourseId } from '../stores';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away-subtle.css';
 import { momentToTime } from '../api/schoology';
@@ -33,7 +34,7 @@ export let condensed: boolean = true;
 export let filtered: boolean = false;
 
 const { open }: ModalFunctions = getContext('simple-modal');
-const { alerts, events }: NetworkStores = getContext('stores');
+const { alerts }: NetworkStores = getContext('stores');
 const alertsLoaded = alerts.loaded;
 
 let big = false;
@@ -57,7 +58,7 @@ if (condensed) {
     endRow = undefined;
 }
 
-const colors = [
+const randomColors = [
     'rgba(236, 252, 17, 0.5)',
     'rgba(17, 182, 252, 0.5)',
     'rgba(248, 17, 252, 0.5)',
@@ -69,7 +70,8 @@ const colors = [
     'rgba(179, 58, 255, 0.5)',
 ];
 
-let color = colors[~~(Math.random() * colors.length)];
+let randomColor = randomColors[~~(Math.random() * randomColors.length)];
+$: color = $colorsByCourseId.get(eventInfo[eventInfo['realm'] + '_id'].toString())?.color ?? randomColor;
 // Animation delay calculation factors in column and eventNum
 let animationDelay = 10 + 15 * startCol + 5 * eventNum + 100 * calRowNum;
 let eventTitle = eventInfo['title'];

@@ -107,27 +107,14 @@ def login_required(func):
     return decorated_view
 
 
-def formdata_to_dict(form: Form, exclude: Set[str] = set()) -> Dict[str, Any]:
-    data_dict = {}
-
-    print(list(form._fields.items()))
-    for k, v in form._fields.items():
-        if k in exclude:
-            continue
-
-        data_dict[k] = v.data
-
-    return data_dict
-
-
 FormType = TypeVar('FormType', bound=Form)
-ModelType = TypeVar('ModelType', bound=db.Model)
+ModelType = TypeVar('ModelType', bound=db.Model)  # type: ignore
 
 
 def rest_endpoint(
     blueprint: Blueprint,
     route: str,
-    model: ModelType,
+    model: Type[ModelType],
     form: Type[FormType],
     methods: Set[HTTPMethod],
 ) -> Callable:
@@ -139,21 +126,21 @@ def rest_endpoint(
                 return jsonify(
                     [
                         instance.to_json()
-                        for instance in model.query.filter_by(
+                        for instance in model.query.filter_by(  # type: ignore
                             user_id=current_user.id
                         ).all()
                     ]
                 )
 
             if request.method == 'DELETE' and 'DELETE' in methods and id is not None:
-                model_instance = model.query.get_or_404(id)
+                model_instance = model.query.get_or_404(id)  # type: ignore
                 db.session.delete(model_instance)
                 db.session.commit()
                 return jsonify(), 204
 
-            form_data = form.from_json(request.get_json())
+            form_data = form.from_json(request.get_json())  # type: ignore
             if not form_data.validate_on_submit():
-                abort(400)
+                abort(make_response('Form validation failed', 400))
 
             if request.method == 'POST' and 'POST' in methods:
                 model_instance = func(form_data)
