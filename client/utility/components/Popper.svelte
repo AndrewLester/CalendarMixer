@@ -3,37 +3,33 @@ import { tick } from 'svelte';
 import { createPopperActions } from 'svelte-popperjs';
 import { clickOutside } from '../actions';
 
-type PopperReference = { popperScroll?: { scrollTop: number, scrollLeft: number } };
-
-export let reference: HTMLElement & PopperReference;
+export let reference: HTMLElement;
 export let popperOptions: object = {};
 export let persistScroll: boolean = false;
 export let transition: (node: Node, options: object) => any;
 export let transitionProps: object = {};
 
 let popperContentElem: HTMLElement;
+let scrollPosition = { scrollTop: 0, scrollLeft: 0 };
 let opened = false;
 
 const [popperRef, popperContent] = createPopperActions();
 popperRef(reference);
 
 function updateScroll() {
-    if (!reference || !popperContentElem.firstElementChild) return;
-    console.log(reference.popperScroll);
+    if (!popperContentElem.firstElementChild) return;
 
-
-    popperContentElem.firstElementChild.scrollTop = reference.popperScroll?.scrollTop ?? 0;
-    popperContentElem.firstElementChild.scrollLeft = reference.popperScroll?.scrollLeft ?? 0;
+    popperContentElem.firstElementChild.scrollTop = scrollPosition.scrollTop;
+    popperContentElem.firstElementChild.scrollLeft = scrollPosition.scrollLeft;
 }
 
 function saveScroll() {
-    if (!reference || !popperContentElem.firstElementChild) return;
+    if (!popperContentElem.firstElementChild) return;
 
-    reference.popperScroll = {
+    scrollPosition = {
         scrollTop: popperContentElem.firstElementChild.scrollTop,
         scrollLeft: popperContentElem.firstElementChild.scrollLeft,
     };
-    console.log(reference.popperScroll);
 }
 
 export async function open() {
