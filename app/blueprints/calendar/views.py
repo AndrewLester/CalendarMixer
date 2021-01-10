@@ -134,7 +134,10 @@ def filters(form: CourseFilterForm) -> CourseFilter:
         current_user.filters.append(course_filter)
     else:
         course_filter.positive = form.positive.data
-        course_filter.course_ids.delete()
+        valid_course_ids = [course_data['id'] for course_data in form.course_ids.data]
+        for course_id in course_filter.course_ids.all():
+            if course_id not in valid_course_ids:
+                course_filter.course_ids.remove(course_id)
 
     for course_data in form.course_ids.data:
         course_id = CourseIdentifier.query.get(course_data['id'])

@@ -33,7 +33,7 @@ const identifiers = new ReadableNetworkStore<CourseIdentifier[]>(
 
 const momentKeyFormat = 'YYYY-MM';
 const events = new EventHolderStore(
-    5,
+    6,
     '/calendar/events',
     errorHandler
 );

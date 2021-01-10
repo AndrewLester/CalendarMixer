@@ -26,7 +26,7 @@ let now = moment();
         {/each}
     </div>
     {#if skeleton}
-        <div class="event-row skeleton" in:fade|local={{ duration: 150 }}>
+        <div class="event-row skeleton">
             <div class="skeleton-bar" style="grid-column: 2 / 6" />
             <div class="skeleton-bar" style="grid-column: 1 / 3" />
             <div class="skeleton-bar" style="grid-column: 5 / 7" />
@@ -34,11 +34,8 @@ let now = moment();
             <div class="skeleton-bar" style="grid-column: 7 / 8" />
         </div>
     {:else}
-        <div class="event-row" in:fade={{ delay: 0 }}>
+        <div class="event-row" in:fade|local>
             {#each days as day, dayIndex (dayIndex)}
-            {#await Promise.resolve(day.events.map((e) => e.eventInfo.id)) then data}
-                <!-- {@debug data, day} -->
-            {/await}
                 {#each day.events as event, i (event.eventInfo.id)}
                     {#if condensed}
                         {#if event.initialPlacement}

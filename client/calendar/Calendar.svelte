@@ -37,33 +37,46 @@ let calendarDivWidth = 0;
 let calendarElement: HTMLElement | undefined;
 $: flyOutParameters = {
     x: flyDirection * (calendarDivWidth / 4),
-    duration: 150,
+    duration: 100,
     easing: cubicIn,
-    opacity: 0,
+    opacity: 0
 };
 
 $: flyInParameters = {
-    ...flyOutParameters,
-    x: -flyOutParameters.x,
+    x: -flyDirection * (calendarDivWidth / 4),
+    duration: 200,
     easing: cubicOut,
-    delay: 150
+    opacity: 0.25,
+    delay: flyOutParameters.duration
 };
 
 $: getAPI().then(() => events.view(month));
 $: calendar = buildCalendarStructure(month);
 $: rows = calendar.rows;
 
-let loaded = false;
 $: dataDownloaded = $events.has(month.format(momentKeyFormat))
                     && $events.has(moment(month).add(1, 'months').format(momentKeyFormat))
                     && $events.has(moment(month).subtract(1, 'months').format(momentKeyFormat));
+
+$: if (dataDownloaded) {
+    logUsedMonths();
+}
+
+function logUsedMonths() {
+    console.log('******************');
+    console.log(month.format('MMM [(Viewed)] YYYY'), $events.get(month.format(momentKeyFormat)));
+    console.log(moment(month).add(1, 'months').format('MMM YYYY'), $events.get(moment(month).add(1, 'months').format(momentKeyFormat)));
+    console.log(moment(month).subtract(1, 'months').format('MMM YYYY'), $events.get(moment(month).subtract(1, 'months').format(momentKeyFormat)));
+}
 
 $: (async () => {
     if (dataDownloaded) {
         // By sleeping before placing the events, this function runs in a separate microtask and therefore
         // The transition does not rely on its finishing before executings
-        await sleep(1);
+        await sleep(50);
         placeEvents(calendar);
+        await tick();
+        resetCalendarScroll();
     }
 })();
 
@@ -131,7 +144,6 @@ function placeEvents(cal: CalendarData) {
 
     cal.filled = true;
     rows = cal.rows;
-    loaded = true;
 }
 
 export async function navigateMonths(shift: number | moment.Moment) {
@@ -169,6 +181,10 @@ function scrollToToday() {
         .scrollIntoView({ behavior: 'smooth' });
 }
 
+function resetCalendarScroll() {
+    calendarView.scrollTop = 0;
+}
+
 function showInfoTippy(element: Element, message: string) {
     tippy(element, {
         content: message,
@@ -191,8 +207,7 @@ function showInfoTippy(element: Element, message: string) {
             class="calendar"
             bind:this={calendarElement}
             in:fly={flyInParameters}
-            out:fly={flyOutParameters}
-            on:outroend={() => calendarView.scrollTop = 0}>
+            out:fly={flyOutParameters}>
             <div id="header" class="calendar-row">
                 <div>Sun</div>
                 <div>Mon</div>
@@ -204,14 +219,13 @@ function showInfoTippy(element: Element, message: string) {
             </div>
             {#if rows}
                 {#each rows.filter((row) => !row.unused) as row, i (row)}
-                    {@debug calendar}
                     <CalendarRow
                         {...row}
                         {month}
                         {condensed}
                         {rows}
                         calRowNum={i}
-                        skeleton={!loaded || !dataDownloaded}/>
+                        skeleton={!dataDownloaded}/>
                 {/each}
             {/if}
         </div>
@@ -256,9 +270,6 @@ function showInfoTippy(element: Element, message: string) {
 }
 #header > div {
     line-height: 20px;
-}
-.calendar {
-    will-change: transform;
 }
 .calendar-row {
     grid-column: 1 / 8;

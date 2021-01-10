@@ -225,8 +225,7 @@ main {
 :global(p) {
     margin: 0px;
 }
-:global(button.large-button),
-:global(input[type='submit']) {
+:global(button.large-button) {
     -webkit-tap-highlight-color: transparent;
     border-radius: 5px;
     font-size: 15px;
@@ -239,8 +238,7 @@ main {
     height: 40px;
 }
 
-:global(button.large-button:hover),
-:global(input[type='submit']:hover) {
+:global(button.large-button:hover) {
     cursor: pointer;
     background-color: white;
     color: #29b6f6;
@@ -248,8 +246,7 @@ main {
     box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.2);
 }
 
-:global(button.large-button:active),
-:global(input[type='submit']:active) {
+:global(button.large-button:active) {
     box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.2);
     border-color: rgba(0, 0, 0, 0.8);
 }
@@ -264,7 +261,7 @@ main {
     height: 40px;
     transition: all 0.15s ease;
 }
-:global(.small-button:hover) {
+:global(.small-button:hover, .small-button.active) {
     background-color: rgba(41, 182, 246, 0.1);
 }
 :global(.small-button:active) {

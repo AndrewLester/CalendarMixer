@@ -27,7 +27,7 @@ function updateColor(e: Event, course: CourseIdentifier) {
     {#each $identifiers as course}
         <div class="course-item">
             <div class="realm-image" data-realm={course.realm} />
-            <p>{course.name}:</p>
+            <p>{course.name}</p>
             <div class="color-input" class:random-color={!$colorsByCourseId.get(course.id.toString())}
                 style="--background-color: {$colorsByCourseId.get(course.id.toString())?.color}">
                 <input
@@ -49,13 +49,12 @@ function updateColor(e: Event, course: CourseIdentifier) {
     background-color: white;
     flex-direction: column;
     flex-wrap: nowrap;
-    height: 300px;
+    height: auto;
     width: auto;
     padding: 7px 15px;
     border-radius: 5px;
-    max-height: calc(100vh - var(--header-height));
+    max-height: 300px;
     overflow-y: auto;
-    max-width: 100vw;
 }
 .course-item {
     display: flex;

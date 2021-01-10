@@ -1,9 +1,9 @@
 <script lang="ts">
 import { notification } from './store';
 import { onMount, onDestroy } from 'svelte';
-import { flip } from 'svelte/animate';
 import { themes } from './themes';
 import type { Theme } from './themes';
+import { flip } from 'svelte/animate';
 
 interface Toast {
     id: number;
@@ -22,13 +22,12 @@ $: o = Object.assign({}, DEFAULT_OPTIONS, options || {});
 let count = 0;
 let toasts: Toast[] = [];
 let toastsElement: HTMLElement;
-let unsubscribe;
 onMount(() => {
     toastsElement.style.setProperty('--width', o.width);
 });
 
 function animateOut(
-    node,
+    node: Node,
     { delay = 20, duration = 300 }
 ): SvelteTransitionConfig {
     return {
@@ -41,14 +40,14 @@ function animateOut(
     };
 }
 
-function createToast(msg: string, theme: Theme, to: number): void {
+function createToast(msg: string, theme: Theme, timeout: number): void {
     const background = themes[theme];
     toasts = [
         {
             id: count,
             msg,
             background,
-            timeout: to || o.timeout,
+            timeout: timeout || o.timeout,
             width: '100%',
         },
         ...toasts,
@@ -56,7 +55,7 @@ function createToast(msg: string, theme: Theme, to: number): void {
     count = count + 1;
 }
 
-unsubscribe = notification.subscribe((value) => {
+const unsubscribe = notification.subscribe((value) => {
     if (!value) {
         return;
     }
@@ -88,32 +87,31 @@ function removeToast(id: number) {
 </ul>
 
 <style>
-:global(.toasts) {
+.toasts {
     list-style: none;
     position: fixed;
     top: 0;
     right: 0;
     padding: 0;
     margin: 0;
-    z-index: 9999;
+    z-index: 10;
 }
 
-:global(.toasts) > .toast {
+.toasts > .toast {
     position: relative;
     margin: 10px;
     min-width: var(--width);
-    position: relative;
     animation: animate-in 350ms forwards;
-    color: #fff;
+    color: white;
 }
 
-:global(.toasts) > .toast > .content {
+.toast > .content {
     padding: 10px;
     display: block;
     font-weight: 500;
 }
 
-:global(.toasts) > .toast > .progress {
+.toast > .progress {
     position: absolute;
     bottom: 0;
     background-color: rgb(0, 0, 0, 0.3);
@@ -124,32 +122,12 @@ function removeToast(id: number) {
     animation-fill-mode: forwards;
 }
 
-:global(.toasts) > .toast:before,
-:global(.toasts) > .toast:after {
-    content: '';
-    position: absolute;
-    z-index: -1;
-    top: 50%;
-    bottom: 0;
-    left: 10px;
-    right: 10px;
-    border-radius: 100px / 10px;
-}
-
-:global(.toasts) > .toast:after {
-    right: 10px;
-    left: auto;
-    transform: skew(8deg) rotate(3deg);
-}
-
 @keyframes animate-in {
     0% {
-        width: 0;
         opacity: 0;
         transform: scale(1.15) translateY(20px);
     }
     100% {
-        width: var(--width);
         opacity: 1;
         transform: scale(1) translateY(0);
     }

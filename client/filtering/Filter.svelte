@@ -16,6 +16,7 @@ import { flip } from 'svelte/animate';
 import { fade } from 'svelte/transition';
 import type { NetworkStores } from '../stores';
 import { derived } from 'svelte/store';
+import * as notifier from '../notifications/notifier';
 import type { Readable } from 'svelte/store';
 
 export let id: number;
@@ -66,6 +67,7 @@ async function save() {
     const filter: Filter = { id, positive, course_ids };
 
     await filters.update(filter, 'id');
+    notifier.info('Filter saved', 1500);
 }
 </script>
 
@@ -100,7 +102,7 @@ async function save() {
     <input
         type="submit"
         on:click={save}
-        class="form-submit"
+        class="form-submit small-button"
         value="Save Filter" />
 </fieldset>
 
@@ -132,8 +134,9 @@ async function save() {
 }
 
 .form-submit {
-    align-self: center;
-    margin: 0px auto;
+    align-self: flex-end;
+    margin-right: 30px;
+    margin-top: 5px;
 }
 
 .recognized-course {

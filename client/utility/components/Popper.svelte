@@ -8,10 +8,10 @@ export let popperOptions: object = {};
 export let persistScroll: boolean = false;
 export let transition: (node: Node, options: object) => any;
 export let transitionProps: object = {};
+export let opened: boolean = false;
 
 let popperContentElem: HTMLElement;
 let scrollPosition = { scrollTop: 0, scrollLeft: 0 };
-let opened = false;
 
 const [popperRef, popperContent] = createPopperActions();
 popperRef(reference);

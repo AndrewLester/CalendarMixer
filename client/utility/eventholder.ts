@@ -2,7 +2,7 @@ import type { EventInfo } from '../api/types';
 import moment from 'moment';
 import { QueryNetworkStore, ErrorHandler, KeyMap, StoreType } from './networkstore';
 import { timeToMoment } from '../api/schoology';
-import { get } from 'svelte/store';
+import { get, Writable } from 'svelte/store';
 
 const momentKeyFormat = 'YYYY-MM';
 
@@ -31,22 +31,28 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
     async view(month: moment.Moment) {
         if (!this.api) throw new Error('API not yet loaded');
         const store = this.store;
-
         const halfCapacity = Math.floor(this.capacity / 2);
-        const requiredKeys = new Set<string>();
-
         const storeValue = get(this.store) as StoreType<typeof store>;
 
-        const queries = [] as Promise<string>[];
-
+        const requiredKeys = new Set<string>();
         for (let i = 0; i < this.capacity; i++) {
             const monthMoment = moment(month).add(i - halfCapacity, 'months');
             const monthKey = monthMoment.format(momentKeyFormat);
             requiredKeys.add(monthKey);
+        }
 
-            // Setup missing month keys and query data for them, ALWAYS request if the month
-            // is at either end of the range
-            if (!storeValue.has(monthKey) || i === 0 || i === this.capacity - 1) {
+        this.removeStaleKeys(
+            [...(storeValue.keys() as IterableIterator<string>)]
+            .filter((key) => !requiredKeys.has(key))
+        );
+
+        const queries = [] as Promise<any>[];
+        for (let i = 0; i < this.capacity; i++) {
+            const monthMoment = moment(month).add(i - halfCapacity, 'months');
+            const monthKey = monthMoment.format(momentKeyFormat);
+
+            // Setup missing month keys and query data for them
+            if (!storeValue.has(monthKey)) {
                 // TODO: Query several months data together
                 const query = this.query({
                     start: moment(monthMoment)
@@ -58,7 +64,7 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
                         .startOf('month')
                         .format('YYYY-MM-DD'),
                 });
-                queries.push(query.then(() => monthKey));
+                queries.push(query);
             }
         }
         
@@ -66,22 +72,26 @@ export class EventHolderStore extends QueryNetworkStore<EventInfo, { start: stri
         // Add any missing month keys not found in the initial query to the "/events" endpoint
         // Only add them after waiting for all other requests, as adding them early could
         // make it appear as they have loaded with empty data when they haven't
-        const keys = await Promise.all(queries);
-        store.update((map) => {
-            const missingKeys = [] as string[];
+        await Promise.all(queries);
+        this.addMissingKeys(requiredKeys);
+    }
 
-            for (let key of keys) {
+    private addMissingKeys(requiredKeys: Set<string>) {
+        this.store.update((map) => {
+            for (let key of requiredKeys) {
                 if (!map.has(key)) {
-                    missingKeys.push(key);
                     map.set(key, new Map<string, EventInfo>() as KeyMap<EventInfo>);
                     this.storeValue = map;
                 }
             }
-            
-             for (let key of storeValue.keys()) {
-                if (!requiredKeys.has(key as string)) {
-                    map.delete(key);
-                }
+            return map;
+        });
+    }
+
+    private removeStaleKeys(staleKeys: string[]) {
+        this.store.update((map) => {
+            for (let key of staleKeys) {
+                map.delete(key);
             }
             return map;
         });

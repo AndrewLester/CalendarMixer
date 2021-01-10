@@ -5,6 +5,7 @@ import { bottom } from '@popperjs/core';
 
 let button: HTMLElement | undefined;
 let panel: Popper;
+let popperOpened: boolean = false;
 
 let popperOptions = {
     placement: bottom,
@@ -19,13 +20,14 @@ let popperOptions = {
 };
 </script>
 
-<button bind:this={button} class="small-button" on:click|stopPropagation={panel.toggle}>
+<button bind:this={button} class="small-button" class:active={popperOpened} on:click|stopPropagation={panel.toggle}>
     COLORS
 </button>
 
 {#if button}
     <Popper
         bind:this={panel}
+        bind:opened={popperOpened}
         reference={button}
         {popperOptions}
         persistScroll={true}
